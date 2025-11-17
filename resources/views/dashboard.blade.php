@@ -103,9 +103,50 @@
                         </div>
 
                     @elseif (Auth::user()->role == 'hrd')
-                        <h3 class="font-semibold text-lg">Selamat Datang, HRD</h3>
-                        <p>Ini adalah Dasbor HRD.</p>
-                    @endif
+                    <h3 class="font-semibold text-lg mb-4">Selamat Datang, {{ Auth::user()->name }} (HRD)</h3>
+
+                    {{-- Logika untuk menghitung cuti pending HRD --}}
+                    @php
+                        // Hitung semua yang statusnya 'approved_by_leader' ATAU 'pending' dari Ketua Divisi
+                        $pendingHrdCount = \App\Models\LeaveApplication::where('status', 'approved_by_leader')
+                                                                       ->orWhere(function($query) {
+                                                                           $query->where('status', 'pending')
+                                                                                 ->whereHas('applicant', function($q) {
+                                                                                     $q->where('role', 'ketua_divisi');
+                                                                                 });
+                                                                       })
+                                                                       ->count();
+
+                        $totalApprovedFinal = \App\Models\LeaveApplication::where('status', 'approved_by_hrd')->count();
+                    @endphp
+
+                    {{-- Grid untuk Kartu Statistik --}}
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+                        <div class="bg-red-100 p-6 rounded-lg shadow-md border border-red-200">
+                            <h4 class="text-red-700 uppercase text-sm font-medium tracking-wider">Antrian Persetujuan Final</h4>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">
+                                {{ $pendingHrdCount }} Pengajuan
+                            </p>
+                            <a href="{{ route('leave-verifications.index') }}" class="text-red-800 hover:underline font-semibold mt-4 inline-block">
+                                Lihat Daftar Verifikasi &rarr;
+                            </a>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                            <h4 class="text-gray-500 uppercase text-sm font-medium tracking-wider">Total Cuti Disetujui (Final)</h4>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">{{ $totalApprovedFinal }}</p>
+                            <span class="text-gray-500 text-sm">Sepanjang waktu</span>
+                        </div>
+
+                        <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
+                            <h4 class="text-gray-500 uppercase text-sm font-medium tracking-wider">Total Pengguna Aktif</h4>
+                            <p class="text-3xl font-bold text-gray-900 mt-2">{{ \App\Models\User::count() }}</p>
+                            <span class="text-gray-500 text-sm">Termasuk Admin, HRD, dan Karyawan</span>
+                        </div>
+
+                    </div>
+                @endif
 
             </div>
         </div>

@@ -10,6 +10,19 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
+                    @if (session('success'))
+                        <div class="mb-4 p-4 bg-green-100 text-green-700 rounded">{{ session('success') }}</div>
+                    @endif
+                    @if (session('error'))
+                        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded">{{ session('error') }}</div>
+                    @endif
+                    {{-- AREA UNTUK VALIDATION ERRORS --}}
+                    @if ($errors->any())
+                        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded">
+                            Mohon periksa kembali input Anda.
+                        </div>
+                    @endif
+
                     {{-- Formulir Edit --}}
                     <form method="POST" action="{{ route('admin.users.update', $user->id) }}">
                         @csrf
@@ -51,6 +64,9 @@
                                     </option>
                                 @endforeach
                             </select>
+                            @error('division_id')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
                         </div>
 
                         {{-- Tombol Simpan --}}
