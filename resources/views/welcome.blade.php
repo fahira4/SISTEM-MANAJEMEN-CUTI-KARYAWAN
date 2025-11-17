@@ -49,9 +49,23 @@
                 </nav>
             @endif
         </header>
+        <body class="font-sans antialiased">
+
+    {{-- TAMBAHKAN KODE INI UNTUK MENANGKAP ERROR --}}
+    @if (session('error'))
+        <div style="background-color: #f8d7da; color: #721c24; padding: 1rem; border: 1px solid #f5c6cb; border-radius: 0.25rem; margin: 1rem;">
+            {{ session('error') }}
+        </div>
+    @endif
+    {{-- BATAS KODE --}}
+
+    <div class="bg-gray-50 text-black/50 dark:bg-black dark:text-white/50">
+        {{-- Sisa kode welcome... --}}
         <div class="flex items-center justify-center w-full transition-opacity opacity-100 duration-750 lg:grow starting:opacity-0">
             <main class="flex max-w-[335px] w-full flex-col-reverse lg:max-w-4xl lg:flex-row">
                 <div class="text-[13px] leading-[20px] flex-1 p-6 pb-12 lg:p-20 bg-white dark:bg-[#161615] dark:text-[#EDEDEC] shadow-[inset_0px_0px_0px_1px_rgba(26,26,0,0.16)] dark:shadow-[inset_0px_0px_0px_1px_#fffaed2d] rounded-bl-lg rounded-br-lg lg:rounded-tl-lg lg:rounded-br-none">
+                    
+                    
                     <h1 class="mb-1 font-medium">Let's get started</h1>
                     <p class="mb-2 text-[#706f6c] dark:text-[#A1A09A]">Laravel has an incredibly rich ecosystem. <br>We suggest starting with the following.</p>
                     <ul class="flex flex-col mb-4 lg:mb-6">

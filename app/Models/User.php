@@ -21,6 +21,9 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        'role',
+        'division_id',
+        'annual_leave_quota',
     ];
 
     /**
@@ -44,5 +47,18 @@ class User extends Authenticatable
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+        /**
+         * Mendapatkan divisi tempat user ini berada.
+         */
+    public function division()
+    {
+        return $this->belongsTo(Division::class);
+    }
+
+    public function leaveApplications()
+    {
+        return $this->hasMany(LeaveApplication::class, 'user_id');
     }
 }
