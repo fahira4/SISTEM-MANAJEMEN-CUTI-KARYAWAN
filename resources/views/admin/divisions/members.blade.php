@@ -64,7 +64,16 @@
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $member->email }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap">{{ $member->role }}</td>
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                                        {{-- Nanti kita bisa tambahkan tombol "Keluarkan dari Divisi" di sini --}}
+
+                                        {{-- Form Keluarkan (HANYA MUNCUL DI SINI) --}}
+                                        <form action="{{ route('admin.divisions.members.remove', ['division' => $division->id, 'user' => $member->id]) }}" method="POST" class="inline-block">
+                                            @csrf
+                                            <button type="submit" 
+                                                    class="text-red-600 hover:text-red-900" 
+                                                    onclick="return confirm('Apakah Anda yakin ingin mengeluarkan anggota ini dari divisi?')">
+                                                Keluarkan
+                                            </button>
+                                        </form>
                                     </td>
                                 </tr>
                             @empty

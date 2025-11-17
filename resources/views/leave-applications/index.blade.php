@@ -57,7 +57,14 @@
                                     <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                         {{-- Tombol "Batal" hanya muncul jika status masih 'pending' --}}
                                         @if ($application->status == 'pending')
-                                            <a href="#" class="text-red-600 hover:text-red-900">Batal</a>
+                                            <form action="{{ route('leave-applications.cancel', $application->id) }}" method="POST" class="inline-block">
+                                                @csrf
+                                                <button type="submit" 
+                                                        class="text-red-600 hover:text-red-900" 
+                                                        onclick="return confirm('Apakah Anda yakin ingin membatalkan pengajuan cuti ini? Kuota akan dikembalikan.')">
+                                                    Batal
+                                                </button>
+                                            </form>
                                         @endif
                                     </td>
                                 </tr>

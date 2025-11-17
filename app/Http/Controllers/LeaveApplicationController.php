@@ -211,6 +211,35 @@ public function rejectLeave(Request $request, LeaveApplication $application)
 
     return redirect()->route('leave-verifications.index')->with('success', 'Cuti telah ditolak.');
     }
+
+    /**
+ * Membatalkan pengajuan cuti oleh pemohon.
+ */
+    public function cancelLeave(LeaveApplication $application)
+    {
+        // 1. Jaring Pengaman: Pastikan pemohon adalah user yang sedang login
+        if ($application->user_id !== Auth::id()) {
+            return redirect()->back()->with('error', 'Anda tidak berhak membatalkan pengajuan ini.');
+        }
+
+        // 2. Jaring Pengaman: Hanya boleh membatalkan jika statusnya masih 'pending'
+        if ($application->status !== 'pending') {
+            return redirect()->back()->with('error', 'Pengajuan ini sudah diproses (Approve/Reject) dan tidak bisa dibatalkan.');
+        }
+
+        // 3. PENTING: Kembalikan kuota cuti jika jenisnya Tahunan
+        if ($application->leave_type === 'tahunan') {
+            $application->applicant->increment('annual_leave_quota', $application->total_days);
+        }
+
+        // 4. Update status menjadi 'cancelled'
+        $application->update([
+            'status' => 'cancelled',
+            'cancellation_reason' => 'Dibatalkan oleh pemohon.', // Bisa ditambahkan form jika mau, tapi kita buat sederhana
+        ]);
+
+        return redirect()->route('leave-applications.index')->with('success', 'Pengajuan cuti berhasil dibatalkan dan kuota dikembalikan.');
+    }
 }
 
 ?>

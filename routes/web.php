@@ -29,6 +29,8 @@ Route::middleware(['auth', 'role:admin'])->group(function () {
         Route::post('divisions/{division}/members', [DivisionController::class, 'addMember'])
                 ->name('divisions.members.add');
         Route::resource('users', UserController::class);
+        Route::post('divisions/{division}/members/{user}/remove', [DivisionController::class, 'removeMember'])
+                ->name('divisions.members.remove');
 
     });
 });
@@ -46,6 +48,8 @@ Route::middleware('auth')->group(function () {
          ->name('leave-applications.store');
     Route::get('my-leave-applications', [LeaveApplicationController::class, 'index'])
          ->name('leave-applications.index');
+    Route::post('leave-applications/{application}/cancel', [LeaveApplicationController::class, 'cancelLeave'])
+         ->name('leave-applications.cancel');
 
     // Nanti rute riwayat cuti, dll. bisa ditambahkan di sini
 });

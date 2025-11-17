@@ -142,4 +142,19 @@ class DivisionController extends Controller
     // 5. Jika gagal (misal: user tidak ditemukan atau sudah punya divisi)
     return redirect()->back()->with('error', 'Gagal menambahkan anggota. Pengguna tidak valid.');
     }
+
+    public function removeMember(Division $division, User $user)
+    {
+        // 1. Jaring Pengaman: Pastikan user yang dikeluarkan memang anggota divisi ini
+        if ($user->division_id !== $division->id) {
+            return redirect()->back()->with('error', 'User bukan anggota dari divisi ini.');
+        }
+
+        // 2. Update division_id user menjadi NULL
+        $user->update([
+            'division_id' => null,
+        ]);
+
+        return redirect()->back()->with('success', 'Anggota berhasil dikeluarkan dari divisi.');
+    }
 }
