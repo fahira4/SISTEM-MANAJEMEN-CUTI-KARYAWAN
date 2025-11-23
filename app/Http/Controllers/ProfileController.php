@@ -28,12 +28,17 @@ class ProfileController extends Controller
     {
         $request->user()->fill($request->validated());
 
+        // ↓↓↓ KODE KRUSIAL UNTUK MENYIMPAN FIELD BARU ↓↓↓
+        $request->user()->phone_number = $request->input('phone_number');
+        $request->user()->address = $request->input('address');
+
         if ($request->user()->isDirty('email')) {
             $request->user()->email_verified_at = null;
         }
 
         $request->user()->save();
 
+        // Gunakan Redirect::route (perlu use Redirect di atas)
         return Redirect::route('profile.edit')->with('status', 'profile-updated');
     }
 

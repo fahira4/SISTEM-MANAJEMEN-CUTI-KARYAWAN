@@ -29,9 +29,6 @@ class LeaveApplication extends Model
         'cancellation_reason',
     ];
 
-    /**
-     * Otomatis konversi kolom tanggal.
-     */
     protected $casts = [
         'start_date' => 'date',
         'end_date' => 'date',
@@ -39,9 +36,23 @@ class LeaveApplication extends Model
         'hrd_approval_at' => 'datetime',
     ];
 
-    /**
-     * Relasi: Siapa Karyawan yang mengajukan cuti ini.
-     */
+      public static function boot()
+    {
+        parent::boot();
+
+        static::saving(function ($model) {
+            // Validasi: start_date tidak boleh setelah end_date
+            if ($model->start_date > $model->end_date) {
+                throw new \Exception('Tanggal mulai tidak boleh setelah tanggal selesai.');
+            }
+
+            // Validasi: total_days harus positif
+            if ($model->total_days <= 0) {
+                throw new \Exception('Total hari cuti harus lebih dari 0.');
+            }
+        });
+    }
+
     public function applicant()
     {
         return $this->belongsTo(User::class, 'user_id');

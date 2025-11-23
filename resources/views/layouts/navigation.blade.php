@@ -15,6 +15,31 @@
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                         {{ __('Dashboard') }}
                     </x-nav-link>
+                    
+                    {{-- Navigasi KHUSUS ADMIN --}}
+                    @if (Auth::user()->role == 'admin')
+                        <x-nav-link :href="route('admin.divisions.index')" :active="request()->routeIs('admin.divisions.*')">
+                            {{ __('Manajemen Divisi') }}
+                        </x-nav-link>
+
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                            {{ __('Manajemen Pengguna') }}
+                        </x-nav-link>
+                    @endif
+
+                    {{-- Navigasi KHUSUS HRD / KETUA DIVISI --}}
+                    @if (in_array(Auth::user()->role, ['ketua_divisi', 'hrd']))
+                        <x-nav-link :href="route('leave-verifications.index')" :active="request()->routeIs('leave-verifications.*')">
+                            {{ __('Verifikasi Cuti') }}
+                        </x-nav-link>
+                    @endif
+
+                    {{-- Navigasi KHUSUS KARYAWAN / KETUA DIVISI --}}
+                    @if (in_array(Auth::user()->role, ['karyawan', 'ketua_divisi']))
+                        <x-nav-link :href="route('leave-applications.index')" :active="request()->routeIs('leave-applications.*')">
+                            {{ __('Riwayat Cuti Saya') }}
+                        </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -70,6 +95,31 @@
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
+
+            {{-- Navigasi Responsif KHUSUS ADMIN --}}
+            @if (Auth::user()->role == 'admin')
+                <x-responsive-nav-link :href="route('admin.divisions.index')" :active="request()->routeIs('admin.divisions.*')">
+                    {{ __('Manajemen Divisi') }}
+                </x-responsive-nav-link>
+
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
+                    {{ __('Manajemen Pengguna') }}
+                </x-responsive-nav-link>
+            @endif
+
+            {{-- Navigasi Responsif KHUSUS HRD / KETUA DIVISI --}}
+            @if (in_array(Auth::user()->role, ['ketua_divisi', 'hrd']))
+                <x-responsive-nav-link :href="route('leave-verifications.index')" :active="request()->routeIs('leave-verifications.*')">
+                    {{ __('Verifikasi Cuti') }}
+                </x-responsive-nav-link>
+            @endif
+
+            {{-- Navigasi Responsif KHUSUS KARYAWAN / KETUA DIVISI --}}
+            @if (in_array(Auth::user()->role, ['karyawan', 'ketua_divisi']))
+                <x-responsive-nav-link :href="route('leave-applications.index')" :active="request()->routeIs('leave-applications.*')">
+                    {{ __('Riwayat Cuti Saya') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
 
         <!-- Responsive Settings Options -->

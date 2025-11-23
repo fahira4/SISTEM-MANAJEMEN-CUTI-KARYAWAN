@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules;
 use Illuminate\View\View;
+use Carbon\Carbon;
 
 class RegisteredUserController extends Controller
 {
@@ -31,14 +32,22 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
+            'username' => ['required', 'string', 'max:50', 'unique:users', 'regex:/^[a-z0-9._]+$/'], // ✅ TAMBAH VALIDASI INI
             'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            'username.regex' => 'Username hanya boleh mengandung huruf kecil, angka, titik, dan underscore.',
         ]);
 
         $user = User::create([
+            'username' => $request->username, // ✅ PASTIKAN INI ADA
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role' => 'karyawan', // Default role untuk user yang register sendiri
+            'annual_leave_quota' => 12, // Default kuota cuti
+            'join_date' => Carbon::now(), // Tanggal bergabung = sekarang
+            'active_status' => true, // Status aktif
         ]);
 
         event(new Registered($user));

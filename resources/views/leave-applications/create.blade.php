@@ -6,14 +6,32 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
+                    {{-- Informasi Kuota --}}
+                    <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-blue-800">
+                                    Sisa Kuota Cuti Tahunan Anda: 
+                                    <span class="font-bold">{{ auth()->user()->annual_leave_quota }} hari</span>
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+
                     {{-- Tampilkan Error Validasi --}}
                     @if ($errors->any())
-                        <div class="mb-4 p-4 bg-red-100 text-red-700 rounded">
-                            <ul>
+                        <div class="mb-6 p-4 bg-red-100 text-red-700 rounded-lg border border-red-200">
+                            <strong class="font-medium">Whoops! Ada yang salah:</strong>
+                            <ul class="mt-2 list-disc list-inside space-y-1">
                                 @foreach ($errors->all() as $error)
                                     <li>{{ $error }}</li>
                                 @endforeach
@@ -22,52 +40,154 @@
                     @endif
 
                     {{-- Formulir --}}
-                    {{-- 'enctype' diperlukan untuk upload file --}}
-                    <form method="POST" action="{{ route('leave-applications.store') }}" enctype="multipart/form-data">
+                    <form method="POST" action="{{ route('leave-applications.store') }}" enctype="multipart/form-data" id="leaveForm">
                         @csrf
 
-                        <div>
-                            <label for="leave_type">Jenis Cuti</label>
-                            <select id="leave_type" name="leave_type" class="block mt-1 w-full" required>
-                                <option value="tahunan">Cuti Tahunan (Sisa: {{ auth()->user()->annual_leave_quota }} hari)</option>
-                                <option value="sakit">Cuti Sakit</option>
-                            </select>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Jenis Cuti -->
+                            <div class="md:col-span-2">
+                                <label for="leave_type" class="block font-medium text-sm text-gray-700">Jenis Cuti *</label>
+                                <select id="leave_type" name="leave_type" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                    <option value="">Pilih Jenis Cuti</option>
+                                    <option value="tahunan" {{ old('leave_type') == 'tahunan' ? 'selected' : '' }}>
+                                        Cuti Tahunan (Sisa: {{ auth()->user()->annual_leave_quota }} hari)
+                                    </option>
+                                    <option value="sakit" {{ old('leave_type') == 'sakit' ? 'selected' : '' }}>
+                                        Cuti Sakit
+                                    </option>
+                                </select>
+                                <p class="text-xs text-gray-500 mt-1" id="leaveTypeHelp">
+                                    Pilih jenis cuti sesuai kebutuhan
+                                </p>
+                            </div>
+
+                            <!-- Tanggal Mulai -->
+                            <div>
+                                <label for="start_date" class="block font-medium text-sm text-gray-700">Tanggal Mulai Cuti *</label>
+                                <input id="start_date" 
+                                       name="start_date" 
+                                       type="date" 
+                                       value="{{ old('start_date') }}"
+                                       min="{{ date('Y-m-d') }}"
+                                       class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" 
+                                       required />
+                                <p class="text-xs text-gray-500 mt-1" id="startDateHelp">
+                                    Pilih tanggal mulai cuti
+                                </p>
+                            </div>
+
+                            <!-- Tanggal Selesai -->
+                            <div>
+                                <label for="end_date" class="block font-medium text-sm text-gray-700">Tanggal Selesai Cuti *</label>
+                                <input id="end_date" 
+                                       name="end_date" 
+                                       type="date" 
+                                       value="{{ old('end_date') }}"
+                                       min="{{ date('Y-m-d') }}"
+                                       class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" 
+                                       required />
+                                <p class="text-xs text-gray-500 mt-1" id="endDateHelp">
+                                    Pilih tanggal selesai cuti
+                                </p>
+                            </div>
+
+                            <!-- Informasi Hari & Kuota -->
+                            <div class="md:col-span-2 p-4 bg-gray-50 rounded-lg" id="dateInfo" style="display: none;">
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+                                    <div>
+                                        <span class="text-gray-600">Total Hari Kerja:</span>
+                                        <span class="font-medium ml-2" id="totalDays">0 hari</span>
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-600">Sisa Kuota setelah cuti:</span>
+                                        <span class="font-medium ml-2" id="remainingQuota">{{ auth()->user()->annual_leave_quota }} hari</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Alasan Cuti -->
+                            <div class="md:col-span-2">
+                                <label for="reason" class="block font-medium text-sm text-gray-700">Alasan Cuti *</label>
+                                <textarea id="reason" 
+                                          name="reason" 
+                                          rows="3"
+                                          class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                          placeholder="Jelaskan alasan cuti Anda secara detail..."
+                                          required>{{ old('reason') }}</textarea>
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Minimal 10 karakter. Jelaskan alasan cuti dengan jelas.
+                                </p>
+                            </div>
+
+                            <!-- Alamat Selama Cuti -->
+                            <div class="md:col-span-2">
+                                <label for="address_during_leave" class="block font-medium text-sm text-gray-700">Alamat Selama Cuti *</label>
+                                <input id="address_during_leave" 
+                                       name="address_during_leave" 
+                                       type="text" 
+                                       value="{{ old('address_during_leave') }}"
+                                       class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                       placeholder="Contoh: Jl. Contoh No. 123, Jakarta"
+                                       required />
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Alamat lengkap tempat Anda selama cuti
+                                </p>
+                            </div>
+
+                            <!-- Nomor Darurat -->
+                            <div>
+                                <label for="emergency_contact" class="block font-medium text-sm text-gray-700">Nomor Darurat *</label>
+                                <input id="emergency_contact" 
+                                       name="emergency_contact" 
+                                       type="text" 
+                                       value="{{ old('emergency_contact') }}"
+                                       class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                       placeholder="Contoh: 081234567890"
+                                       required />
+                                <p class="text-xs text-gray-500 mt-1">
+                                    Nomor yang dapat dihubungi selama cuti
+                                </p>
+                            </div>
+
+                            <!-- Lampiran Surat Dokter -->
+                            <div id="attachmentField">
+                                <label for="attachment_path" class="block font-medium text-sm text-gray-700">
+                                    Lampiran Surat Dokter
+                                    <span id="attachmentRequired" class="text-red-500">*</span>
+                                </label>
+                                <input id="attachment_path" 
+                                       name="attachment_path" 
+                                       type="file" 
+                                       class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm"
+                                       accept=".pdf,.jpg,.jpeg,.png" />
+                                <p class="text-xs text-gray-500 mt-1" id="attachmentHelp">
+                                    Upload surat dokter (PDF/JPG/PNG, maks. 2MB) - <span class="font-medium" id="attachmentStatus">Opsional</span>
+                                </p>
+                            </div>
                         </div>
 
-                        <div class="mt-4">
-                            <label for="start_date">Tanggal Mulai Cuti</label>
-                            <input id="start_date" class="block mt-1 w-full" type="date" name="start_date" :value="old('start_date')" required />
+                        {{-- Informasi Penting --}}
+                        <div class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                            <h4 class="text-sm font-medium text-yellow-800 mb-2">📋 Informasi Penting</h4>
+                            <ul class="text-sm text-yellow-700 space-y-1">
+                                <li>• <strong>Cuti Tahunan:</strong> Minimal H-3, mengurangi kuota cuti tahunan</li>
+                                <li>• <strong>Cuti Sakit:</strong> Wajib lampirkan surat dokter, tidak mengurangi kuota</li>
+                                <li>• Pastikan tidak ada cuti yang overlapping dengan periode yang sama</li>
+                                <li>• Pengajuan akan diverifikasi oleh atasan dan HRD</li>
+                            </ul>
                         </div>
 
-                        <div class="mt-4">
-                            <label for="end_date">Tanggal Selesai Cuti</label>
-                            <input id="end_date" class="block mt-1 w-full" type="date" name="end_date" :value="old('end_date')" required />
-                        </div>
-
-                        <div class="mt-4">
-                            <label for="reason">Alasan Cuti</label>
-                            <textarea id="reason" name="reason" class="block mt-1 w-full" required>{{ old('reason') }}</textarea>
-                        </div>
-
-                        <div class="mt-4">
-                            <label for="address_during_leave">Alamat Selama Cuti</label>
-                            <input id="address_during_leave" class="block mt-1 w-full" type="text" name="address_during_leave" :value="old('address_during_leave')" required />
-                        </div>
-
-                        <div class="mt-4">
-                            <label for="emergency_contact">Nomor Darurat</label>
-                            <input id="emergency_contact" class="block mt-1 w-full" type="text" name="emergency_contact" :value="old('emergency_contact')" required />
-                        </div>
-
-                        <div class="mt-4">
-                            <label for="attachment_path">Lampiran Surat Dokter (Wajib jika Cuti Sakit)</label>
-                            <input id="attachment_path" class="block mt-1 w-full" type="file" name="attachment_path" />
-                        </div>
-
-                        {{-- Tombol Simpan --}}
-                        <div class="flex items-center justify-end mt-4">
-                            <button type="submit" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                                Ajukan Cuti
+                        {{-- Tombol Aksi --}}
+                        <div class="flex items-center justify-end mt-6 pt-6 border-t border-gray-200">
+                            <a href="{{ route('dashboard') }}" 
+                               class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-150 ease-in-out mr-4">
+                                Batal
+                            </a>
+                            
+                            <button type="submit" 
+                                    class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out font-medium"
+                                    id="submitBtn">
+                                📨 Ajukan Cuti
                             </button>
                         </div>
                     </form>
@@ -76,4 +196,120 @@
             </div>
         </div>
     </div>
+
+    {{-- JavaScript untuk Real-time Validation & Calculation --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const leaveTypeSelect = document.getElementById('leave_type');
+            const startDateInput = document.getElementById('start_date');
+            const endDateInput = document.getElementById('end_date');
+            const dateInfoDiv = document.getElementById('dateInfo');
+            const totalDaysSpan = document.getElementById('totalDays');
+            const remainingQuotaSpan = document.getElementById('remainingQuota');
+            const attachmentRequired = document.getElementById('attachmentRequired');
+            const attachmentHelp = document.getElementById('attachmentHelp');
+            const attachmentStatus = document.getElementById('attachmentStatus');
+            const submitBtn = document.getElementById('submitBtn');
+
+            const userQuota = {{ auth()->user()->annual_leave_quota }};
+
+            // Fungsi hitung hari kerja (Senin-Jumat)
+            function calculateWorkingDays(start, end) {
+                let count = 0;
+                let current = new Date(start);
+                const endDate = new Date(end);
+                
+                while (current <= endDate) {
+                    const day = current.getDay();
+                    if (day !== 0 && day !== 6) { // Bukan Minggu (0) dan Sabtu (6)
+                        count++;
+                    }
+                    current.setDate(current.getDate() + 1);
+                }
+                return count;
+            }
+
+            // Fungsi update informasi tanggal
+            function updateDateInfo() {
+                const startDate = startDateInput.value;
+                const endDate = endDateInput.value;
+                const leaveType = leaveTypeSelect.value;
+
+                if (startDate && endDate && new Date(startDate) <= new Date(endDate)) {
+                    const totalDays = calculateWorkingDays(startDate, endDate);
+                    totalDaysSpan.textContent = totalDays + ' hari';
+                    
+                    if (leaveType === 'tahunan') {
+                        const remaining = userQuota - totalDays;
+                        remainingQuotaSpan.textContent = remaining + ' hari';
+                        remainingQuotaSpan.className = remaining < 0 ? 'font-medium text-red-600' : 'font-medium text-green-600';
+                    } else {
+                        remainingQuotaSpan.textContent = userQuota + ' hari';
+                        remainingQuotaSpan.className = 'font-medium text-gray-600';
+                    }
+                    
+                    dateInfoDiv.style.display = 'block';
+                } else {
+                    dateInfoDiv.style.display = 'none';
+                }
+            }
+
+            // Fungsi toggle field lampiran
+            function toggleAttachmentField() {
+                const isSakit = leaveTypeSelect.value === 'sakit';
+                
+                if (isSakit) {
+                    attachmentRequired.style.display = 'inline';
+                    attachmentStatus.textContent = 'Wajib';
+                    attachmentStatus.className = 'font-medium text-red-600';
+                    document.getElementById('attachment_path').required = true;
+                } else {
+                    attachmentRequired.style.display = 'none';
+                    attachmentStatus.textContent = 'Opsional';
+                    attachmentStatus.className = 'font-medium text-gray-600';
+                    document.getElementById('attachment_path').required = false;
+                }
+            }
+
+            // Event listeners
+            leaveTypeSelect.addEventListener('change', function() {
+                toggleAttachmentField();
+                updateDateInfo();
+            });
+
+            startDateInput.addEventListener('change', updateDateInfo);
+            endDateInput.addEventListener('change', updateDateInfo);
+
+            // Validasi form sebelum submit
+            document.getElementById('leaveForm').addEventListener('submit', function(e) {
+                const leaveType = leaveTypeSelect.value;
+                const startDate = startDateInput.value;
+                const endDate = endDateInput.value;
+                
+                if (leaveType === 'tahunan') {
+                    const totalDays = calculateWorkingDays(startDate, endDate);
+                    if (totalDays > userQuota) {
+                        e.preventDefault();
+                        alert('❌ Kuota cuti tahunan tidak mencukupi! Sisa kuota: ' + userQuota + ' hari, butuh: ' + totalDays + ' hari.');
+                        return false;
+                    }
+                    
+                    // Validasi H-3 untuk cuti tahunan
+                    const today = new Date();
+                    const start = new Date(startDate);
+                    const minDate = new Date(today);
+                    minDate.setDate(today.getDate() + 3);
+                    
+                    if (start < minDate) {
+                        e.preventDefault();
+                        alert('❌ Cuti tahunan harus diajukan minimal H-3 (3 hari kerja) sebelum tanggal mulai.');
+                        return false;
+                    }
+                }
+            });
+
+            // Initial setup
+            toggleAttachmentField();
+        });
+    </script>
 </x-app-layout>
