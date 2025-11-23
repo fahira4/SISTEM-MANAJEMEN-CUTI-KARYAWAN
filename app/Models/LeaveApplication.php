@@ -36,7 +36,7 @@ class LeaveApplication extends Model
         'hrd_approval_at' => 'datetime',
     ];
 
-      public static function boot()
+    public static function boot()
     {
         parent::boot();
 
@@ -72,5 +72,24 @@ class LeaveApplication extends Model
     public function hrdApprover()
     {
         return $this->belongsTo(User::class, 'hrd_approver_id');
+    }
+
+    /**
+     * Cek apakah cuti sudah disetujui HRD - PERBAIKI DI SINI
+     */
+    public function getIsApprovedByHrdAttribute()
+    {
+        // PERBAIKAN: sesuaikan dengan nama kolom di database
+        return $this->status === 'approved_by_hrd' && 
+               !is_null($this->hrd_approver_id) && 
+               !is_null($this->hrd_approval_at);
+    }
+
+    /**
+     * Cek apakah surat izin cuti tersedia
+     */
+    public function getIsLeaveLetterAvailableAttribute()
+    {
+        return $this->is_approved_by_hrd;
     }
 }

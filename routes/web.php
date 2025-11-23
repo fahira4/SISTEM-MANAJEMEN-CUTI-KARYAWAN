@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\DivisionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\LeaveApplicationController;
+use App\Http\Controllers\LeavePdfController;
 
 Route::get('/', function () {
     return view('welcome');
@@ -20,7 +21,39 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// RUTE KHUSUS ADMIN
+// ==================== LEAVE APPLICATION ROUTES ====================
+Route::middleware('auth')->prefix('leave-applications')->name('leave-applications.')->group(function () {
+    Route::get('/create', [LeaveApplicationController::class, 'create'])->name('create');
+    Route::post('/', [LeaveApplicationController::class, 'store'])->name('store');
+    Route::get('/', [LeaveApplicationController::class, 'index'])->name('index');
+    Route::get('/{leaveApplication}', [LeaveApplicationController::class, 'show'])->name('show');
+    Route::post('/{application}/cancel', [LeaveApplicationController::class, 'cancelLeave'])->name('cancel');
+    
+    // ==================== PDF ROUTES (Pindahkan ke dalam group ini) ====================
+    // Surat izin resmi (hanya untuk cuti yang disetujui HRD)
+    Route::get('/{leaveApplication}/download-letter', 
+        [LeavePdfController::class, 'generateLeaveLetter'])
+        ->name('download-letter');
+
+    Route::get('/{leaveApplication}/view-letter', 
+        [LeavePdfController::class, 'generateLeaveLetterView'])
+        ->name('view-letter');
+
+    // Cek ketersediaan surat
+    Route::get('/{leaveApplication}/check-letter-availability', 
+        [LeavePdfController::class, 'checkAvailability'])
+        ->name('check-letter-availability');
+});
+
+// ==================== LEAVE VERIFICATION ROUTES ====================
+Route::middleware('auth')->prefix('leave-verifications')->name('leave-verifications.')->group(function () {
+    Route::get('/', [LeaveApplicationController::class, 'showVerificationList'])->name('index');
+    Route::get('/{application}', [LeaveApplicationController::class, 'showVerificationDetail'])->name('show');
+    Route::post('/{application}/approve', [LeaveApplicationController::class, 'approveLeave'])->name('approve');
+    Route::post('/{application}/reject', [LeaveApplicationController::class, 'rejectLeave'])->name('reject');
+});
+
+// ==================== ADMIN ROUTES ====================
 Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     // Users Management
     Route::resource('users', UserController::class);
@@ -29,104 +62,9 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->grou
     Route::resource('divisions', DivisionController::class);
     
     // Division Members Management
-    Route::get('divisions/{division}/members', [DivisionController::class, 'showMembers'])
-         ->name('divisions.members.show');
-    Route::post('divisions/{division}/members', [DivisionController::class, 'addMember'])
-         ->name('divisions.members.add');
-    Route::delete('divisions/{division}/members/{user}', [DivisionController::class, 'removeMember'])
-         ->name('divisions.members.remove');
-});
-
-// RUTE UNTUK KARYAWAN & KETUA DIVISI
-Route::middleware('auth')->group(function () {
-    // Leave Applications for all authenticated users
-    Route::get('leave-applications/create', [LeaveApplicationController::class, 'create'])
-         ->name('leave-applications.create');
-    Route::post('leave-applications', [LeaveApplicationController::class, 'store'])
-         ->name('leave-applications.store');
-    Route::get('my-leave-applications', [LeaveApplicationController::class, 'index'])
-         ->name('leave-applications.index');
-    Route::post('leave-applications/{application}/cancel', [LeaveApplicationController::class, 'cancelLeave'])
-         ->name('leave-applications.cancel');
-});
-
-// RUTE UNTUK ATASAN (KETUA DIVISI, HRD, DAN ADMIN)
-Route::middleware(['auth'])->group(function () { // HAPUS 'checkrole' sementara
-    
-    // Halaman utama verifikasi (daftar cuti pending)
-    Route::get('leave-verifications', [LeaveApplicationController::class, 'showVerificationList'])
-         ->name('leave-verifications.index');
-    
-    // Halaman Detail Verifikasi
-    Route::get('leave-verifications/{application}', [LeaveApplicationController::class, 'showVerificationDetail'])
-         ->name('leave-verifications.show');
-
-    // Aksi Approve (Setujui)
-    Route::post('leave-verifications/{application}/approve', [LeaveApplicationController::class, 'approveLeave'])
-         ->name('leave-verifications.approve');
-
-    // Aksi Reject (Tolak)
-    Route::post('leave-verifications/{application}/reject', [LeaveApplicationController::class, 'rejectLeave'])
-         ->name('leave-verifications.reject');
-});
-
-// Temporary debug route
-Route::get('/debug-leave', function () {
-    $user = Auth::user();
-    
-    echo "User: " . $user->name . " (" . $user->role . ")<br>";
-    echo "Division ID: " . $user->division_id . "<br><br>";
-    
-    // Cek semua pengajuan pending
-    $allPending = \App\Models\LeaveApplication::with('applicant')
-        ->where('status', 'pending')
-        ->get();
-        
-    echo "All Pending Applications:<br>";
-    foreach ($allPending as $app) {
-        echo "- ID: " . $app->id . ", Applicant: " . $app->applicant->name . 
-             ", Role: " . $app->applicant->role . ", Division: " . ($app->applicant->division_id ?? 'NULL') . "<br>";
-    }
-    
-    // Cek anggota divisi ketua
-    if ($user->role == 'ketua_divisi' && $user->division_id) {
-        $teamMembers = \App\Models\User::where('division_id', $user->division_id)
-                                      ->where('id', '!=', $user->id)
-                                      ->get();
-        
-        echo "<br>Team Members:<br>";
-        foreach ($teamMembers as $member) {
-            echo "- " . $member->name . " (ID: " . $member->id . ")<br>";
-        }
-        
-        $teamMemberIds = $teamMembers->pluck('id');
-        $divisiPending = \App\Models\LeaveApplication::whereIn('user_id', $teamMemberIds)
-                                                   ->where('status', 'pending')
-                                                   ->get();
-        
-        echo "<br>Divisi Pending Applications:<br>";
-        foreach ($divisiPending as $app) {
-            echo "- ID: " . $app->id . ", Applicant: " . $app->applicant->name . "<br>";
-        }
-    }
-});
-
-// PDF Routes
-Route::middleware('auth')->group(function () {
-    // Download PDF surat cuti
-    Route::get('/leave-applications/{leaveApplication}/download-pdf', 
-               [App\Http\Controllers\LeavePdfController::class, 'generateLeaveLetter'])
-         ->name('leave-applications.download-pdf');
-    
-    // Preview PDF di browser
-    Route::get('/leave-applications/{leaveApplication}/preview-pdf', 
-               [App\Http\Controllers\LeavePdfController::class, 'generateLeaveLetterView'])
-         ->name('leave-applications.preview-pdf');
-    
-    // Download draft PDF (untuk cuti yang belum approved)
-    Route::get('/leave-applications/{leaveApplication}/download-draft', 
-               [App\Http\Controllers\LeavePdfController::class, 'generateDraftLeaveLetter'])
-         ->name('leave-applications.download-draft');
+    Route::get('divisions/{division}/members', [DivisionController::class, 'showMembers'])->name('divisions.members.show');
+    Route::post('divisions/{division}/members', [DivisionController::class, 'addMember'])->name('divisions.members.add');
+    Route::delete('divisions/{division}/members/{user}', [DivisionController::class, 'removeMember'])->name('divisions.members.remove');
 });
 
 require __DIR__.'/auth.php';

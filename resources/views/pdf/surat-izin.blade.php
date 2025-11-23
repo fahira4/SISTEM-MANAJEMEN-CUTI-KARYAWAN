@@ -130,9 +130,9 @@
 <body>
     <!-- Header Perusahaan -->
     <div class="header">
-        <div class="company-name">PT. MEKARI IDENTITAS DIGITAL</div>
-        <div class="company-address">Jl. Sudirman Kav. 52-53, Jakarta Selatan 12190</div>
-        <div class="company-contact">Telp: (021) 1234567 | Email: hr@mekari.com | Website: www.mekari.com</div>
+        <div class="company-name">PT. AMANAH JAYA</div>
+        <div class="company-address">Jl. Tamalanrea</div>
+        <div class="company-contact">Telp: (021) 1234567 | Email: hr@AMANAH.com | Website: www.AMANAHJAYA.com</div>
     </div>
 
     <!-- Garis Pembatas -->
@@ -154,9 +154,9 @@
         <div class="section-title">PIHAK YANG MEMBERIKAN IZIN:</div>
         <div class="section-content">
             <ol class="numbered-list">
-                <li>Nama: {{ $hrdApprover->name ?? 'HRD Manager' }}</li>
+                <li>Nama: {{ $hrdApprover->name ?? 'Daffa' }}</li>
                 <li>Jabatan: Human Resources Department</li>
-                <li>Divisi: HRD</li>
+                <li>Divisi: -</li>
             </ol>
         </div>
     </div>
@@ -237,8 +237,8 @@
 
     <!-- Footer -->
     <div class="footer">
-        <p>Surat ini berlaku sebagai bukti izin cuti resmi dari PT Mekari Identitas Digital</p>
-        <p>Dicetak pada: {{ $currentDate }}, {{ Carbon\Carbon::now()->format('H:i') }} WIB | Status: DISETUJUI</p>
+        <p>Surat ini berlaku sebagai bukti izin cuti resmi dari PT AMANAH JAYA</p>
+        <p>Dicetak pada: {{ $currentDate }}, {{ Carbon\Carbon::now()->format('H:i') }} WIB</p>
     </div>
 
 </body>

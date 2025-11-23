@@ -81,23 +81,28 @@
                         $stats = [
                             'total' => $leaveApplications->count(),
                             'pending' => $leaveApplications->where('status', 'pending')->count(),
-                            'approved' => $leaveApplications->whereIn('status', ['approved_by_leader', 'approved_by_hrd'])->count(),
+                            'approved_by_leader' => $leaveApplications->where('status', 'approved_by_leader')->count(),
+                            'approved_by_hrd' => $leaveApplications->where('status', 'approved_by_hrd')->count(),
                             'rejected' => $leaveApplications->whereIn('status', ['rejected_by_leader', 'rejected_by_hrd'])->count(),
                         ];
                     @endphp
 
-                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
                         <div class="bg-white border border-gray-200 rounded-lg p-4 text-center">
                             <div class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</div>
-                            <div class="text-sm text-gray-600">Total Pengajuan</div>
+                            <div class="text-sm text-gray-600">Total</div>
                         </div>
                         <div class="bg-white border border-yellow-200 rounded-lg p-4 text-center">
                             <div class="text-2xl font-bold text-yellow-600">{{ $stats['pending'] }}</div>
                             <div class="text-sm text-gray-600">Menunggu</div>
                         </div>
+                        <div class="bg-white border border-blue-200 rounded-lg p-4 text-center">
+                            <div class="text-2xl font-bold text-blue-600">{{ $stats['approved_by_leader'] }}</div>
+                            <div class="text-sm text-gray-600">Disetujui Atasan</div>
+                        </div>
                         <div class="bg-white border border-green-200 rounded-lg p-4 text-center">
-                            <div class="text-2xl font-bold text-green-600">{{ $stats['approved'] }}</div>
-                            <div class="text-sm text-gray-600">Disetujui</div>
+                            <div class="text-2xl font-bold text-green-600">{{ $stats['approved_by_hrd'] }}</div>
+                            <div class="text-sm text-gray-600">Disetujui HRD</div>
                         </div>
                         <div class="bg-white border border-red-200 rounded-lg p-4 text-center">
                             <div class="text-2xl font-bold text-red-600">{{ $stats['rejected'] }}</div>
@@ -206,20 +211,26 @@
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                             <div class="flex justify-end space-x-2">
-                                                {{-- TOMBOL PDF --}}
-                                                @if(in_array($application->status, ['approved_by_hrd', 'approved_by_leader']))
+
+                                                <a href="{{ route('leave-applications.show', $application) }}" 
+                                                class="text-blue-600 hover:text-blue-900 bg-blue-50 hover:bg-blue-100 px-3 py-1 rounded text-xs font-medium transition duration-150 ease-in-out">
+                                                    Detail
+                                                </a>
+
+                                                {{-- TOMBOL PDF (Hanya untuk yang sudah disetujui HRD) --}}
+                                                @if($application->status === 'approved_by_hrd' && $application->hrd_approval_at)
                                                     <div class="flex space-x-1">
-                                                        <a href="{{ route('leave-applications.preview-pdf', $application) }}" 
+                                                        <a href="{{ route('leave-applications.view-letter', $application) }}" 
                                                            target="_blank"
                                                            class="bg-blue-500 hover:bg-blue-700 text-white text-xs px-3 py-1 rounded flex items-center transition duration-150 ease-in-out"
-                                                           title="Preview Surat Cuti">
+                                                           title="Lihat Surat Cuti">
                                                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
                                                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
                                                             </svg>
-                                                            Preview
+                                                            Lihat
                                                         </a>
-                                                        <a href="{{ route('leave-applications.download-pdf', $application) }}" 
+                                                        <a href="{{ route('leave-applications.download-letter', $application) }}" 
                                                            class="bg-green-500 hover:bg-green-700 text-white text-xs px-3 py-1 rounded flex items-center transition duration-150 ease-in-out"
                                                            title="Download Surat Cuti PDF">
                                                             <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -228,16 +239,6 @@
                                                             PDF
                                                         </a>
                                                     </div>
-                                                @else
-                                                    {{-- TOMBOL DRAFT PDF untuk yang belum approved --}}
-                                                    <a href="{{ route('leave-applications.download-draft', $application) }}" 
-                                                       class="bg-gray-500 hover:bg-gray-700 text-white text-xs px-3 py-1 rounded flex items-center transition duration-150 ease-in-out"
-                                                       title="Download Draft Surat Cuti">
-                                                        <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
-                                                        </svg>
-                                                        Draft
-                                                    </a>
                                                 @endif
 
                                                 {{-- TOMBOL BATALKAN untuk status pending --}}

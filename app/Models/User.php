@@ -6,6 +6,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Carbon\Carbon;
 
 class User extends Authenticatable
 {
@@ -52,14 +53,50 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'join_date' => 'date',
+            'join_date' => 'date', // PASTIKAN INI ADA
             'active_status' => 'boolean',
         ];
     }
 
-        /**
-         * Mendapatkan divisi tempat user ini berada.
-         */
+public function getEmploymentPeriodAttribute()
+    {
+        if (!$this->join_date) {
+            return 'Tidak tersedia';
+        }
+
+        $joinDate = Carbon::parse($this->join_date);
+        $now = Carbon::now();
+        
+        // CARA PASTI: Hitung manual dengan timestamp
+        $seconds = $now->timestamp - $joinDate->timestamp;
+        $days = floor($seconds / (60 * 60 * 24)); // Convert seconds to days
+        
+        // Pastikan hasilnya bilangan bulat positif
+        $days = max(0, (int)$days);
+        
+        return "{$days} hari";
+    }
+
+    /**
+     * Scope untuk filter masa kerja dalam HARI
+     */
+    public function scopeByEmploymentPeriod($query, $period)
+    {
+        $now = now();
+        
+        return match($period) {
+            'less_than_30_days' => $query->where('join_date', '>=', $now->subDays(30)),
+            '30_90_days' => $query->whereBetween('join_date', [$now->subDays(90), $now->subDays(30)]),
+            '90_180_days' => $query->whereBetween('join_date', [$now->subDays(180), $now->subDays(90)]),
+            '180_365_days' => $query->whereBetween('join_date', [$now->subDays(365), $now->subDays(180)]),
+            'more_than_1_year' => $query->where('join_date', '<=', $now->subDays(365)),
+            default => $query
+        };
+    }
+
+    /**
+     * Mendapatkan divisi tempat user ini berada.
+     */
     public function division()
     {
         return $this->belongsTo(Division::class);
@@ -70,3 +107,5 @@ class User extends Authenticatable
         return $this->hasMany(LeaveApplication::class, 'user_id');
     }
 }
+
+?>

@@ -43,6 +43,9 @@
                     <form method="POST" action="{{ route('leave-applications.store') }}" enctype="multipart/form-data" id="leaveForm">
                         @csrf
 
+                        {{-- Field Tersembunyi untuk Tanggal Pengajuan Otomatis --}}
+                        <input type="hidden" name="application_date" id="application_date" value="{{ date('Y-m-d') }}">
+
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <!-- Jenis Cuti -->
                             <div class="md:col-span-2">
@@ -61,6 +64,16 @@
                                 </p>
                             </div>
 
+                            <!-- Informasi Tanggal Pengajuan -->
+                            <div class="md:col-span-2 p-3 bg-gray-50 rounded-lg">
+                                <div class="flex items-center text-sm text-gray-600">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+                                    </svg>
+                                    <span>Tanggal Pengajuan: <strong>{{ date('d F Y') }}</strong></span>
+                                </div>
+                            </div>
+
                             <!-- Tanggal Mulai -->
                             <div>
                                 <label for="start_date" class="block font-medium text-sm text-gray-700">Tanggal Mulai Cuti *</label>
@@ -68,11 +81,11 @@
                                        name="start_date" 
                                        type="date" 
                                        value="{{ old('start_date') }}"
-                                       min="{{ date('Y-m-d') }}"
+                                       min="{{ date('Y-m-d', strtotime('+3 days')) }}"
                                        class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" 
                                        required />
                                 <p class="text-xs text-gray-500 mt-1" id="startDateHelp">
-                                    Pilih tanggal mulai cuti
+                                    Minimal H+3 dari hari ini ({{ date('d/m/Y') }})
                                 </p>
                             </div>
 
@@ -83,11 +96,11 @@
                                        name="end_date" 
                                        type="date" 
                                        value="{{ old('end_date') }}"
-                                       min="{{ date('Y-m-d') }}"
+                                       min="{{ date('Y-m-d', strtotime('+4 days')) }}"
                                        class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" 
                                        required />
                                 <p class="text-xs text-gray-500 mt-1" id="endDateHelp">
-                                    Pilih tanggal selesai cuti
+                                    Harus setelah tanggal mulai
                                 </p>
                             </div>
 
@@ -170,10 +183,11 @@
                         <div class="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                             <h4 class="text-sm font-medium text-yellow-800 mb-2">📋 Informasi Penting</h4>
                             <ul class="text-sm text-yellow-700 space-y-1">
-                                <li>• <strong>Cuti Tahunan:</strong> Minimal H-3, mengurangi kuota cuti tahunan</li>
+                                <li>• <strong>Cuti Tahunan:</strong> Minimal H+3, mengurangi kuota cuti tahunan</li>
                                 <li>• <strong>Cuti Sakit:</strong> Wajib lampirkan surat dokter, tidak mengurangi kuota</li>
                                 <li>• Pastikan tidak ada cuti yang overlapping dengan periode yang sama</li>
                                 <li>• Pengajuan akan diverifikasi oleh atasan dan HRD</li>
+                                <li>• <strong>Tanggal Pengajuan:</strong> {{ date('d F Y') }}</li>
                             </ul>
                         </div>
 
@@ -212,6 +226,18 @@
             const submitBtn = document.getElementById('submitBtn');
 
             const userQuota = {{ auth()->user()->annual_leave_quota }};
+            const today = new Date();
+            const minStartDate = new Date(today);
+            minStartDate.setDate(today.getDate() + 3); // H+3 untuk cuti tahunan
+
+            // Format tanggal untuk display
+            function formatDate(date) {
+                return date.toLocaleDateString('id-ID', { 
+                    day: '2-digit', 
+                    month: '2-digit', 
+                    year: 'numeric' 
+                });
+            }
 
             // Fungsi hitung hari kerja (Senin-Jumat)
             function calculateWorkingDays(start, end) {
@@ -263,11 +289,19 @@
                     attachmentStatus.textContent = 'Wajib';
                     attachmentStatus.className = 'font-medium text-red-600';
                     document.getElementById('attachment_path').required = true;
+                    
+                    // Untuk cuti sakit, kurangi batasan tanggal minimal
+                    startDateInput.min = "{{ date('Y-m-d') }}";
+                    document.getElementById('startDateHelp').textContent = 'Dapat diajukan H-0 untuk cuti sakit';
                 } else {
                     attachmentRequired.style.display = 'none';
                     attachmentStatus.textContent = 'Opsional';
                     attachmentStatus.className = 'font-medium text-gray-600';
                     document.getElementById('attachment_path').required = false;
+                    
+                    // Untuk cuti tahunan, tambah batasan H+3
+                    startDateInput.min = "{{ date('Y-m-d', strtotime('+3 days')) }}";
+                    document.getElementById('startDateHelp').textContent = 'Minimal H+3 dari hari ini ({{ date('d/m/Y') }})';
                 }
             }
 
@@ -275,9 +309,25 @@
             leaveTypeSelect.addEventListener('change', function() {
                 toggleAttachmentField();
                 updateDateInfo();
+                
+                // Reset tanggal jika jenis cuti berubah
+                if (this.value === 'sakit') {
+                    startDateInput.min = "{{ date('Y-m-d') }}";
+                } else {
+                    startDateInput.min = "{{ date('Y-m-d', strtotime('+3 days')) }}";
+                }
             });
 
-            startDateInput.addEventListener('change', updateDateInfo);
+            startDateInput.addEventListener('change', function() {
+                // Update min end_date berdasarkan start_date
+                if (this.value) {
+                    const minEndDate = new Date(this.value);
+                    minEndDate.setDate(minEndDate.getDate() + 1);
+                    endDateInput.min = minEndDate.toISOString().split('T')[0];
+                }
+                updateDateInfo();
+            });
+
             endDateInput.addEventListener('change', updateDateInfo);
 
             // Validasi form sebelum submit
@@ -306,10 +356,27 @@
                         return false;
                     }
                 }
+                
+                // Validasi untuk cuti sakit
+                if (leaveType === 'sakit') {
+                    const attachment = document.getElementById('attachment_path').files[0];
+                    if (!attachment) {
+                        e.preventDefault();
+                        alert('❌ Untuk cuti sakit, wajib melampirkan surat dokter.');
+                        return false;
+                    }
+                }
             });
 
             // Initial setup
             toggleAttachmentField();
+            
+            // Set min date untuk end_date berdasarkan start_date jika sudah ada value
+            if (startDateInput.value) {
+                const minEndDate = new Date(startDateInput.value);
+                minEndDate.setDate(minEndDate.getDate() + 1);
+                endDateInput.min = minEndDate.toISOString().split('T')[0];
+            }
         });
     </script>
 </x-app-layout>
