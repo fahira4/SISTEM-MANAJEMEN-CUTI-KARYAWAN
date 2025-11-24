@@ -70,23 +70,33 @@
                                     <option value="">Pilih Role</option>
                                     <option value="karyawan" {{ old('role') == 'karyawan' ? 'selected' : '' }}>Karyawan</option>
                                     <option value="ketua_divisi" {{ old('role') == 'ketua_divisi' ? 'selected' : '' }}>Ketua Divisi</option>
-                                    <option value="hrd" {{ old('role') == 'hrd' ? 'selected' : '' }}>HRD</option>
-                                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }}>Admin</option>
+                                    <option value="hrd" {{ old('role') == 'hrd' ? 'selected' : '' }} {{ \App\Models\User::where('role', 'hrd')->exists() ? 'disabled' : '' }}>
+                                        HRD {{ \App\Models\User::where('role', 'hrd')->exists() ? '(Sudah Ada)' : '' }}
+                                    </option>
+                                    <option value="admin" {{ old('role') == 'admin' ? 'selected' : '' }} {{ \App\Models\User::where('role', 'admin')->exists() ? 'disabled' : '' }}>
+                                        Admin {{ \App\Models\User::where('role', 'admin')->exists() ? '(Sudah Ada)' : '' }}
+                                    </option>
                                 </select>
+                                @if(\App\Models\User::where('role', 'admin')->exists())
+                                    <p class="text-xs text-red-500 mt-1">Admin sudah ada dalam sistem</p>
+                                @endif
+                                @if(\App\Models\User::where('role', 'hrd')->exists())
+                                    <p class="text-xs text-red-500 mt-1">HRD sudah ada dalam sistem</p>
+                                @endif
                             </div>
 
                             <!-- Kuota Cuti Awal -->
                             <div>
-                                <label for="annual_leave_quota" class="block font-medium text-sm text-gray-700">Kuota Cuti Awal (Hari) *</label>
+                                <label for="annual_leave_quota" class="block font-medium text-sm text-gray-700">Kuota Cuti Awal (Hari)</label>
                                 <input id="annual_leave_quota" 
-                                       class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" 
-                                       type="number" 
-                                       name="annual_leave_quota" 
-                                       value="{{ old('annual_leave_quota', 12) }}" 
-                                       min="0" 
-                                       max="365" 
-                                       required />
-                                <p class="text-sm text-gray-500 mt-1">Default: 12 hari kerja per tahun</p>
+                                    class="block mt-1 w-full border-gray-300 bg-gray-100 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" 
+                                    type="number" 
+                                    name="annual_leave_quota" 
+                                    value="12" 
+                                    readonly 
+                                    required />
+                                <p class="text-sm text-gray-500 mt-1">Default: 12 hari kerja per tahun (read-only)</p>
+                                <input type="hidden" name="annual_leave_quota" value="12">
                             </div>
                         </div>
 

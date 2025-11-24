@@ -95,43 +95,53 @@ class UserController extends Controller
     }
 
 
-public function store(Request $request)
-{
-    if ($request->role === 'admin') {
-        // Cek apakah sudah ada admin
-        $existingAdmin = User::where('role', 'admin')->first();
-        if ($existingAdmin) {
-            return redirect()->back()
-                             ->withInput()
-                             ->with('error', 'Hanya boleh ada satu Admin dalam sistem. Admin sudah ada: ' . $existingAdmin->name);
+    public function store(Request $request)
+    {
+        // ✅ VALIDASI: Cek apakah sudah ada admin
+        if ($request->role === 'admin') {
+            $existingAdmin = User::where('role', 'admin')->first();
+            if ($existingAdmin) {
+                return redirect()->back()
+                                ->withInput()
+                                ->with('error', 'Hanya boleh ada satu Admin dalam sistem. Admin sudah ada: ' . $existingAdmin->name);
+            }
         }
+
+        // ✅ VALIDASI BARU: Cek apakah sudah ada HRD
+        if ($request->role === 'hrd') {
+            $existingHrd = User::where('role', 'hrd')->first();
+            if ($existingHrd) {
+                return redirect()->back()
+                                ->withInput()
+                                ->with('error', 'Hanya boleh ada satu HRD dalam sistem. HRD sudah ada: ' . $existingHrd->name);
+            }
+        }
+
+        // VALIDASI SESUAI REQUIREMENTS
+        $request->validate([
+            'username' => 'required|string|max:50|unique:users',
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users',
+            'password' => ['required', Rules\Password::defaults()],
+            'role' => 'required|in:karyawan,ketua_divisi,hrd,admin',
+            'annual_leave_quota' => 'required|integer|min:0|max:365',
+        ]);
+
+        User::create([
+            'username' => $request->username,
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+            'role' => $request->role,
+            'annual_leave_quota' => 12, // ✅ PASTIKAN SELALU 12
+            'division_id' => null,
+            'join_date' => now(),
+            'active_status' => true,
+        ]);
+
+        return redirect()->route('admin.users.index')
+                        ->with('success', 'Pengguna baru berhasil ditambahkan.');
     }
-
-    // VALIDASI SESUAI REQUIREMENTS
-    $request->validate([
-        'username' => 'required|string|max:50|unique:users',
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users',
-        'password' => ['required', Rules\Password::defaults()],
-        'role' => 'required|in:karyawan,ketua_divisi,hrd,admin',
-        'annual_leave_quota' => 'required|integer|min:0|max:365',
-    ]);
-
-    User::create([
-        'username' => $request->username,
-        'name' => $request->name,
-        'email' => $request->email,
-        'password' => Hash::make($request->password),
-        'role' => $request->role,
-        'annual_leave_quota' => $request->annual_leave_quota,
-        'division_id' => null, // SELALU NULL karena divisi dihapus
-        'join_date' => now(), // Otomatis tanggal sekarang
-        'active_status' => true, // Otomatis aktif
-    ]);
-
-    return redirect()->route('admin.users.index')
-                     ->with('success', 'Pengguna baru berhasil ditambahkan.');
-}
 
     
     public function show(string $id)
@@ -153,51 +163,56 @@ public function store(Request $request)
 }
 
 
-public function update(Request $request, User $user)
-{
-    if ($request->role === 'admin' && $user->role !== 'admin') {
-        $existingAdmin = User::where('role', 'admin')->first();
-        if ($existingAdmin) {
-            return redirect()->back()
-                             ->withInput()
-                             ->with('error', 'Hanya boleh ada satu Admin dalam sistem. Admin sudah ada: ' . $existingAdmin->name);
+        public function update(Request $request, User $user)
+    {
+        // ✅ VALIDASI: Cek jika mau ubah ke admin
+        if ($request->role === 'admin' && $user->role !== 'admin') {
+            $existingAdmin = User::where('role', 'admin')->first();
+            if ($existingAdmin) {
+                return redirect()->back()
+                                ->withInput()
+                                ->with('error', 'Hanya boleh ada satu Admin dalam sistem. Admin sudah ada: ' . $existingAdmin->name);
+            }
         }
-    }
 
-    // Security check: Prevent editing other admin users
-    if ($user->role === 'admin' && $user->id !== auth()->id()) {
+        // ✅ VALIDASI: Cek jika mau ubah ke HRD
+        if ($request->role === 'hrd' && $user->role !== 'hrd') {
+            $existingHrd = User::where('role', 'hrd')->first();
+            if ($existingHrd) {
+                return redirect()->back()
+                                ->withInput()
+                                ->with('error', 'Hanya boleh ada satu HRD dalam sistem. HRD sudah ada: ' . $existingHrd->name);
+            }
+        }
+
+        // Security check: Prevent editing other admin users
+        if ($user->role === 'admin' && $user->id !== auth()->id()) {
+            return redirect()->route('admin.users.index')
+                            ->with('error', 'Tidak boleh mengedit user Admin.');
+        }
+
+        // ✅ VALIDASI SESUAI REQUIREMENTS (TANPA PASSWORD)
+        $request->validate([
+            'username' => 'required|string|max:50|unique:users,username,' . $user->id,
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'role' => 'required|in:karyawan,ketua_divisi,hrd,admin',
+            'active_status' => 'required|boolean',
+        ]);
+
+        // ✅ UPDATE DATA TANPA PASSWORD
+        $user->update([
+            'username' => $request->username,
+            'name' => $request->name,
+            'email' => $request->email,
+            'role' => $request->role,
+            'division_id' => null,
+            'active_status' => $request->boolean('active_status'),
+        ]);
+
         return redirect()->route('admin.users.index')
-                         ->with('error', 'Tidak boleh mengedit user Admin.');
+                        ->with('success', 'Pengguna berhasil diperbarui.');
     }
-
-    // VALIDASI SESUAI REQUIREMENTS
-    $request->validate([
-        'username' => 'required|string|max:50|unique:users,username,' . $user->id,
-        'name' => 'required|string|max:255',
-        'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
-        'password' => ['nullable', Rules\Password::defaults()],
-        'role' => 'required|in:karyawan,ketua_divisi,hrd,admin',
-        'active_status' => 'required|boolean',
-    ]);
-
-    $data = [
-        'username' => $request->username,
-        'name' => $request->name,
-        'email' => $request->email,
-        'role' => $request->role,
-        'division_id' => null, // SELALU NULL karena divisi dihapus
-        'active_status' => $request->boolean('active_status'),
-    ];
-
-    if ($request->filled('password')) {
-        $data['password'] = Hash::make($request->password);
-    }
-
-    $user->update($data);
-
-    return redirect()->route('admin.users.index')
-                     ->with('success', 'Pengguna berhasil diperbarui.');
-}
 
     public function destroy(User $user)
 {

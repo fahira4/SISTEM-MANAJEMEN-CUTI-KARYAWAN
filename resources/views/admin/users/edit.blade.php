@@ -82,15 +82,7 @@
                                     @enderror
                                 </div>
 
-                                <!-- Password -->
-                                <div>
-                                    <label for="password" class="block font-medium text-sm text-gray-700">Password</label>
-                                    <input id="password" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" 
-                                           type="password" name="password" />
-                                    <p class="text-xs text-gray-500 mt-1">Kosongkan jika tidak ingin mengubah password. Minimal 8 karakter.</p>
-                                </div>
-
-                                <!-- Role (Peran) -->
+                               <!-- Role (Peran) -->
                                 <div>
                                     <label for="role" class="block font-medium text-sm text-gray-700">Peran (Role) *</label>
                                     @if($user->role === 'admin')
@@ -104,9 +96,19 @@
                                             <option value="">Pilih Role</option>
                                             <option value="karyawan" {{ old('role', $user->role) == 'karyawan' ? 'selected' : '' }}>Karyawan</option>
                                             <option value="ketua_divisi" {{ old('role', $user->role) == 'ketua_divisi' ? 'selected' : '' }}>Ketua Divisi</option>
-                                            <option value="hrd" {{ old('role', $user->role) == 'hrd' ? 'selected' : '' }}>HRD</option>
-                                            <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }}>Admin</option>
+                                            <option value="hrd" {{ old('role', $user->role) == 'hrd' ? 'selected' : '' }} {{ \App\Models\User::where('role', 'hrd')->where('id', '!=', $user->id)->exists() ? 'disabled' : '' }}>
+                                                HRD {{ \App\Models\User::where('role', 'hrd')->where('id', '!=', $user->id)->exists() ? '(Sudah Ada)' : '' }}
+                                            </option>
+                                            <option value="admin" {{ old('role', $user->role) == 'admin' ? 'selected' : '' }} {{ \App\Models\User::where('role', 'admin')->exists() ? 'disabled' : '' }}>
+                                                Admin {{ \App\Models\User::where('role', 'admin')->exists() ? '(Sudah Ada)' : '' }}
+                                            </option>
                                         </select>
+                                        @if(\App\Models\User::where('role', 'admin')->exists())
+                                            <p class="text-xs text-red-500 mt-1">Admin sudah ada dalam sistem</p>
+                                        @endif
+                                        @if(\App\Models\User::where('role', 'hrd')->where('id', '!=', $user->id)->exists())
+                                            <p class="text-xs text-red-500 mt-1">HRD sudah ada dalam sistem</p>
+                                        @endif
                                     @endif
                                 </div>
 
