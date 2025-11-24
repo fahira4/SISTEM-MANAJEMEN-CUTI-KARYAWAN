@@ -13,11 +13,11 @@ class User extends Authenticatable
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    // ✅ TAMBAHKAN CONSTANT UNTUK STATUS
+    const STATUS_PENDING = 'pending';
+    const STATUS_ACTIVE = 'active';
+    const STATUS_REJECTED = 'rejected';
+
     protected $fillable = [
         'username',
         'name',
@@ -31,6 +31,7 @@ class User extends Authenticatable
         'profile_photo_path',
         'join_date',
         'active_status',
+        'status',
     ];
 
     protected $hidden = [
@@ -45,7 +46,24 @@ class User extends Authenticatable
             'password' => 'hashed',
             'join_date' => 'date', // PASTIKAN INI ADA
             'active_status' => 'boolean',
+            'status' => 'string',
         ];
+    }
+
+        // ✅ TAMBAHKAN METHOD UNTUK CEK STATUS
+    public function isPending()
+    {
+        return $this->status === self::STATUS_PENDING;
+    }
+
+    public function isActive()
+    {
+        return $this->status === self::STATUS_ACTIVE;
+    }
+
+    public function isRejected()
+    {
+        return $this->status === self::STATUS_REJECTED;
     }
 
 public function getEmploymentPeriodAttribute()
@@ -110,6 +128,30 @@ public function getEmploymentPeriodAttribute()
     public function isLeadingDivision($divisionId)
     {
         return $this->leadingDivision && $this->leadingDivision->id == $divisionId;
+    }
+
+    public function isEligibleForAnnualLeave()
+    {
+        if (!$this->join_date) {
+            return false;
+        }
+
+        $joinDate = Carbon::parse($this->join_date);
+        $currentDate = Carbon::now();
+        
+        return $joinDate->diffInMonths($currentDate) >= 12;
+    }
+
+    public function getMonthsOfWorkAttribute()
+    {
+        if (!$this->join_date) {
+            return 0;
+        }
+
+        $joinDate = Carbon::parse($this->join_date);
+        $currentDate = Carbon::now();
+        
+        return $joinDate->diffInMonths($currentDate);
     }
 }
 

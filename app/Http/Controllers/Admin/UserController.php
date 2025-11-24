@@ -90,7 +90,6 @@ class UserController extends Controller
   
     public function create()
     {
-
         return view('admin.users.create');
     }
 
@@ -125,6 +124,7 @@ class UserController extends Controller
             'password' => ['required', Rules\Password::defaults()],
             'role' => 'required|in:karyawan,ketua_divisi,hrd,admin',
             'annual_leave_quota' => 'required|integer|min:0|max:365',
+            'join_date' => 'required|date',
         ]);
 
         User::create([
@@ -135,7 +135,7 @@ class UserController extends Controller
             'role' => $request->role,
             'annual_leave_quota' => 12, // ✅ PASTIKAN SELALU 12
             'division_id' => null,
-            'join_date' => now(),
+            'join_date' => $request->join_date,
             'active_status' => true,
         ]);
 
@@ -163,7 +163,7 @@ class UserController extends Controller
 }
 
 
-        public function update(Request $request, User $user)
+    public function update(Request $request, User $user)
     {
         // ✅ VALIDASI: Cek jika mau ubah ke admin
         if ($request->role === 'admin' && $user->role !== 'admin') {
@@ -198,6 +198,7 @@ class UserController extends Controller
             'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
             'role' => 'required|in:karyawan,ketua_divisi,hrd,admin',
             'active_status' => 'required|boolean',
+            'join_date' => 'required|date',
         ]);
 
         // ✅ UPDATE DATA TANPA PASSWORD
@@ -207,6 +208,7 @@ class UserController extends Controller
             'email' => $request->email,
             'role' => $request->role,
             'division_id' => null,
+            'join_date' => $request->join_date,
             'active_status' => $request->boolean('active_status'),
         ]);
 

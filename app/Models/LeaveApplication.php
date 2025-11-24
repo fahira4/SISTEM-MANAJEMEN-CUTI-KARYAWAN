@@ -92,4 +92,80 @@ class LeaveApplication extends Model
     {
         return $this->is_approved_by_hrd;
     }
+
+    /**
+     * Scope untuk pengajuan dengan status pending
+     */
+    public function scopePending($query)
+    {
+        return $query->where('status', 'pending');
+    }
+
+    /**
+     * Scope untuk pengajuan yang sudah disetujui leader
+     */
+    public function scopeApprovedByLeader($query)
+    {
+        return $query->where('status', 'approved_by_leader');
+    }
+
+    /**
+     * Scope untuk pengajuan yang sudah disetujui HRD
+     */
+    public function scopeApprovedByHrd($query)
+    {
+        return $query->where('status', 'approved_by_hrd');
+    }
+
+    /**
+     * Scope untuk pengajuan yang ditolak
+     */
+    public function scopeRejected($query)
+    {
+        return $query->whereIn('status', ['rejected_by_leader', 'rejected_by_hrd']);
+    }
+
+    /**
+     * Scope untuk pengajuan yang dibatalkan
+     */
+    public function scopeCancelled($query)
+    {
+        return $query->where('status', 'cancelled');
+    }
+
+    /**
+     * Scope UNTUK HRD: pengajuan yang menunggu approval final HRD
+     * - Pengajuan biasa yang sudah disetujui leader
+     * - Pengajuan dari ketua divisi (langsung ke HRD)
+     * - Pengajuan dari karyawan tanpa divisi
+     */
+    public function scopeForHrdApproval($query)
+    {
+        return $query->where(function($q) {
+            $q->where('status', 'approved_by_leader')
+              ->orWhere(function($q2) {
+                  $q2->where('status', 'pending')
+                     ->whereHas('applicant', function($applicantQuery) {
+                         $applicantQuery->where('role', 'ketua_divisi')
+                                       ->orWhere(function($userQuery) {
+                                           $userQuery->where('role', 'karyawan')
+                                                     ->whereNull('division_id');
+                                       });
+                     });
+              });
+        });
+    }
+
+    /**
+     * Scope UNTUK KETUA DIVISI: pengajuan dari anggota tim
+     */
+    public function scopeForLeaderApproval($query, $divisionId)
+    {
+        return $query->where('status', 'pending')
+                    ->whereHas('applicant', function($applicantQuery) use ($divisionId) {
+                        $applicantQuery->where('division_id', $divisionId)
+                                      ->where('role', 'karyawan');
+                    });
+    }
+    
 }

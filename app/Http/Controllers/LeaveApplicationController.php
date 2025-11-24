@@ -79,6 +79,16 @@ class LeaveApplicationController extends Controller
             ]);
         }
 
+            // ✅ TAMBAHKAN: Validasi masa kerja untuk cuti tahunan
+        if ($request->leave_type == 'tahunan') {
+            $employmentEligibility = $this->checkEmploymentEligibility($user);
+            if (!$employmentEligibility['eligible']) {
+                return back()->withInput()->withErrors([
+                    'leave_type' => $employmentEligibility['message']
+                ]);
+            }
+        }
+
         // 1. VALIDASI DATA
         $request->validate([
             'leave_type' => 'required|in:tahunan,sakit',
@@ -174,70 +184,44 @@ class LeaveApplicationController extends Controller
     }
 
     public function showVerificationList()
-    {
-        $user = Auth::user();
-        
-        if (!in_array($user->role, ['admin', 'ketua_divisi', 'hrd'])) {
-            return redirect('/dashboard')->with('error', 'Anda tidak memiliki hak akses ke halaman tersebut.');
-        }
-        
-        $pendingApplications = collect();
-
-        if ($user->role == 'admin') {
-            $pendingApplications = LeaveApplication::with(['applicant', 'applicant.division'])
-                ->where('status', 'pending')
-                ->latest()
-                ->get();
-
-        } elseif ($user->role == 'ketua_divisi') {
-            if (!$user->division_id) {
-                return view('leave-applications.verification-list', compact('pendingApplications'))
-                       ->with('error', 'Anda tidak memiliki divisi. Hubungi admin.');
-            }
-
-            $teamMemberIds = User::where('division_id', $user->division_id)
-                              ->where('id', '!=', $user->id)
-                              ->pluck('id');
-
-            $pendingApplications = LeaveApplication::with(['applicant', 'applicant.division'])
-                ->where(function($query) use ($teamMemberIds) {
-                    $query->whereIn('user_id', $teamMemberIds)
-                          ->orWhere(function($q) {
-                              $q->where('status', 'pending')
-                                ->whereHas('applicant', function($applicantQuery) {
-                                    $applicantQuery->where('role', 'karyawan')
-                                                  ->whereNull('division_id');
-                                });
-                          });
-                })
-                ->where('status', 'pending')
-                ->latest()
-                ->get();
-
-        } elseif ($user->role == 'hrd') {
-            $pendingApplications = LeaveApplication::with(['applicant', 'applicant.division', 'leaderApprover'])
-                ->where(function($query) {
-                    $query->where('status', 'approved_by_leader')
-                          ->orWhere(function($q) {
-                              $q->where('status', 'pending')
-                                ->whereHas('applicant', function($applicantQuery) {
-                                    $applicantQuery->where('role', 'ketua_divisi');
-                                });
-                          })
-                          ->orWhere(function($q) {
-                              $q->where('status', 'pending')
-                                ->whereHas('applicant', function($applicantQuery) {
-                                    $applicantQuery->where('role', 'karyawan')
-                                                  ->whereNull('division_id');
-                                });
-                          });
-                })
-                ->latest()
-                ->get();
-        }
-
-        return view('leave-applications.verification-list', compact('pendingApplications'));
+{
+    $user = Auth::user();
+    
+    if (!in_array($user->role, ['admin', 'ketua_divisi', 'hrd'])) {
+        return redirect('/dashboard')->with('error', 'Anda tidak memiliki hak akses ke halaman tersebut.');
     }
+    
+    $pendingApplications = collect();
+
+    if ($user->role == 'admin') {
+        // MENGGUNAKAN SCOPE: lebih clean dan readable
+        $pendingApplications = LeaveApplication::with(['applicant', 'applicant.division'])
+            ->pending()
+            ->latest()
+            ->get();
+
+    } elseif ($user->role == 'ketua_divisi') {
+        if (!$user->division_id) {
+            return view('leave-applications.verification-list', compact('pendingApplications'))
+                   ->with('error', 'Anda tidak memiliki divisi. Hubungi admin.');
+        }
+
+        // MENGGUNAKAN SCOPE: lebih mudah dipahami
+        $pendingApplications = LeaveApplication::with(['applicant', 'applicant.division'])
+            ->forLeaderApproval($user->division_id)
+            ->latest()
+            ->get();
+
+    } elseif ($user->role == 'hrd') {
+        // MENGGUNAKAN SCOPE: menggantikan query complex
+        $pendingApplications = LeaveApplication::with(['applicant', 'applicant.division', 'leaderApprover'])
+            ->forHrdApproval()
+            ->latest()
+            ->get();
+    }
+
+    return view('leave-applications.verification-list', compact('pendingApplications'));
+}
 
     public function showVerificationDetail(LeaveApplication $application)
     {
@@ -349,5 +333,158 @@ class LeaveApplicationController extends Controller
         ]);
 
         return redirect()->route('leave-applications.index')->with('success', 'Pengajuan cuti berhasil dibatalkan dan kuota dikembalikan.');
+    }
+
+    /**
+     * APPROVE/REJECT MULTIPLE PENGAJUAN SEKALIGUS (UNTUK HRD)
+     */
+        public function bulkApproveReject(Request $request)
+    {
+        $user = Auth::user();
+        
+        // Boleh diakses oleh HRD dan Ketua Divisi
+        if (!in_array($user->role, ['hrd', 'ketua_divisi'])) {
+            return redirect()->back()->with('error', 'Anda tidak memiliki hak akses untuk aksi ini.');
+        }
+
+        \Log::info('Bulk action attempt', [
+            'user_id' => $user->id,
+            'user_role' => $user->role,
+            'action' => $request->action,
+            'leave_ids' => $request->leave_ids
+        ]);
+
+        // VALIDASI INPUT
+        $request->validate([
+            'action' => 'required|in:approve,reject',
+            'leave_ids' => 'required|array',
+            'leave_ids.*' => 'exists:leave_applications,id',
+            'rejection_notes' => 'required_if:action,reject|min:10|max:500'
+        ]);
+
+        // QUERY BERDASARKAN ROLE
+        if ($user->role == 'ketua_divisi') {
+            // Untuk Ketua Divisi: hanya bisa proses anggota timnya yang status pending
+            $leaveApplications = LeaveApplication::whereIn('id', $request->leave_ids)
+                ->where('status', 'pending')
+                ->whereHas('applicant', function($query) use ($user) {
+                    $query->where('division_id', $user->division_id)
+                        ->where('role', 'karyawan');
+                })
+                ->get();
+                
+        } else { // HRD
+            // Untuk HRD: bisa proses yang sudah approved_by_leader ATAU dari ketua divisi
+            $leaveApplications = LeaveApplication::whereIn('id', $request->leave_ids)
+                ->where(function($query) {
+                    $query->where('status', 'approved_by_leader')
+                        ->orWhere(function($q) {
+                            $q->where('status', 'pending')
+                                ->whereHas('applicant', function($applicantQuery) {
+                                    $applicantQuery->where('role', 'ketua_divisi');
+                                });
+                        });
+                })
+                ->get();
+        }
+
+        \Log::info('Applications found for bulk action', [
+            'user_role' => $user->role,
+            'count' => $leaveApplications->count(),
+            'applications' => $leaveApplications->pluck('id')
+        ]);
+
+        // JIKA TIDAK ADA DATA YANG BISA DIPROSES
+        if ($leaveApplications->isEmpty()) {
+            $errorMsg = $user->role == 'ketua_divisi' 
+                ? 'Tidak ada pengajuan dari anggota tim yang dapat diproses.' 
+                : 'Tidak ada pengajuan yang dapat diproses. Pastikan status pengajuan sudah "Approved by Leader" atau pengajuan dari Ketua Divisi.';
+                
+            return redirect()->route('leave-verifications.index')->with('error', $errorMsg);
+        }
+
+        $processedCount = 0;
+
+        // PROSES SETIAP PENGAJUAN
+        foreach ($leaveApplications as $application) {
+            if ($request->action == 'approve') {
+                if ($user->role == 'ketua_divisi') {
+                    // Ketua Divisi approve -> status: approved_by_leader
+                    $application->update([
+                        'status' => 'approved_by_leader',
+                        'leader_approver_id' => $user->id,
+                        'leader_approval_at' => Carbon::now(),
+                        'leader_rejection_notes' => null,
+                    ]);
+                } else { // HRD
+                    // HRD approve -> status: approved_by_hrd (final)
+                    $application->update([
+                        'status' => 'approved_by_hrd',
+                        'hrd_approver_id' => $user->id,
+                        'hrd_approval_at' => Carbon::now(),
+                        'hrd_rejection_notes' => null,
+                    ]);
+                }
+                $processedCount++;
+
+            } else { // REJECT
+                if ($user->role == 'ketua_divisi') {
+                    $application->update([
+                        'status' => 'rejected_by_leader',
+                        'leader_rejection_notes' => $request->rejection_notes,
+                        'leader_approver_id' => $user->id,
+                        'leader_approval_at' => Carbon::now(),
+                    ]);
+                } else { // HRD
+                    $application->update([
+                        'status' => 'rejected_by_hrd',
+                        'hrd_rejection_notes' => $request->rejection_notes,
+                        'hrd_approver_id' => $user->id,
+                        'hrd_approval_at' => Carbon::now(),
+                    ]);
+                }
+
+                // KEMBALIKAN KUOTA JIKA CUTI TAHUNAN
+                if ($application->leave_type == 'tahunan') {
+                    $application->applicant->increment('annual_leave_quota', $application->total_days);
+                }
+                $processedCount++;
+            }
+        }
+
+        // KIRIM FEEDBACK SUKSES
+        $actionText = $request->action == 'approve' ? 'disetujui' : 'ditolak';
+        $roleText = $user->role == 'ketua_divisi' ? ' (Verifikasi Pertama)' : ' (Persetujuan Final)';
+        
+        return redirect()->route('leave-verifications.index')
+                    ->with('success', $processedCount . ' pengajuan cuti berhasil ' . $actionText . $roleText . '.');
+    }
+
+        private function checkEmploymentEligibility($user)
+    {
+        // Jika belum ada join_date, tidak eligible
+        if (!$user->join_date) {
+            return [
+                'eligible' => false,
+                'message' => 'Anda belum memiliki tanggal bergabung yang valid. Hubungi admin.'
+            ];
+        }
+
+        $joinDate = Carbon::parse($user->join_date);
+        $currentDate = Carbon::now();
+        
+        // Hitung selisih dalam bulan
+        $monthsOfWork = $joinDate->diffInMonths($currentDate);
+        
+        // Jika masa kerja kurang dari 12 bulan
+        if ($monthsOfWork < 12) {
+            $remainingMonths = 12 - $monthsOfWork;
+            return [
+                'eligible' => false,
+                'message' => "Karyawan dengan masa kerja < 1 tahun belum eligible cuti tahunan. Masa kerja Anda: {$monthsOfWork} bulan. Eligible dalam {$remainingMonths} bulan lagi."
+            ];
+        }
+
+        return ['eligible' => true];
     }
 }

@@ -31,23 +31,33 @@
                             $totalUsers = \App\Models\User::count();
                             $totalDivisions = \App\Models\Division::count();
                             
-                            // Pending Approvals HRD (logic dari fungsi HRD)
+                            // ✅ TAMBAHKAN: Karyawan masa kerja < 1 tahun
+                            $newEmployees = \App\Models\User::where('role', 'karyawan')
+                                ->where('active_status', 'active')
+                                ->whereHas('leaveApplications', function($query) {
+                                    $query->where('leave_type', 'tahunan')
+                                        ->whereIn('status', ['pending', 'approved_by_leader', 'approved_by_hrd']);
+                                }, '=', 0) // Belum pernah ajukan cuti tahunan
+                                ->where('join_date', '>=', now()->subYear())
+                                ->count();
+
+                            // Pending Approvals HRD
                             $pendingHrdCount = \App\Models\LeaveApplication::where('status', 'approved_by_leader')
-                                                                           ->orWhere(function($query) {
-                                                                               $query->where('status', 'pending')
-                                                                                     ->whereHas('applicant', function($q) {
-                                                                                         $q->where('role', 'ketua_divisi');
-                                                                                     });
-                                                                           })
-                                                                           ->count();
+                                                                        ->orWhere(function($query) {
+                                                                            $query->where('status', 'pending')
+                                                                                    ->whereHas('applicant', function($q) {
+                                                                                        $q->where('role', 'ketua_divisi');
+                                                                                    });
+                                                                        })
+                                                                        ->count();
                         @endphp
 
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                             
                             <!-- Kartu 1: Persetujuan Final (HRD Queue) -->
                             <div class="bg-red-100 p-6 rounded-lg shadow-md border border-red-200">
-                                <h4 class="text-red-700 uppercase text-sm font-medium tracking-wider">Persetujuan Final (HRD Queue)</h4>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $pendingHrdCount }} Pengajuan</p>
+                                <h4 class="text-red-700 uppercase text-sm font-medium tracking-wider">Persetujuan Final</h4>
+                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $pendingHrdCount }}</p>
                                 <a href="{{ route('leave-verifications.index') }}" class="text-red-800 hover:underline font-semibold mt-4 inline-block">
                                     Lihat Antrian &rarr;
                                 </a>
@@ -55,7 +65,7 @@
 
                             <!-- Kartu 2: Total Pengguna -->
                             <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                                <h4 class="text-gray-500 uppercase text-sm font-medium tracking-wider">Total Pengguna (Semua Role)</h4>
+                                <h4 class="text-gray-500 uppercase text-sm font-medium tracking-wider">Total Pengguna</h4>
                                 <p class="text-3xl font-bold text-gray-900 mt-2">{{ $totalUsers }}</p>
                                 <a href="{{ route('admin.users.index') }}" class="text-blue-600 hover:underline font-semibold self-start">
                                     Kelola Pengguna &rarr;
@@ -64,11 +74,18 @@
 
                             <!-- Kartu 3: Total Divisi -->
                             <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                                <h4 class="text-gray-500 uppercase text-sm font-medium tracking-wider">Total Divisi Terdaftar</h4>
+                                <h4 class="text-gray-500 uppercase text-sm font-medium tracking-wider">Total Divisi</h4>
                                 <p class="text-3xl font-bold text-gray-900 mt-2">{{ $totalDivisions }}</p>
                                 <a href="{{ route('admin.divisions.index') }}" class="text-blue-600 hover:underline font-semibold self-start">
                                     Kelola Divisi &rarr;
                                 </a>
+                            </div>
+
+                            <!-- ✅ KARTU BARU: Karyawan Masa Kerja < 1 Tahun -->
+                            <div class="bg-blue-100 p-6 rounded-lg shadow-md border border-blue-200">
+                                <h4 class="text-blue-700 uppercase text-sm font-medium tracking-wider">Karyawan Baru (< 1 Tahun)</h4>
+                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $newEmployees }}</p>
+                                <span class="text-blue-600 text-sm">Belum eligible cuti tahunan</span>
                             </div>
                         </div>
                     

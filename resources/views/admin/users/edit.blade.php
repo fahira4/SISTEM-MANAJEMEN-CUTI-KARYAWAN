@@ -82,6 +82,31 @@
                                     @enderror
                                 </div>
 
+                                <div class="mb-4">
+                                    <label for="join_date" class="block text-gray-700 text-sm font-bold mb-2">
+                                        Tanggal Bergabung *
+                                    </label>
+                                    <input type="date" 
+                                        name="join_date" 
+                                        id="join_date"
+                                        value="{{ old('join_date', $user->join_date ? $user->join_date->format('Y-m-d') : date('Y-m-d')) }}"
+                                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                                        required>
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        Masa kerja: 
+                                        @if($user->join_date)
+                                            <strong>{{ $user->months_of_work }} bulan</strong>
+                                            @if($user->months_of_work < 12)
+                                                <span class="text-red-600">(Belum eligible cuti tahunan)</span>
+                                            @else
+                                                <span class="text-green-600">(Sudah eligible cuti tahunan)</span>
+                                            @endif
+                                        @else
+                                            <span class="text-red-600">Belum di-set</span>
+                                        @endif
+                                    </p>
+                                </div>
+
                                <!-- Role (Peran) -->
                                 <div>
                                     <label for="role" class="block font-medium text-sm text-gray-700">Peran (Role) *</label>

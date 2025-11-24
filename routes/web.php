@@ -15,6 +15,19 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
+// Route untuk pengajuan cuti
+Route::resource('leave-applications', LeaveApplicationController::class)
+    ->middleware(['auth']);
+
+// Route untuk verifikasi cuti
+Route::get('/leave-verifications', [LeaveApplicationController::class, 'showVerificationList'])
+    ->middleware(['auth'])
+    ->name('leave-verifications.index');
+
+// Route untuk admin management users
+Route::resource('admin/users', UserController::class)
+    ->middleware(['auth', 'admin']);
+
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -23,14 +36,13 @@ Route::middleware('auth')->group(function () {
 
 // ==================== LEAVE APPLICATION ROUTES ====================
 Route::middleware('auth')->prefix('leave-applications')->name('leave-applications.')->group(function () {
+    Route::get('/', [LeaveApplicationController::class, 'index'])->name('index');
     Route::get('/create', [LeaveApplicationController::class, 'create'])->name('create');
     Route::post('/', [LeaveApplicationController::class, 'store'])->name('store');
-    Route::get('/', [LeaveApplicationController::class, 'index'])->name('index');
     Route::get('/{leaveApplication}', [LeaveApplicationController::class, 'show'])->name('show');
     Route::post('/{application}/cancel', [LeaveApplicationController::class, 'cancelLeave'])->name('cancel');
     
-    // ==================== PDF ROUTES (Pindahkan ke dalam group ini) ====================
-    // Surat izin resmi (hanya untuk cuti yang disetujui HRD)
+    // ==================== PDF ROUTES ====================
     Route::get('/{leaveApplication}/download-letter', 
         [LeavePdfController::class, 'generateLeaveLetter'])
         ->name('download-letter');
@@ -39,7 +51,6 @@ Route::middleware('auth')->prefix('leave-applications')->name('leave-application
         [LeavePdfController::class, 'generateLeaveLetterView'])
         ->name('view-letter');
 
-    // Cek ketersediaan surat
     Route::get('/{leaveApplication}/check-letter-availability', 
         [LeavePdfController::class, 'checkAvailability'])
         ->name('check-letter-availability');
@@ -49,8 +60,14 @@ Route::middleware('auth')->prefix('leave-applications')->name('leave-application
 Route::middleware('auth')->prefix('leave-verifications')->name('leave-verifications.')->group(function () {
     Route::get('/', [LeaveApplicationController::class, 'showVerificationList'])->name('index');
     Route::get('/{application}', [LeaveApplicationController::class, 'showVerificationDetail'])->name('show');
+    
+    // SINGLE APPROVAL/REJECTION
     Route::post('/{application}/approve', [LeaveApplicationController::class, 'approveLeave'])->name('approve');
     Route::post('/{application}/reject', [LeaveApplicationController::class, 'rejectLeave'])->name('reject');
+    
+    // ✅ BULK/MULTIPLE APPROVAL/REJECTION (NEW)
+    Route::post('/bulk-action', [LeaveApplicationController::class, 'bulkApproveReject'])
+        ->name('bulk-action');
 });
 
 // ==================== ADMIN ROUTES ====================
