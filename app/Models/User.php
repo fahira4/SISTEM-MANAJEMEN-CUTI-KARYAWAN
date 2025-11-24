@@ -33,21 +33,11 @@ class User extends Authenticatable
         'active_status',
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
@@ -105,6 +95,21 @@ public function getEmploymentPeriodAttribute()
     public function leaveApplications()
     {
         return $this->hasMany(LeaveApplication::class, 'user_id');
+    }
+
+    public function leadingDivision()
+    {
+        return $this->hasOne(Division::class, 'leader_id');
+    }   
+
+    public function isDivisionLeader()
+    {
+        return !is_null($this->leadingDivision);
+    }
+    
+    public function isLeadingDivision($divisionId)
+    {
+        return $this->leadingDivision && $this->leadingDivision->id == $divisionId;
     }
 }
 

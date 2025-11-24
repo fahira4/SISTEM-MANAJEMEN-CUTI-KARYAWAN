@@ -44,7 +44,7 @@
                             </div>
                             <a href="{{ route('admin.divisions.edit', $division->id) }}" 
                                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 text-sm">
-                                ✏️ Edit Divisi
+                                    Edit Divisi
                             </a>
                         </div>
                     </div>
@@ -137,7 +137,7 @@
                                     @if($unassignedEmployees->count() > 0)
                                         <button type="submit" 
                                                 class="w-full bg-green-600 text-white py-2 px-4 rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out font-medium">
-                                            ➕ Tambahkan ke Divisi
+                                                Tambahkan ke Divisi
                                         </button>
                                         <p class="text-xs text-gray-500 mt-2 text-center">
                                             Tersedia {{ $unassignedEmployees->count() }} karyawan tanpa divisi
@@ -146,7 +146,7 @@
                                         <button type="button" 
                                                 disabled
                                                 class="w-full bg-gray-400 text-white py-2 px-4 rounded-md cursor-not-allowed font-medium">
-                                            ❌ Tidak ada karyawan tersedia
+                                                Tidak ada karyawan tersedia
                                         </button>
                                         <p class="text-xs text-red-500 mt-2 text-center">
                                             Semua karyawan sudah memiliki divisi

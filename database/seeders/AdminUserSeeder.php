@@ -32,6 +32,8 @@ class AdminUserSeeder extends Seeder
             'role' => 'admin',
             'division_id' => null, // Admin tidak punya divisi
             'annual_leave_quota' => 0, // Admin tidak butuh kuota cuti
+            'phone_number' => '081234567890',
+            'address' => 'Jl. Contoh Alamat No. 123',
             'join_date' => Carbon::now(),
             'active_status' => true,
             'email_verified_at' => Carbon::now(),

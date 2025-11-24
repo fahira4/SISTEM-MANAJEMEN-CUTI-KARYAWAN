@@ -27,6 +27,16 @@ class Division extends Model
     {
         return $this->hasMany(User::class, 'division_id');
     }
+
+    public function scopeByLeader($query, $leaderId)
+    {
+        return $query->where('leader_id', $leaderId);
+    }
+
+    public function getRegularMemberCountAttribute()
+    {
+        return $this->regularMembers()->count();
+    }
 }
 
 

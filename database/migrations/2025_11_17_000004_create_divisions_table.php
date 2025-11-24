@@ -20,6 +20,7 @@ return new class extends Migration
             // PERBAIKI: Tambah onDelete
             $table->foreignId('leader_id')
                 ->nullable()
+                ->unique()
                 ->constrained('users')
                 ->onDelete('set null'); // Jika user dihapus, set leader_id jadi null
             

@@ -81,6 +81,22 @@
                                     </p>
                                 @endif
                             </div>
+
+                                <!-- Tanggal Dibentuk (Read-only) -->
+                                <div class="p-4 bg-white border border-gray-200 rounded-lg">
+                                    <label class="block font-medium text-sm text-gray-700 mb-2">Informasi Sistem</label>
+                                    <div class="grid grid-cols-1 gap-2 text-sm">
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Tanggal Dibentuk:</span>
+                                            <span class="font-medium text-blue-700">{{ now()->format('d/m/Y H:i') }}</span>
+                                        </div>
+                                        <div class="flex justify-between">
+                                            <span class="text-gray-600">Status:</span>
+                                            <span class="px-2 py-1 bg-green-100 text-green-800 text-xs rounded-full">Akan dibuat</span>
+                                        </div>
+                                    </div>
+                                    <p class="text-xs text-gray-500 mt-2">Tanggal dibentuk akan diisi otomatis oleh sistem.</p>
+                                </div>
                         </div>
 
                         {{-- Tombol Aksi --}}
