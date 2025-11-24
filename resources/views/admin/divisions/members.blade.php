@@ -59,43 +59,50 @@
                                     <div class="overflow-x-auto">
                                         <table class="min-w-full divide-y divide-gray-200">
                                             <thead class="bg-gray-50">
-                                                <tr>
-                                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
-                                                </tr>
+                                            <tr>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                                <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Tanggal Bergabung</th>
+                                                <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Aksi</th>
+                                            </tr>
                                             </thead>
-                                            <tbody class="bg-white divide-y divide-gray-200">
-                                                @foreach($division->members as $member)
-                                                    <tr>
-                                                        <td class="px-4 py-3 whitespace-nowrap">
-                                                            <div class="text-sm font-medium text-gray-900">{{ $member->name }}</div>
-                                                        </td>
-                                                        <td class="px-4 py-3 whitespace-nowrap">
-                                                            <div class="text-sm text-gray-500">{{ $member->email }}</div>
-                                                        </td>
-                                                        <td class="px-4 py-3 whitespace-nowrap">
-                                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                                {{ $member->active_status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                                {{ $member->active_status ? 'Aktif' : 'Non-Aktif' }}
-                                                            </span>
-                                                        </td>
-                                                        <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
-                                                            <form action="{{ route('admin.divisions.members.remove', ['division' => $division->id, 'user' => $member->id]) }}" 
-                                                                  method="POST" 
-                                                                  class="inline-block">
-                                                                @csrf
-                                                                @method('DELETE')
-                                                                <button type="submit" 
-                                                                        class="text-red-600 hover:text-red-900 text-sm"
-                                                                        onclick="return confirm('Apakah Anda yakin ingin mengeluarkan {{ $member->name }} dari divisi ini?')">
-                                                                    Keluarkan
-                                                                </button>
-                                                            </form>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
+                                                <tbody class="bg-white divide-y divide-gray-200">
+                                                    @foreach($division->members as $member)
+                                                        <tr>
+                                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                                <div class="text-sm font-medium text-gray-900">{{ $member->name }}</div>
+                                                                <div class="text-xs text-gray-500">{{ $member->role }}</div>
+                                                            </td>
+                                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                                <div class="text-sm text-gray-500">{{ $member->email }}</div>
+                                                            </td>
+                                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                                    {{ $member->active_status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                                                    {{ $member->active_status ? 'Aktif' : 'Non-Aktif' }}
+                                                                </span>
+                                                            </td>
+                                                            <td class="px-4 py-3 whitespace-nowrap">
+                                                                <div class="text-sm text-gray-500">
+                                                                    {{ $member->join_date ? \Carbon\Carbon::parse($member->join_date)->format('d/m/Y') : '-' }}
+                                                                </div>
+                                                            </td>
+                                                            <td class="px-4 py-3 whitespace-nowrap text-right text-sm font-medium">
+                                                                <form action="{{ route('admin.divisions.members.remove', ['division' => $division->id, 'user' => $member->id]) }}" 
+                                                                    method="POST" 
+                                                                    class="inline-block">
+                                                                    @csrf
+                                                                    @method('DELETE')
+                                                                    <button type="submit" 
+                                                                            class="text-red-600 hover:text-red-900 text-sm"
+                                                                            onclick="return confirm('Apakah Anda yakin ingin mengeluarkan {{ $member->name }} dari divisi ini?')">
+                                                                        Keluarkan
+                                                                    </button>
+                                                                </form>
+                                                            </td>
+                                                        </tr>
+                                                    @endforeach
                                             </tbody>
                                         </table>
                                     </div>
