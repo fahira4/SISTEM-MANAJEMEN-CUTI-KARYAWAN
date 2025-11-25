@@ -20,10 +20,18 @@
                             </p>
                         </div>
                         
-                        <a href="{{ route('leave-applications.create') }}" 
-                           class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                            + Ajukan Cuti Baru
-                        </a>
+                        @if(auth()->user()->role == 'karyawan' && !auth()->user()->division_id)
+                            {{-- Tombol Disabled di Header --}}
+                            <button disabled class="inline-flex items-center px-4 py-2 bg-gray-400 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest cursor-not-allowed">
+                                🚫 Akun Belum Siap
+                            </button>
+                        @else
+                            {{-- Tombol Normal --}}
+                            <a href="{{ route('leave-applications.create') }}" 
+                            class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
+                                + Ajukan Cuti Baru
+                            </a>
+                        @endif
                     </div>
 
                     {{-- Filter Section --}}
@@ -241,17 +249,15 @@
                                                     </div>
                                                 @endif
 
-                                                {{-- TOMBOL BATALKAN untuk status pending --}}
-                                                @if ($application->status == 'pending')
-                                                    <form action="{{ route('leave-applications.cancel', $application->id) }}" method="POST" class="inline-block">
-                                                        @csrf
-                                                        <button type="submit" 
-                                                                class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded text-xs font-medium transition duration-150 ease-in-out"
-                                                                onclick="return confirm('Apakah Anda yakin ingin membatalkan pengajuan cuti ini? Kuota akan dikembalikan.')">
-                                                            Batalkan
-                                                        </button>
-                                                    </form>
-                                                @endif
+{{-- TOMBOL BATALKAN (Versi Simple) --}}
+@if ($application->status == 'pending' && $application->user_id == auth()->id())
+    <form action="{{ route('leave-applications.cancel', $application->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin membatalkan?');">
+        @csrf
+        <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded text-xs font-medium">
+            Batalkan
+        </button>
+    </form>
+@endif
                                                 
                                                 {{-- TOMBOL LAMPIRAN --}}
                                                 @if($application->attachment_path)
@@ -268,16 +274,26 @@
                                     <tr>
                                         <td colspan="5" class="px-6 py-8 text-center">
                                             <div class="text-center">
-                                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
-                                                </svg>
-                                                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada riwayat cuti</h3>
-                                                <p class="mt-1 text-sm text-gray-500">Mulai dengan mengajukan cuti pertama Anda.</p>
-                                                <div class="mt-4">
-                                                    <a href="{{ route('leave-applications.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-md hover:bg-blue-700">
-                                                        + Ajukan Cuti Baru
-                                                    </a>
-                                                </div>
+                                                {{-- Cek Divisi Dulu --}}
+                                                    @if(auth()->user()->role == 'karyawan' && !auth()->user()->division_id)
+                                                        {{-- Tampilan untuk Karyawan Tanpa Divisi --}}
+                                                        <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+                                                            <strong class="font-bold">Perhatian!</strong>
+                                                            <span class="block sm:inline">Anda belum terdaftar dalam Divisi manapun. Hubungi Admin untuk plotting divisi agar dapat mengajukan cuti.</span>
+                                                        </div>
+                                                        
+                                                        {{-- Tombol Disabled --}}
+                                                        <button disabled class="inline-flex items-center px-4 py-2 bg-gray-400 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest cursor-not-allowed">
+                                                            🚫 Akun Belum Siap
+                                                        </button>
+
+                                                    @else
+                                                        {{-- Tombol Normal (Kode Asli Anda) --}}
+                                                        <a href="{{ route('leave-applications.create') }}" 
+                                                        class="inline-flex items-center px-4 py-2 bg-blue-600 ...">
+                                                            + Ajukan Cuti Baru
+                                                        </a>
+                                                    @endif
                                             </div>
                                         </td>
                                     </tr>

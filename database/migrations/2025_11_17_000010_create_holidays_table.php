@@ -6,26 +6,20 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
-    public function up(): void
+    public function up()
     {
         Schema::create('holidays', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // Nama hari libur
             $table->date('date'); // Tanggal libur
-            $table->enum('type', ['national', 'company', 'collective_leave']); // Jenis libur
+            $table->enum('type', ['national', 'company', 'joint_leave']); // Jenis: nasional, perusahaan, cuti bersama
             $table->text('description')->nullable(); // Deskripsi
             $table->boolean('is_recurring')->default(false); // Berulang setiap tahun
             $table->timestamps();
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('holidays');
     }

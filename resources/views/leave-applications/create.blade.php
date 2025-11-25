@@ -10,47 +10,70 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
-{{-- Di bagian form pengajuan cuti --}}
-@if(Auth::user()->role == 'karyawan' && !Auth::user()->isEligibleForAnnualLeave())
-    <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
-        <p class="font-semibold">⚠️ Perhatian!</p>
-        <p>Anda <strong>belum eligible</strong> untuk cuti tahunan. 
-           Masa kerja Anda: <strong>{{ floor(Auth::user()->months_of_work) }} bulan</strong>. 
-           Syarat cuti tahunan: minimal <strong>12 bulan</strong> masa kerja.</p>
-        <p class="mt-2 text-sm">💡 Anda masih dapat mengajukan <strong>Cuti Sakit</strong> dengan melampirkan surat dokter.</p>
-    </div>
-@endif
-
-{{-- Formulir --}}
-<form method="POST" action="{{ route('leave-applications.store') }}" enctype="multipart/form-data" id="leaveForm">
-    @csrf
-
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Jenis Cuti -->
-        <div class="md:col-span-2">
-            <label for="leave_type" class="block font-medium text-sm text-gray-700">Jenis Cuti *</label>
-            <select id="leave_type" name="leave_type" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
-                <option value="">Pilih Jenis Cuti</option>
-                <option value="tahunan" {{ old('leave_type') == 'tahunan' ? 'selected' : '' }}>
-                    Cuti Tahunan (Sisa: {{ auth()->user()->annual_leave_quota }} hari)
-                    @if(Auth::user()->role == 'karyawan' && !Auth::user()->isEligibleForAnnualLeave())
-                        - ❌ Tidak Eligible
+                    {{-- CEK DIVISI: Peringatan jika Karyawan belum masuk Divisi --}}
+                    @if(auth()->user()->role == 'karyawan' && !auth()->user()->division_id)
+                        <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6 rounded shadow-sm" role="alert">
+                            <div class="flex items-start">
+                                <div class="py-1">
+                                    <svg class="fill-current h-6 w-6 text-red-500 mr-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                        <path d="M2.93 17.07A10 10 0 1 1 17.07 2.93 10 10 0 0 1 2.93 17.07zm12.73-1.41A8 8 0 1 0 4.34 4.34a8 8 0 0 0 11.32 11.32zM9 11V9h2v6H9v-4zm0-6h2v2H9V5z"/>
+                                    </svg>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-lg"> Akun Belum Siap!</p>
+                                    <p class="text-sm font-medium mt-1">
+                                        Anda belum terdaftar dalam <strong>Divisi</strong> manapun.
+                                    </p>
+                                    <p class="text-sm mt-2">
+                                        Sistem tidak dapat memproses pengajuan karena tidak ada atasan (Ketua Divisi) yang terhubung. 
+                                        Silakan hubungi <strong>Admin</strong> untuk penempatan divisi.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
                     @endif
-                </option>
-                <option value="sakit" {{ old('leave_type') == 'sakit' ? 'selected' : '' }}>
-                    Cuti Sakit
-                </option>
-            </select>
-            @if(Auth::user()->role == 'karyawan' && !Auth::user()->isEligibleForAnnualLeave())
-                <p class="text-xs text-red-600 mt-1">
-                    ❌ Anda belum eligible cuti tahunan (masa kerja: {{ floor(Auth::user()->months_of_work) }} bulan)
-                </p>
-            @else
-                <p class="text-xs text-gray-500 mt-1">
-                    Pilih jenis cuti sesuai kebutuhan
-                </p>
-            @endif
-        </div>
+
+                    {{-- Di bagian form pengajuan cuti --}}
+                    @if(Auth::user()->role == 'karyawan' && !Auth::user()->isEligibleForAnnualLeave())
+                        <div class="bg-yellow-100 border border-yellow-400 text-yellow-700 px-4 py-3 rounded mb-4">
+                            <p class="font-semibold"> Perhatian!</p>
+                            <p>Anda <strong>belum eligible</strong> untuk cuti tahunan. 
+                            Masa kerja Anda: <strong>{{ floor(Auth::user()->months_of_work) }} bulan</strong>. 
+                            Syarat cuti tahunan: minimal <strong>12 bulan</strong> masa kerja.</p>
+                            <p class="mt-2 text-sm"> Anda masih dapat mengajukan <strong>Cuti Sakit</strong> dengan melampirkan surat dokter.</p>
+                        </div>
+                    @endif
+
+                    {{-- Formulir --}}
+                    <form method="POST" action="{{ route('leave-applications.store') }}" enctype="multipart/form-data" id="leaveForm">
+                        @csrf
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <!-- Jenis Cuti -->
+                            <div class="md:col-span-2">
+                                <label for="leave_type" class="block font-medium text-sm text-gray-700">Jenis Cuti *</label>
+                                <select id="leave_type" name="leave_type" class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" required>
+                                    <option value="">Pilih Jenis Cuti</option>
+                                    <option value="tahunan" {{ old('leave_type') == 'tahunan' ? 'selected' : '' }}>
+                                        Cuti Tahunan (Sisa: {{ auth()->user()->annual_leave_quota }} hari)
+                                        @if(Auth::user()->role == 'karyawan' && !Auth::user()->isEligibleForAnnualLeave())
+                                            -  Tidak Eligible
+                                        @endif
+                                    </option>
+                                    <option value="sakit" {{ old('leave_type') == 'sakit' ? 'selected' : '' }}>
+                                        Cuti Sakit
+                                    </option>
+                                </select>
+                                @if(Auth::user()->role == 'karyawan' && !Auth::user()->isEligibleForAnnualLeave())
+                                    <p class="text-xs text-red-600 mt-1">
+                                         Anda belum eligible cuti tahunan (masa kerja: {{ floor(Auth::user()->months_of_work) }} bulan)
+                                    </p>
+                                @else
+                                    <p class="text-xs text-gray-500 mt-1">
+                                        Pilih jenis cuti sesuai kebutuhan
+                                    </p>
+                                @endif
+                            </div>
 
                             <!-- Informasi Tanggal Pengajuan -->
                             <div class="md:col-span-2 p-3 bg-gray-50 rounded-lg">
@@ -72,6 +95,11 @@
                                        min="{{ date('Y-m-d', strtotime('+3 days')) }}"
                                        class="mt-1 block w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" 
                                        required />
+
+                                       @error('start_date')
+                                            <p class="text-red-600 text-sm mt-1">⚠️ {{ $message }}</p>
+                                        @enderror
+                                        
                                 <p class="text-xs text-gray-500 mt-1" id="startDateHelp">
                                     Minimal H+3 dari hari ini ({{ date('d/m/Y') }})
                                 </p>
@@ -179,36 +207,38 @@
                             </ul>
                         </div>
 
-                         {{-- Tombol Aksi --}}
-    <div class="flex items-center justify-end mt-6 pt-6 border-t border-gray-200">
-        <a href="{{ route('dashboard') }}" 
-           class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-150 ease-in-out mr-4">
-            Batal
-        </a>
-        
-        @if(Auth::user()->role == 'karyawan' && !Auth::user()->isEligibleForAnnualLeave())
-            <button type="button" 
-                    class="px-6 py-2 bg-gray-400 text-gray-600 rounded-md cursor-not-allowed font-medium"
-                    disabled
-                    id="disabledSubmitBtn">
-                🔒 Tidak Dapat Ajukan Cuti Tahunan
-            </button>
-            
-            {{-- Tombol hidden untuk cuti sakit --}}
-            <button type="submit" 
-                    class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out font-medium hidden"
-                    id="sakitSubmitBtn">
-                📨 Ajukan Cuti Sakit
-            </button>
-        @else
-            <button type="submit" 
-                    class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out font-medium"
-                    id="submitBtn">
-                📨 Ajukan Cuti
-            </button>
-        @endif
-    </div>
-</form>
+                        {{-- Tombol Aksi --}}
+                        <div class="flex items-center justify-end mt-6 pt-6 border-t border-gray-200">
+                            <a href="{{ route('dashboard') }}" 
+                            class="px-6 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-150 ease-in-out mr-4">
+                                Batal
+                            </a>
+                            
+                            @if(Auth::user()->role == 'karyawan' && !Auth::user()->isEligibleForAnnualLeave())
+                                {{-- Tombol untuk cuti tahunan (disabled) --}}
+                                <button type="button" 
+                                        class="px-6 py-2 bg-gray-400 text-gray-600 rounded-md cursor-not-allowed font-medium"
+                                        disabled
+                                        id="disabledSubmitBtn">
+                                    🔒 Tidak Dapat Ajukan Cuti Tahunan
+                                </button>
+                                
+                                {{-- Tombol untuk cuti sakit (hidden awalnya) --}}
+                                <button type="submit" 
+                                        class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out font-medium hidden"
+                                        id="sakitSubmitBtn">
+                                    📨 Ajukan Cuti Sakit
+                                </button>
+                            @else
+                                {{-- Tombol untuk user eligible --}}
+                                <button type="submit" 
+                                        class="px-6 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition duration-150 ease-in-out font-medium"
+                                        id="submitBtn">
+                                    📨 Ajukan Cuti
+                                </button>
+                            @endif
+                        </div>
+                        </form>
 
                 </div>
             </div>
@@ -228,64 +258,103 @@
         const attachmentHelp = document.getElementById('attachmentHelp');
         const attachmentStatus = document.getElementById('attachmentStatus');
         
-        // ✅ PERBAIKAN: Tangani semua tombol yang mungkin ada
+        // Tombol-tombol
         const disabledSubmitBtn = document.getElementById('disabledSubmitBtn');
         const sakitSubmitBtn = document.getElementById('sakitSubmitBtn');
         const submitBtn = document.getElementById('submitBtn');
+        const leaveForm = document.getElementById('leaveForm');
 
-        const userQuota = {{ auth()->user()->annual_leave_quota }};
+        // Data dari PHP (Backend)
+        const hasDivision = {{ auth()->user()->division_id ? 'true' : 'false' }};
         const userRole = "{{ auth()->user()->role }}";
+        // Mengambil status eligible dan kuota dengan aman
         const isEligible = {{ auth()->user()->isEligibleForAnnualLeave() ? 'true' : 'false' }};
-        const today = new Date();
+        const userQuota = {{ auth()->user()->annual_leave_quota ?? 0 }};
 
-        // ✅ FUNGSI UTAMA: Update state tombol submit
+        // ✅ FUNGSI UTAMA: Mengatur tampilan tombol berdasarkan logika bisnis
         function updateSubmitButton() {
+            // 1. Cek Divisi (Karyawan wajib punya divisi)
+            if (userRole === 'karyawan' && !hasDivision) {
+                hideAllButtons();
+                return;
+            }
+
             const leaveType = leaveTypeSelect.value;
             
-            // Untuk karyawan yang belum eligible
-            if (userRole === 'karyawan' && !isEligible && disabledSubmitBtn && sakitSubmitBtn) {
+            // 2. Logika Karyawan Non-Eligible (Masa kerja < 1 tahun)
+            if (userRole === 'karyawan' && !isEligible) {
                 if (leaveType === 'tahunan') {
-                    // Tampilkan tombol disabled, sembunyikan tombol sakit
-                    disabledSubmitBtn.classList.remove('hidden');
-                    sakitSubmitBtn.classList.add('hidden');
+                    // Jika nekat pilih tahunan -> Munculkan tombol terkunci
+                    showButton('disabled'); 
+                } else if (leaveType === 'sakit') {
+                    // Jika pilih sakit -> Boleh submit (tombol hijau khusus sakit)
+                    showButton('sakit');
                 } else {
-                    // Tampilkan tombol sakit, sembunyikan tombol disabled
-                    disabledSubmitBtn.classList.add('hidden');
-                    sakitSubmitBtn.classList.remove('hidden');
+                    hideAllButtons();
                 }
             }
-            // Untuk user eligible atau role lainnya, pastikan tombol utama visible
-            else if (submitBtn) {
-                submitBtn.classList.remove('hidden');
+            // 3. Logika User Normal / Eligible
+            else {
+                if (leaveType) {
+                    showButton('normal');
+                } else {
+                    hideAllButtons();
+                }
             }
         }
 
-        // Format tanggal untuk display
-        function formatDate(date) {
-            return date.toLocaleDateString('id-ID', { 
-                day: '2-digit', 
-                month: '2-digit', 
-                year: 'numeric' 
-            });
+        // Helper untuk mengatur visibilitas tombol
+        function hideAllButtons() {
+            if(disabledSubmitBtn) disabledSubmitBtn.classList.add('hidden');
+            if(sakitSubmitBtn) sakitSubmitBtn.classList.add('hidden');
+            if(submitBtn) submitBtn.classList.add('hidden');
         }
 
-        // Fungsi hitung hari kerja (Senin-Jumat)
+        function showButton(type) {
+            hideAllButtons();
+            if (type === 'disabled' && disabledSubmitBtn) disabledSubmitBtn.classList.remove('hidden');
+            if (type === 'sakit' && sakitSubmitBtn) sakitSubmitBtn.classList.remove('hidden');
+            if (type === 'normal' && submitBtn) submitBtn.classList.remove('hidden');
+        }
+
+        const holidays = @json($holidays ?? []);
+        console.log("Daftar Hari Libur dari Database:", holidays);
+
+        // --- Fungsi Helper Tanggal & Hari Kerja ---
+        
         function calculateWorkingDays(start, end) {
-            let count = 0;
-            let current = new Date(start);
-            const endDate = new Date(end);
+        let count = 0;
+        let current = new Date(start + 'T00:00:00');
+        const endDate = new Date(end + 'T00:00:00');
+        
+        while (current <= endDate) {
+            const day = current.getDay();
             
-            while (current <= endDate) {
-                const day = current.getDay();
-                if (day !== 0 && day !== 6) { // Bukan Minggu (0) dan Sabtu (6)
-                    count++;
-                }
-                current.setDate(current.getDate() + 1);
-            }
-            return count;
-        }
+            // --- LOGIKA BARU: Cek apakah tanggal ini ada di daftar libur? ---
+            
+            // Kita format tanggal current jadi "YYYY-MM-DD" agar cocok dengan data database
+            const year = current.getFullYear();
+            const month = String(current.getMonth() + 1).padStart(2, '0'); // Tambah 0 jika bulan < 10
+            const dateVal = String(current.getDate()).padStart(2, '0');    // Tambah 0 jika tanggal < 10
+            const dateString = `${year}-${month}-${dateVal}`;
 
-        // Fungsi update informasi tanggal
+            // Cek apakah dateString ada di dalam array holidays?
+            const isHoliday = holidays.includes(dateString);
+
+            if (isHoliday) {
+                console.log(`Skip Tanggal Merah: ${dateString}`);
+            }
+
+            // Hitung HANYA JIKA: Bukan Minggu, Bukan Sabtu, DAN Bukan Tanggal Merah
+            if (day !== 0 && day !== 6 && !isHoliday) { 
+                count++;
+            }
+            
+            current.setDate(current.getDate() + 1);
+        }
+        return count;
+    }
+
         function updateDateInfo() {
             const startDate = startDateInput.value;
             const endDate = endDateInput.value;
@@ -295,127 +364,99 @@
                 const totalDays = calculateWorkingDays(startDate, endDate);
                 totalDaysSpan.textContent = totalDays + ' hari';
                 
+                // Update sisa kuota (hanya visual)
                 if (leaveType === 'tahunan') {
                     const remaining = userQuota - totalDays;
                     remainingQuotaSpan.textContent = remaining + ' hari';
                     remainingQuotaSpan.className = remaining < 0 ? 'font-medium text-red-600' : 'font-medium text-green-600';
                 } else {
-                    remainingQuotaSpan.textContent = userQuota + ' hari';
+                    remainingQuotaSpan.textContent = userQuota + ' hari'; // Cuti sakit tidak potong kuota
                     remainingQuotaSpan.className = 'font-medium text-gray-600';
                 }
-                
                 dateInfoDiv.style.display = 'block';
             } else {
                 dateInfoDiv.style.display = 'none';
             }
         }
 
-        // Fungsi toggle field lampiran
         function toggleAttachmentField() {
             const isSakit = leaveTypeSelect.value === 'sakit';
-            
             if (isSakit) {
+                // Konfigurasi Cuti Sakit
                 attachmentRequired.style.display = 'inline';
                 attachmentStatus.textContent = 'Wajib';
                 attachmentStatus.className = 'font-medium text-red-600';
                 document.getElementById('attachment_path').required = true;
                 
-                // Untuk cuti sakit, kurangi batasan tanggal minimal
+                // Reset min date agar bisa pilih hari ini
                 startDateInput.min = "{{ date('Y-m-d') }}";
-                document.getElementById('startDateHelp').textContent = 'Dapat diajukan H-0 untuk cuti sakit';
+                document.getElementById('startDateHelp').textContent = 'Dapat diajukan mulai hari ini';
             } else {
+                // Konfigurasi Cuti Tahunan
                 attachmentRequired.style.display = 'none';
                 attachmentStatus.textContent = 'Opsional';
                 attachmentStatus.className = 'font-medium text-gray-600';
                 document.getElementById('attachment_path').required = false;
                 
-                // Untuk cuti tahunan, tambah batasan H+3
+                // Set min date H+3
                 startDateInput.min = "{{ date('Y-m-d', strtotime('+3 days')) }}";
-                document.getElementById('startDateHelp').textContent = 'Minimal H+3 dari hari ini ({{ date('d/m/Y') }})';
+                document.getElementById('startDateHelp').textContent = 'Minimal H+3 dari hari ini';
             }
         }
 
-        // Event listeners
+        // --- Event Listeners ---
+
         leaveTypeSelect.addEventListener('change', function() {
             toggleAttachmentField();
             updateDateInfo();
-            updateSubmitButton(); // ✅ UPDATE TOMBOL SETIAP GANTI JENIS CUTI
+            updateSubmitButton(); // Critical update
             
-            // Reset tanggal jika jenis cuti berubah
-            if (this.value === 'sakit') {
-                startDateInput.min = "{{ date('Y-m-d') }}";
-            } else {
-                startDateInput.min = "{{ date('Y-m-d', strtotime('+3 days')) }}";
-            }
+            // Reset dates jika ganti tipe cuti untuk mencegah konflik validasi min date
+            startDateInput.value = '';
+            endDateInput.value = '';
+            dateInfoDiv.style.display = 'none';
         });
 
         startDateInput.addEventListener('change', function() {
-            // Update min end_date berdasarkan start_date
             if (this.value) {
                 const minEndDate = new Date(this.value);
-                minEndDate.setDate(minEndDate.getDate() + 1);
-                endDateInput.min = minEndDate.toISOString().split('T')[0];
+                // end date minimal sama dengan start date
+                endDateInput.min = this.value; 
             }
             updateDateInfo();
         });
 
         endDateInput.addEventListener('change', updateDateInfo);
 
-        // Validasi form sebelum submit
-        document.getElementById('leaveForm').addEventListener('submit', function(e) {
-            const leaveType = leaveTypeSelect.value;
-            const startDate = startDateInput.value;
-            const endDate = endDateInput.value;
-            
-            // ✅ Validasi untuk karyawan yang belum eligible
-            if (leaveType === 'tahunan' && userRole === 'karyawan' && !isEligible) {
-                e.preventDefault();
-                alert('❌ Anda belum eligible untuk cuti tahunan. Masa kerja minimal 1 tahun required.');
-                return false;
-            }
-            
-            if (leaveType === 'tahunan') {
-                const totalDays = calculateWorkingDays(startDate, endDate);
-                if (totalDays > userQuota) {
-                    e.preventDefault();
-                    alert('❌ Kuota cuti tahunan tidak mencukupi! Sisa kuota: ' + userQuota + ' hari, butuh: ' + totalDays + ' hari.');
-                    return false;
-                }
+        // --- Form Submission Validation ---
+        if (leaveForm) {
+            leaveForm.addEventListener('submit', function(e) {
+                const leaveType = leaveTypeSelect.value;
                 
-                // Validasi H-3 untuk cuti tahunan
-                const today = new Date();
-                const start = new Date(startDate);
-                const minDate = new Date(today);
-                minDate.setDate(today.getDate() + 3);
-                
-                if (start < minDate) {
+                // Double Check: Blokir jika karyawan non-eligible memaksa submit cuti tahunan
+                if (leaveType === 'tahunan' && userRole === 'karyawan' && !isEligible) {
                     e.preventDefault();
-                    alert('❌ Cuti tahunan harus diajukan minimal H-3 (3 hari kerja) sebelum tanggal mulai.');
+                    alert('⛔ Anda belum berhak mengambil Cuti Tahunan karena masa kerja kurang dari 1 tahun.\nSilakan gunakan Cuti Sakit jika diperlukan.');
                     return false;
                 }
-            }
-            
-            // Validasi untuk cuti sakit
-            if (leaveType === 'sakit') {
-                const attachment = document.getElementById('attachment_path').files[0];
-                if (!attachment) {
-                    e.preventDefault();
-                    alert('❌ Untuk cuti sakit, wajib melampirkan surat dokter.');
-                    return false;
-                }
-            }
-        });
 
-        // ✅ INITIAL SETUP: Panggil di awal
+                const startDate = startDateInput.value;
+                const endDate = endDateInput.value;
+
+                if (leaveType === 'tahunan') {
+                    const totalDays = calculateWorkingDays(startDate, endDate);
+                    if (totalDays > userQuota) {
+                        e.preventDefault();
+                        alert('❌ Kuota cuti tahunan tidak mencukupi!');
+                        return false;
+                    }
+                }
+            });
+        }
+
+        // --- Init ---
         updateSubmitButton();
         toggleAttachmentField();
-        
-        // Set min date untuk end_date berdasarkan start_date jika sudah ada value
-        if (startDateInput.value) {
-            const minEndDate = new Date(startDateInput.value);
-            minEndDate.setDate(minEndDate.getDate() + 1);
-            endDateInput.min = minEndDate.toISOString().split('T')[0];
-        }
     });
 </script>
 

@@ -32,7 +32,6 @@
                                 <label for="username" class="block font-medium text-sm text-gray-700">Username *</label>
                                 <input id="username" class="block mt-1 w-full border-gray-300 focus:border-indigo-500 focus:ring-indigo-500 rounded-md shadow-sm" 
                                        type="text" name="username" value="{{ old('username') }}" required />
-                                <p class="text-xs text-gray-500 mt-1">Huruf kecil, angka, titik, underscore. Contoh: budi.santoso</p>
                                 @error('username')
                                     <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
                                 @enderror

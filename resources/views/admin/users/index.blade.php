@@ -245,7 +245,15 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                            {{ $user->division->name ?? '-' }}
+                                            @if($user->division)
+                                                {{-- Jika dia punya division_id (Karyawan/Ketua yg datanya lengkap) --}}
+                                                {{ $user->division->name }}
+                                            @elseif($user->leadingDivision)
+                                                {{-- Jika dia terdaftar sebagai Ketua di tabel Divisi --}}
+                                                {{ $user->leadingDivision->name }}
+                                            @else
+                                                -
+                                            @endif
                                         </td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                             {{ $user->join_date ? \Carbon\Carbon::parse($user->join_date)->format('d/m/Y') : '-' }}

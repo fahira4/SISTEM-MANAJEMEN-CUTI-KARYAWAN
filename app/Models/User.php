@@ -67,24 +67,48 @@ class User extends Authenticatable
     }
 
 public function getEmploymentPeriodAttribute()
-    {
-        if (!$this->join_date) {
-            return 'Tidak tersedia';
-        }
-
-        $joinDate = Carbon::parse($this->join_date);
-        $now = Carbon::now();
-        
-        // CARA PASTI: Hitung manual dengan timestamp
-        $seconds = $now->timestamp - $joinDate->timestamp;
-        $days = floor($seconds / (60 * 60 * 24)); // Convert seconds to days
-        
-        // Pastikan hasilnya bilangan bulat positif
-        $days = max(0, (int)$days);
-        
-        return "{$days} hari";
+{
+    if (!$this->join_date) {
+        return '0 hari';
     }
 
+    try {
+        $joinDate = Carbon::parse($this->join_date)->startOfDay(); // ✅ SET KE 00:00:00
+        $now = Carbon::now()->startOfDay(); // ✅ SET KE 00:00:00
+        
+        // Pastikan join_date tidak di masa depan
+        if ($joinDate->gt($now)) {
+            return '0 hari';
+        }
+        
+        // ✅ HITUNG SELISIH TANGGAL SAJA (TANPA JAM)
+        $days = $joinDate->diffInDays($now);
+        
+        // Format output
+        if ($days == 0) {
+            return 'Hari ini';
+        } elseif ($days == 1) {
+            return '1 hari';
+        } elseif ($days < 30) {
+            return "{$days} hari";
+        } elseif ($days < 365) {
+            $months = floor($days / 30);
+            return "{$months} bulan";
+        } else {
+            $years = floor($days / 365);
+            $remainingMonths = floor(($days % 365) / 30);
+            if ($remainingMonths > 0) {
+                return "{$years} tahun {$remainingMonths} bulan";
+            } else {
+                return "{$years} tahun";
+            }
+        }
+        
+    } catch (\Exception $e) {
+        \Log::error("Error calculating employment period: " . $e->getMessage());
+        return '0 hari';
+    }
+}
     /**
      * Scope untuk filter masa kerja dalam HARI
      */
@@ -117,7 +141,7 @@ public function getEmploymentPeriodAttribute()
 
     public function leadingDivision()
     {
-        return $this->hasOne(Division::class, 'leader_id');
+        return $this->hasOne(Division::class, 'leader_id', 'id');
     }   
 
     public function isDivisionLeader()

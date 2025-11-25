@@ -16,7 +16,7 @@ class UserController extends Controller
      */
     public function index(Request $request)
 {
-    $query = User::with('division');
+    $query = User::with(['division', 'leadingDivision']);
     
     // Filter by role
     if ($request->has('role') && $request->role != '') {

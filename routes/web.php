@@ -6,6 +6,12 @@ use App\Http\Controllers\Admin\DivisionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\LeaveApplicationController;
 use App\Http\Controllers\LeavePdfController;
+use App\Http\Controllers\Admin\HolidayController; 
+
+// ✅ TEST ROUTE - PASTI BEKERJA
+Route::get('/test-simple', function() {
+    return "SIMPLE TEST WORKS!";
+});
 
 Route::get('/', function () {
     return view('welcome');
@@ -14,10 +20,6 @@ Route::get('/', function () {
 Route::get('/dashboard', function () {
     return view('dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
-
-// Route untuk pengajuan cuti
-Route::resource('leave-applications', LeaveApplicationController::class)
-    ->middleware(['auth']);
 
 // Route untuk verifikasi cuti
 Route::get('/leave-verifications', [LeaveApplicationController::class, 'showVerificationList'])
@@ -41,7 +43,10 @@ Route::middleware('auth')->prefix('leave-applications')->name('leave-application
     Route::post('/', [LeaveApplicationController::class, 'store'])->name('store');
     Route::get('/{leaveApplication}', [LeaveApplicationController::class, 'show'])->name('show');
     Route::post('/{application}/cancel', [LeaveApplicationController::class, 'cancelLeave'])->name('cancel');
-    
+    // SINGLE APPROVAL/REJECTION
+    Route::patch('/{application}/approve', [LeaveApplicationController::class, 'approveLeave'])->name('approve');
+    Route::patch('/{application}/reject', [LeaveApplicationController::class, 'rejectLeave'])->name('reject');
+
     // ==================== PDF ROUTES ====================
     Route::get('/{leaveApplication}/download-letter', 
         [LeavePdfController::class, 'generateLeaveLetter'])
@@ -61,9 +66,7 @@ Route::middleware('auth')->prefix('leave-verifications')->name('leave-verificati
     Route::get('/', [LeaveApplicationController::class, 'showVerificationList'])->name('index');
     Route::get('/{application}', [LeaveApplicationController::class, 'showVerificationDetail'])->name('show');
     
-    // SINGLE APPROVAL/REJECTION
-    Route::post('/{application}/approve', [LeaveApplicationController::class, 'approveLeave'])->name('approve');
-    Route::post('/{application}/reject', [LeaveApplicationController::class, 'rejectLeave'])->name('reject');
+    
     
     // ✅ BULK/MULTIPLE APPROVAL/REJECTION (NEW)
     Route::post('/bulk-action', [LeaveApplicationController::class, 'bulkApproveReject'])
@@ -71,12 +74,26 @@ Route::middleware('auth')->prefix('leave-verifications')->name('leave-verificati
 });
 
 // ==================== ADMIN ROUTES ====================
-Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->group(function () {
+    // ✅ ROUTE IMPORT TANPA MIDDLEWARE DULU
+    Route::get('holidays/import-test', function() {
+        return "IMPORT TEST WORKS!";
+    });
+    
+    Route::get('holidays/import', [HolidayController::class, 'showImportForm'])
+        ->name('holidays.import-form');
+        
+    Route::post('holidays/import', [HolidayController::class, 'importFromGoogleCalendar'])
+        ->name('holidays.import');
+    
     // Users Management
     Route::resource('users', UserController::class);
     
     // Divisions Management
     Route::resource('divisions', DivisionController::class);
+    
+    // Holidays Management
+    Route::resource('holidays', HolidayController::class);
     
     // Division Members Management
     Route::get('divisions/{division}/members', [DivisionController::class, 'showMembers'])->name('divisions.members.show');
