@@ -1,48 +1,69 @@
 <x-guest-layout>
     <div class="min-h-screen w-full flex bg-white">
         
-        <div class="hidden md:flex md:w-1/2 bg-blue-900 relative flex-col justify-center items-center text-white overflow-hidden">
-            
-            <div class="absolute inset-0 opacity-10" 
-                 style="background-image: radial-gradient(#ffffff 2px, transparent 2px); background-size: 40px 40px;">
-            </div>
-            
-            <div class="absolute top-0 left-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2"></div>
-            <div class="absolute bottom-0 right-0 w-64 h-64 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 translate-x-1/2 translate-y-1/2"></div>
+<div class="hidden md:flex md:w-1/2 bg-blue-900 relative flex-col justify-center items-center text-white overflow-hidden px-6 lg:px-10">
+    
+    <div class="absolute top-0 left-0 w-64 h-64 bg-blue-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 -translate-x-1/2 -translate-y-1/2"></div>
+    <div class="absolute bottom-0 right-0 w-64 h-64 bg-cyan-500 rounded-full mix-blend-multiply filter blur-3xl opacity-20 translate-x-1/2 translate-y-1/2"></div>
 
-            <div class="relative z-10 p-12 text-center max-w-lg">
-                <div class="mb-8 inline-flex items-center justify-center w-24 h-24 rounded-3xl bg-white/10 backdrop-blur-sm border border-white/20 shadow-2xl">
-                    <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="16" y1="2" x2="16" y2="6"></line>
-                        <line x1="8" y1="2" x2="8" y2="6"></line>
-                        <line x1="3" y1="10" x2="21" y2="10"></line>
-                    </svg>
+    <div class="relative z-10 w-full max-w-2xl flex flex-col items-center">
+        
+        <div class="text-center mb-10 w-full">
+            <h2 class="text-3xl lg:text-4xl font-bold tracking-tight mb-2">Sistem Manajemen Cuti</h2>
+            <div class="h-1.5 w-20 bg-blue-400 mx-auto rounded-full mb-3"></div>
+            <p class="text-blue-200 text-base lg:text-lg font-light tracking-wide uppercase">PT AMANAH JAYA</p>
+        </div>
+
+    <div class="flex flex-col lg:flex-row items-center justify-center gap-6 w-full px-4">
+            
+            <div class="w-full lg:w-5/12 flex justify-center lg:justify-end">
+                <div class="w-60 h-60 lg:w-80 lg:h-80 relative transition-all duration-500"> 
+                    <img src="{{ asset('images/login-illustration.svg') }}" 
+                         alt="Ilustrasi Cuti" 
+                         class="absolute inset-0 w-full h-full object-contain drop-shadow-2xl hover:scale-105 transition-transform duration-500">
+                </div>
+            </div>
+
+            <div class="w-full lg:w-7/12 space-y-5 pl-4">
+                
+                <div class="flex items-center space-x-4 group p-3 rounded-xl hover:bg-white/5 transition-all cursor-default">
+                    <div class="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:bg-blue-500 transition-colors">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-lg">Paperless</h3>
+                        <p class="text-sm text-blue-200">Pengajuan cuti serba digital</p>
+                    </div>
+                </div>
+
+                <div class="flex items-center space-x-4 group p-3 rounded-xl hover:bg-white/5 transition-all cursor-default">
+                    <div class="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:bg-blue-500 transition-colors">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-lg">Realtime</h3>
+                        <p class="text-sm text-blue-200">Pantau status approval terkini</p>
+                    </div>
                 </div>
                 
-                <h2 class="text-4xl font-bold mb-4 tracking-tight">Sistem Manajemen Cuti</h2>
-                <p class="text-blue-200 text-lg font-light mb-8">Universitas Hasanuddin</p>
-
-                <div class="space-y-4 text-left bg-white/5 p-6 rounded-2xl border border-white/10">
-                    <div class="flex items-center space-x-3">
-                        <div class="p-1 bg-blue-500 rounded-full"><svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div>
-                        <span class="text-blue-50">Pengajuan Cuti Digital (Paperless)</span>
+                <div class="flex items-center space-x-4 group p-3 rounded-xl hover:bg-white/5 transition-all cursor-default">
+                    <div class="flex-shrink-0 w-12 h-12 bg-blue-600 rounded-2xl flex items-center justify-center shadow-lg group-hover:bg-blue-500 transition-colors">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                     </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="p-1 bg-blue-500 rounded-full"><svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div>
-                        <span class="text-blue-50">Approval Berjenjang & Realtime</span>
-                    </div>
-                    <div class="flex items-center space-x-3">
-                        <div class="p-1 bg-blue-500 rounded-full"><svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg></div>
-                        <span class="text-blue-50">Cek Sisa Kuota Kapan Saja</span>
+                    <div>
+                        <h3 class="font-bold text-white text-lg">Cek Kuota</h3>
+                        <p class="text-sm text-blue-200">Sisa cuti terhitung otomatis</p>
                     </div>
                 </div>
-            </div>
 
-            <div class="absolute bottom-6 text-blue-300/60 text-xs">
-                &copy; {{ date('Y') }} Human Resource Department
             </div>
         </div>
+    </div>
+
+    <div class="absolute bottom-6 text-blue-300/60 text-xs tracking-wider">
+        &copy; {{ date('Y') }} Human Resource Departmen
+    </div>
+</div>
 
         <div class="w-full md:w-1/2 flex items-center justify-center p-8 bg-white overflow-y-auto">
             <div class="w-full max-w-md space-y-8">
@@ -114,10 +135,6 @@
                         </x-primary-button>
                     </div>
                 </form>
-
-                <div class="mt-6 text-center text-sm text-gray-400">
-                    Sistem Informasi Semester 3 - Project Final Web
-                </div>
             </div>
         </div>
     </div>
