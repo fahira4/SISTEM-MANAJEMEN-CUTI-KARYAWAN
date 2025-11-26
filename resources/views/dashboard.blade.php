@@ -1,485 +1,236 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Dashboard') }}
-        </h2>
-    </x-slot>
+    {{-- ================================================== --}}
+    {{-- 1. HERO SECTION & GLASS CARD --}}
+    {{-- ================================================== --}}
+    <div class="relative bg-blue-900 pb-24 pt-8 overflow-hidden">
+        {{-- Background Pattern Halus --}}
+        <div class="absolute inset-0 opacity-10">
+            <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
+            </svg>
+        </div>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-
-                    {{-- Pesan Sukses/Error --}}
-                    @if (session('success'))
-                        <div class="mb-4 p-3 bg-green-100 text-green-700 rounded">{{ session('success') }}</div>
-                    @endif
-                    @if (session('error'))
-                        <div class="mb-4 p-3 bg-red-100 text-red-700 rounded">{{ session('error') }}</div>
-                    @endif
-                    
-                    {{-- ================================================== --}}
-                    {{-- DASBOR ADMIN --}}
-                    {{-- ================================================== --}}
-                    @if (Auth::user()->role == 'admin')
-                        <h3 class="font-semibold text-lg mb-4">Selamat Datang, {{ Auth::user()->name }} (Administrator)</h3>
-
-                        @php
-                            // Statistik User
-                            $activeUsers = \App\Models\User::where('active_status', true)->count();
-                            $inactiveUsers = \App\Models\User::where('active_status', false)->count();
-                            $totalUsers = $activeUsers + $inactiveUsers;
-
-                            $totalDivisions = \App\Models\Division::count();
-                            
-                            // Total Cuti Bulan Ini
-                            $totalLeavesThisMonth = \App\Models\LeaveApplication::whereMonth('created_at', now()->month)
-                                ->whereYear('created_at', now()->year)
-                                ->count();
-
-                            // Pending Approvals (Global - Menunggu HRD atau Leader)
-                            // Definisi "Pending Approval" admin bisa berarti semua yang belum final
-                            $pendingApprovals = \App\Models\LeaveApplication::whereIn('status', ['pending', 'approved_by_leader'])->count();
-
-                            // Karyawan masa kerja < 1 tahun (List)
-                            $newEmployeesList = \App\Models\User::where('role', 'karyawan')
-                                ->where('active_status', true)
-                                ->where('join_date', '>=', now()->subYear())
-                                ->with('division')
-                                ->orderBy('join_date', 'desc')
-                                ->limit(5)
-                                ->get();
-                        @endphp
-
-                        {{-- Grid Statistik Utama --}}
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-                            <!-- User Stats -->
-                            <div class="bg-blue-50 p-6 rounded-lg shadow-md border border-blue-200">
-                                <h4 class="text-blue-700 uppercase text-sm font-medium tracking-wider">Karyawan</h4>
-                                <div class="mt-2 flex items-end gap-2">
-                                    <span class="text-3xl font-bold text-gray-900">{{ $activeUsers }}</span>
-                                    <span class="text-sm text-green-600 font-medium mb-1">Aktif</span>
-                                </div>
-                                <div class="text-sm text-gray-500 mt-1">
-                                    Non-Aktif: <span class="font-medium text-gray-700">{{ $inactiveUsers }}</span>
-                                </div>
-                                <a href="{{ route('admin.users.index') }}" class="text-blue-600 hover:underline text-sm font-semibold mt-3 inline-block">Kelola User &rarr;</a>
-                            </div>
-
-                            <!-- Pengajuan Bulan Ini -->
-                            <div class="bg-indigo-50 p-6 rounded-lg shadow-md border border-indigo-200">
-                                <h4 class="text-indigo-700 uppercase text-sm font-medium tracking-wider">Pengajuan Bulan Ini</h4>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $totalLeavesThisMonth }}</p>
-                                <span class="text-sm text-indigo-600">Total Masuk</span>
-                            </div>
-
-                            <!-- Pending Approval -->
-                            <div class="bg-yellow-50 p-6 rounded-lg shadow-md border border-yellow-200">
-                                <h4 class="text-yellow-700 uppercase text-sm font-medium tracking-wider">Pending Approval</h4>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $pendingApprovals }}</p>
-                                <span class="text-sm text-yellow-600">Belum Final</span>
-                            </div>
-
-                            <!-- Total Divisi -->
-                            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                                <h4 class="text-gray-500 uppercase text-sm font-medium tracking-wider">Total Divisi</h4>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $totalDivisions }}</p>
-                                <a href="{{ route('admin.divisions.index') }}" class="text-gray-600 hover:underline text-sm font-semibold mt-3 inline-block">Lihat Divisi &rarr;</a>
-                            </div>
-                        </div>
-
-                        {{-- Tabel Karyawan Baru (< 1 Tahun) --}}
-                        <div class="bg-white border border-gray-200 rounded-lg overflow-hidden mb-8">
-                            <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
-                                <h4 class="font-semibold text-gray-700">Daftar Karyawan Baru (Belum Eligible Cuti Tahunan)</h4>
-                            </div>
-                            <table class="min-w-full divide-y divide-gray-200">
-                                <thead class="bg-gray-50">
-                                    <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Nama</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Divisi</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal Gabung</th>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Masa Kerja</th>
-                                    </tr>
-                                </thead>
-                                <tbody class="bg-white divide-y divide-gray-200">
-                                    @forelse($newEmployeesList as $emp)
-                                        <tr>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $emp->name }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $emp->division->name ?? '-' }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $emp->join_date->format('d M Y') }}</td>
-                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-blue-600">{{ $emp->employment_period }}</td>
-                                        </tr>
-                                    @empty
-                                        <tr>
-                                            <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">Tidak ada karyawan baru.</td>
-                                        </tr>
-                                    @endforelse
-                                </tbody>
-                            </table>
-                        </div>
-
-                    {{-- ================================================== --}}
-                    {{-- DASBOR KARYAWAN --}}
-                    {{-- ================================================== --}}
-                    @elseif (Auth::user()->role == 'karyawan')
-                        <h3 class="font-semibold text-lg mb-4">Selamat Datang, {{ Auth::user()->name }} (Karyawan)</h3>
-
-                        @php
-                            $userId = Auth::id();
-                            $sickLeaveCount = \App\Models\LeaveApplication::where('user_id', $userId)
-                                ->where('leave_type', 'sakit')
-                                ->count();
-                            
-                            $totalLeaves = \App\Models\LeaveApplication::where('user_id', $userId)->count();
-                        @endphp
-
-                        <div class="mb-6">
-                            @if(auth()->user()->division_id)
-                                <a href="{{ route('leave-applications.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg transition duration-150 ease-in-out">
-                                    + Buat Pengajuan Cuti Baru
-                                </a>
-                            @else
-                                <button disabled class="bg-gray-400 text-white font-bold py-2 px-4 rounded cursor-not-allowed">
-                                    🚫 Akun Belum Siap (Tanpa Divisi)
-                                </button>
-                            @endif
-                        </div>
-
-                        <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
-                            <!-- Sisa Kuota -->
-                            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                                <h4 class="text-gray-500 uppercase text-sm font-medium tracking-wider">Sisa Kuota Cuti Tahunan</h4>
-                                @php
-                                    $quota = Auth::user()->annual_leave_quota;
-                                    $quotaColor = $quota > 5 ? 'text-green-600' : ($quota > 2 ? 'text-yellow-600' : 'text-red-600');
-                                @endphp
-                                <p class="text-3xl font-bold {{ $quotaColor }} mt-2">{{ $quota }} <span class="text-xl text-gray-600 font-medium">hari</span></p>
-                            </div>
-
-                            <!-- Total Cuti Sakit -->
-                            <div class="bg-green-50 p-6 rounded-lg shadow-md border border-green-200">
-                                <h4 class="text-green-700 uppercase text-sm font-medium tracking-wider">Total Cuti Sakit</h4>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $sickLeaveCount }} <span class="text-sm text-gray-600 font-normal">kali</span></p>
-                                <span class="text-xs text-green-600">Diajukan</span>
-                            </div>
-
-                            <!-- Total Pengajuan -->
-                            <div class="bg-blue-50 p-6 rounded-lg shadow-md border border-blue-200">
-                                <h4 class="text-blue-700 uppercase text-sm font-medium tracking-wider">Total Pengajuan</h4>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $totalLeaves }}</p>
-                                <a href="{{ route('leave-applications.index') }}" class="text-blue-600 hover:underline text-xs font-semibold mt-1 inline-block">Lihat Riwayat &rarr;</a>
-                            </div>
-
-                            <!-- Info Divisi -->
-                            <div class="bg-white p-6 rounded-lg shadow-md border border-gray-200">
-                                <h4 class="text-gray-500 uppercase text-sm font-medium tracking-wider">Divisi Anda</h4>
-                                <p class="text-lg font-semibold text-gray-900 mt-2 truncate" title="{{ Auth::user()->division?->name }}">{{ Auth::user()->division?->name ?? 'Belum ada' }}</p>
-                                <p class="text-xs text-gray-500 mt-1">Ketua: <span class="font-medium">{{ Auth::user()->division?->leader?->name ?? '-' }}</span></p>
-                            </div>
-                        </div>
-
-                    {{-- ================================================== --}}
-                    {{-- DASBOR KETUA DIVISI --}}
-                    {{-- ================================================== --}}
-                    @elseif (Auth::user()->role == 'ketua_divisi')
-                        <h3 class="font-semibold text-lg mb-4">Selamat Datang, {{ Auth::user()->name }} (Ketua Divisi)</h3>
-                        
-                        @php
-                            $division = Auth::user()->division; // Divisi yang dipimpin (lewat relasi user->division mungkin salah jika user->division_id null, gunakan leadingDivision)
-                            // Perbaikan: Ambil divisi yang dipimpin
-                            $leadingDivision = Auth::user()->leadingDivision;
-                            
-                            if($leadingDivision) {
-                                $teamMembers = $leadingDivision->members; // Semua anggota
-                                $teamMemberIds = $teamMembers->pluck('id');
-                            } else {
-                                $teamMembers = collect();
-                                $teamMemberIds = collect();
-                            }
-
-                            // 1. Total Pengajuan Masuk (Semua status)
-                            $totalIncomingLeaves = \App\Models\LeaveApplication::whereIn('user_id', $teamMemberIds)->count();
-
-                            // 2. Pending Verifikasi
-                            $pendingCount = \App\Models\LeaveApplication::whereIn('user_id', $teamMemberIds)
-                                ->where('status', 'pending')
-                                ->count();
-
-                            // 3. Sedang Cuti Minggu Ini
-                            $startOfWeek = now()->startOfWeek();
-                            $endOfWeek = now()->endOfWeek();
-                            
-                            $teamOnLeave = \App\Models\LeaveApplication::whereIn('user_id', $teamMemberIds)
-                                ->whereIn('status', ['approved_by_leader', 'approved_by_hrd']) // Disetujui min. leader
-                                ->where(function($q) use ($startOfWeek, $endOfWeek) {
-                                    $q->whereBetween('start_date', [$startOfWeek, $endOfWeek])
-                                      ->orWhereBetween('end_date', [$startOfWeek, $endOfWeek])
-                                      ->orWhere(function($sub) use ($startOfWeek, $endOfWeek) {
-                                          $sub->where('start_date', '<', $startOfWeek)
-                                              ->where('end_date', '>', $endOfWeek);
-                                      });
-                                })
-                                ->with('applicant')
-                                ->get();
-                        @endphp
-                        
-                        <div class="mb-6 flex justify-between items-center">
-                            <div class="text-sm text-gray-500">
-                                Divisi: <span class="font-bold text-gray-700">{{ $leadingDivision->name ?? 'Tidak ada' }}</span> | 
-                                Anggota: <span class="font-bold text-gray-700">{{ $teamMembers->count() }}</span>
-                            </div>
-                            <a href="{{ route('leave-applications.create') }}" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded shadow-lg">
-                                + Buat Pengajuan Pribadi
-                            </a>
-                        </div>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                            <!-- Total Masuk -->
-                            <div class="bg-blue-50 p-6 rounded-lg shadow-md border border-blue-200">
-                                <h4 class="text-blue-700 uppercase text-sm font-medium tracking-wider">Total Pengajuan Masuk</h4>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $totalIncomingLeaves }}</p>
-                                <span class="text-sm text-blue-600">Riwayat Tim</span>
-                            </div>
-
-                            <!-- Pending Verifikasi -->
-                            <div class="bg-yellow-100 p-6 rounded-lg shadow-md border border-yellow-200">
-                                <h4 class="text-yellow-700 uppercase text-sm font-medium tracking-wider">Perlu Verifikasi</h4>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $pendingCount }}</p>
-                                <a href="{{ route('leave-verifications.index') }}" class="text-yellow-800 hover:underline font-semibold mt-2 inline-block">Proses Sekarang &rarr;</a>
-                            </div>
-
-                            <!-- Cuti Minggu Ini -->
-                            <div class="bg-green-50 p-6 rounded-lg shadow-md border border-green-200">
-                                <h4 class="text-green-700 uppercase text-sm font-medium tracking-wider">Sedang Cuti (Minggu Ini)</h4>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $teamOnLeave->count() }}</p>
-                                <span class="text-sm text-green-600">Orang</span>
-                            </div>
-                        </div>
-
-                        {{-- TABEL 1: SEDANG CUTI MINGGU INI (VERSI PERCANTIK) --}}
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm h-full">
-                                <div class="px-5 py-4 border-b border-gray-200 bg-gray-50 flex justify-between items-center">
-                                    <h4 class="font-bold text-gray-700 text-sm flex items-center">
-                                        <svg class="w-4 h-4 mr-2 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
-                                        </svg>
-                                        Sedang Cuti (Minggu Ini)
-                                    </h4>
-                                    <span class="text-xs font-medium bg-white border border-gray-300 text-gray-600 px-2 py-1 rounded shadow-sm">
-                                        {{ $startOfWeek->format('d M') }} - {{ $endOfWeek->format('d M') }}
-                                    </span>
-                                </div>
-                                <div class="overflow-y-auto max-h-96">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <tbody class="bg-white divide-y divide-gray-200">
-                                            @forelse($teamOnLeave as $leave)
-                                                <tr class="hover:bg-gray-50 transition duration-150">
-                                                    <td class="px-5 py-4 whitespace-nowrap">
-                                                        <div class="flex items-center">
-                                                            {{-- Avatar Inisial / Foto --}}
-                                                            @if($leave->applicant->profile_photo_path)
-                                                                <img class="flex-shrink-0 h-10 w-10 rounded-full object-cover border-2 border-white shadow-sm" 
-                                                                     src="{{ asset('storage/' . $leave->applicant->profile_photo_path) }}" 
-                                                                     alt="{{ $leave->applicant->name }}">
-                                                            @else
-                                                                <div class="flex-shrink-0 h-10 w-10 rounded-full {{ $leave->leave_type == 'sakit' ? 'bg-red-100 text-red-600' : 'bg-blue-100 text-blue-600' }} flex items-center justify-center font-bold text-sm border-2 border-white shadow-sm">
-                                                                    {{ substr($leave->applicant->name, 0, 1) }}
-                                                                </div>
-                                                            @endif
-                                                            
-                                                            <div class="ml-3">
-                                                                <div class="text-sm font-semibold text-gray-900">{{ $leave->applicant->name }}</div>
-                                                                <div class="flex items-center mt-0.5">
-                                                                    {{-- HAPUS TITIK MERAH --}}
-                                                                    <span class="text-xs text-gray-500 capitalize">{{ ucfirst($leave->leave_type) }}</span>
-                                                                </div>
-                                                            </div>
-                                                        </div>
-                                                    </td>
-                                                    <td class="px-5 py-4 whitespace-nowrap text-right">
-                                                        <div class="text-sm font-medium text-gray-900">
-                                                            {{ $leave->start_date->format('d M') }} - {{ $leave->end_date->format('d M') }}
-                                                        </div>
-                                                        <div class="mt-1">
-                                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium {{ $leave->leave_type == 'sakit' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800' }}">
-                                                                {{ $leave->total_days }} Hari
-                                                            </span>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <tr>
-                                                    <td colspan="2" class="px-6 py-12 text-center">
-                                                        <div class="flex flex-col items-center justify-center">
-                                                            <div class="bg-green-50 rounded-full p-3 mb-3">
-                                                                <svg class="w-6 h-6 text-green-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
-                                                                </svg>
-                                                            </div>
-                                                            <p class="text-sm font-medium text-gray-900">Semua Hadir!</p>
-                                                            <p class="text-xs text-gray-500 mt-1">Tidak ada anggota tim yang cuti minggu ini.</p>
-                                                        </div>
-                                                    </td>
-                                                </tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            {{-- TABEL 2: DAFTAR ANGGOTA DIVISI --}}
-                            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                                <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
-                                    <h4 class="font-semibold text-gray-700 text-sm">Daftar Anggota Divisi</h4>
-                                </div>
-                                <div class="max-h-64 overflow-y-auto">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <tbody class="bg-white divide-y divide-gray-200">
-                                            @forelse($teamMembers as $member)
-                                                <tr>
-                                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">{{ $member->name }}</td>
-                                                    <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-500">{{ $member->email }}</td>
-                                                    <td class="px-4 py-3 text-xs">
-                                                        <span class="px-2 py-1 rounded-full {{ $member->active_status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                            {{ $member->active_status ? 'Aktif' : 'Non-Aktif' }}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            @empty
-                                                <tr><td colspan="3" class="px-4 py-3 text-center text-xs text-gray-500">Belum ada anggota.</td></tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-
-                    {{-- ================================================== --}}
-                    {{-- DASBOR HRD --}}
-                    {{-- ================================================== --}}
-                    @elseif (Auth::user()->role == 'hrd')
-                        <h3 class="font-semibold text-lg mb-4">Selamat Datang, {{ Auth::user()->name }} (HRD)</h3>
-
-                        @php
-                            // Total Pengajuan Cuti Bulan Ini (Semua Status)
-                            $totalLeavesMonth = \App\Models\LeaveApplication::whereMonth('created_at', now()->month)
-                                ->whereYear('created_at', now()->year)
-                                ->count();
-
-                            // Pending Final Approval
-                            $pendingHrdCount = \App\Models\LeaveApplication::where('status', 'approved_by_leader')
-                                ->orWhere(function($query) {
-                                    $query->where('status', 'pending')
-                                          ->whereHas('applicant', function($q) {
-                                              $q->where('role', 'ketua_divisi');
-                                          });
-                                })
-                                ->count();
-
-                            // Karyawan Sedang Cuti Bulan Ini
-                            $startOfMonth = now()->startOfMonth();
-                            $endOfMonth = now()->endOfMonth();
-                            $employeesOnLeaveMonth = \App\Models\LeaveApplication::where('status', 'approved_by_hrd')
-                                ->where(function($q) use ($startOfMonth, $endOfMonth) {
-                                    $q->whereBetween('start_date', [$startOfMonth, $endOfMonth])
-                                      ->orWhereBetween('end_date', [$startOfMonth, $endOfMonth]);
-                                })
-                                ->with(['applicant', 'applicant.division'])
-                                ->orderBy('start_date', 'asc')
-                                ->limit(10)
-                                ->get();
-
-                            // Daftar Divisi
-                            $divisions = \App\Models\Division::with('leader')->withCount('members')->get();
-                        @endphp
-
-                        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                            <!-- Pengajuan Bulan Ini -->
-                            <div class="bg-blue-50 p-6 rounded-lg shadow-md border border-blue-200">
-                                <h4 class="text-blue-700 uppercase text-sm font-medium tracking-wider">Total Pengajuan (Bulan Ini)</h4>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $totalLeavesMonth }}</p>
-                            </div>
-
-                            <!-- Pending Final -->
-                            <div class="bg-red-100 p-6 rounded-lg shadow-md border border-red-200">
-                                <h4 class="text-red-700 uppercase text-sm font-medium tracking-wider">Pending Final Approval</h4>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $pendingHrdCount }}</p>
-                                <a href="{{ route('leave-verifications.index') }}" class="text-red-800 hover:underline font-semibold mt-2 inline-block">Proses Approval &rarr;</a>
-                            </div>
-
-                            <!-- Sedang Cuti -->
-                            <div class="bg-green-50 p-6 rounded-lg shadow-md border border-green-200">
-                                <h4 class="text-green-700 uppercase text-sm font-medium tracking-wider">Sedang Cuti (Bulan Ini)</h4>
-                                <p class="text-3xl font-bold text-gray-900 mt-2">{{ $employeesOnLeaveMonth->count() }}</p>
-                                <span class="text-sm text-green-600">Karyawan</span>
-                            </div>
-                        </div>
-
-                        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {{-- TABEL 1: KARYAWAN CUTI BULAN INI --}}
-                            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                                <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
-                                    <h4 class="font-semibold text-gray-700 text-sm">Karyawan Cuti (Bulan Ini)</h4>
-                                </div>
-                                <div class="max-h-80 overflow-y-auto">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <thead class="bg-gray-50">
-                                            <tr>
-                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Nama</th>
-                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Divisi</th>
-                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Tanggal</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="bg-white divide-y divide-gray-200">
-                                            @forelse($employeesOnLeaveMonth as $leave)
-                                                <tr>
-                                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ $leave->applicant->name }}</td>
-                                                    <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-500">{{ $leave->applicant->division->name ?? '-' }}</td>
-                                                    <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-500">{{ $leave->start_date->format('d/m') }} - {{ $leave->end_date->format('d/m') }}</td>
-                                                </tr>
-                                            @empty
-                                                <tr><td colspan="3" class="px-4 py-3 text-center text-xs text-gray-500">Nihil.</td></tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                            {{-- TABEL 2: DAFTAR DIVISI --}}
-                            <div class="bg-white border border-gray-200 rounded-lg overflow-hidden">
-                                <div class="px-4 py-3 border-b border-gray-200 bg-gray-50">
-                                    <h4 class="font-semibold text-gray-700 text-sm">Daftar Divisi</h4>
-                                </div>
-                                <div class="max-h-80 overflow-y-auto">
-                                    <table class="min-w-full divide-y divide-gray-200">
-                                        <thead class="bg-gray-50">
-                                            <tr>
-                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Nama Divisi</th>
-                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Ketua</th>
-                                                <th class="px-4 py-2 text-left text-xs font-medium text-gray-500">Anggota</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody class="bg-white divide-y divide-gray-200">
-                                            @forelse($divisions as $div)
-                                                <tr>
-                                                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">{{ $div->name }}</td>
-                                                    <td class="px-4 py-3 whitespace-nowrap text-xs text-gray-500">{{ $div->leader->name ?? '-' }}</td>
-                                                    <td class="px-4 py-3 whitespace-nowrap text-sm text-blue-600 text-center">{{ $div->members_count }}</td>
-                                                </tr>
-                                            @empty
-                                                <tr><td colspan="3" class="px-4 py-3 text-center text-xs text-gray-500">Belum ada divisi.</td></tr>
-                                            @endforelse
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
-
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            {{-- Header Text --}}
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6">
+                <div class="text-white">
+                    <h2 class="text-2xl font-bold tracking-tight">Dashboard</h2>
+                    <p class="text-blue-200 text-lg mt-1">
+                        Selamat Datang, <span class="font-semibold text-white">{{ Auth::user()->name }}</span>!
+                    </p>
+                </div>
+                
+                <div class="hidden md:block">
+                    <div class="inline-flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm">
+                        <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        <span class="text-blue-100 text-sm font-medium">{{ now()->format('d M Y') }}</span>
+                    </div>
                 </div>
             </div>
+
+            {{-- Alert Messages --}}
+            @if (session('success'))
+                <div class="mb-6 bg-emerald-500/20 border border-emerald-500/30 text-white px-4 py-2 rounded-lg backdrop-blur-md flex items-center text-sm shadow-sm animate-fade-in-down">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            {{-- ######################################################## --}}
+            {{-- GLASS CARD: KHUSUS KETUA DIVISI (DIMASUKKAN KE BG BIRU) --}}
+            {{-- ######################################################## --}}
+            @if (Auth::user()->role == 'ketua_divisi')
+                @php
+                    $leadingDivision = Auth::user()->leadingDivision;
+                @endphp
+                <div class="bg-white/10 backdrop-blur-md border border-white/20 rounded-xl p-5 flex flex-col md:flex-row justify-between items-center gap-4 shadow-lg">
+                    <div class="flex items-center gap-4">
+                        <div class="w-10 h-10 bg-white/20 rounded-lg flex items-center justify-center backdrop-blur-sm shadow-inner">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path></svg>
+                        </div>
+                        <div>
+                            <h3 class="text-2xl font-bold text-white">Divisi {{ $leadingDivision->name ?? 'Umum' }}</h3>
+                            <p class="text-blue-100 text-lg opacity-90">Kelola anggota tim dan persetujuan cuti.</p>
+                        </div>
+                    </div>
+                    <div>
+                        <a href="{{ route('leave-applications.create') }}" class="inline-flex items-center justify-center px-4 py-2 bg-white text-blue-900 font-bold rounded-lg shadow hover:bg-blue-50 transition-all transform hover:-translate-y-0.5 text-lg">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                            Ajukan Cuti
+                        </a>
+                    </div>
+                </div>
+            @endif
         </div>
+    </div>
+
+    {{-- ================================================== --}}
+    {{-- 2. KONTEN UTAMA (STATS & TABLES) --}}
+    {{-- ================================================== --}}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 pb-12 relative z-10">
+
+        {{-- #################### ROLE: KETUA DIVISI #################### --}}
+        @if (Auth::user()->role == 'ketua_divisi')
+            @php
+                // Data Logic Re-used
+                if($leadingDivision) {
+                    $teamMembers = $leadingDivision->members;
+                    $teamMemberIds = $teamMembers->pluck('id');
+                } else {
+                    $teamMembers = collect();
+                    $teamMemberIds = collect();
+                }
+                $totalIncomingLeaves = \App\Models\LeaveApplication::whereIn('user_id', $teamMemberIds)->count();
+                $pendingCount = \App\Models\LeaveApplication::whereIn('user_id', $teamMemberIds)->where('status', 'pending')->count();
+                $startOfWeek = now()->startOfWeek(); 
+                $endOfWeek = now()->endOfWeek();
+                $teamOnLeave = \App\Models\LeaveApplication::whereIn('user_id', $teamMemberIds)
+                    ->whereIn('status', ['approved_by_leader', 'approved_by_hrd'])
+                    ->where(function($q) use ($startOfWeek, $endOfWeek) { 
+                        $q->whereBetween('start_date', [$startOfWeek, $endOfWeek])
+                          ->orWhereBetween('end_date', [$startOfWeek, $endOfWeek]); 
+                    })->with('applicant')->get();
+            @endphp
+
+            {{-- STATS CARDS (UKURAN LEBIH KECIL & RAPI) --}}
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+                <div class="bg-white rounded-xl shadow-sm border-b-4 border-blue-500 p-5 hover:shadow-md transition-shadow duration-300">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Pengajuan</p>
+                            <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ $totalIncomingLeaves }}</h3>
+                        </div>
+                        <div class="p-2 bg-blue-50 rounded-lg text-blue-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">Dokumen dari tim</p>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border-b-4 border-orange-400 p-5 hover:shadow-md transition-shadow duration-300 relative overflow-hidden">
+                    <div class="flex justify-between items-start relative z-10">
+                        <div>
+                            <p class="text-xs font-bold text-orange-500 uppercase tracking-wider">Perlu Verifikasi</p>
+                            <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ $pendingCount }}</h3>
+                            @if($pendingCount > 0)
+                                <a href="{{ route('leave-verifications.index') }}" class="text-xs font-bold text-orange-600 hover:underline mt-2 inline-block">Proses Sekarang &rarr;</a>
+                            @else
+                                <p class="text-sm text-gray-400 mt-2">Semua aman</p>
+                            @endif
+                        </div>
+                        <div class="p-2 bg-orange-50 rounded-lg text-orange-500">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border-b-4 border-emerald-500 p-5 hover:shadow-md transition-shadow duration-300">
+                    <div class="flex justify-between items-start">
+                        <div>
+                            <p class="text-xs font-bold text-emerald-600 uppercase tracking-wider">Sedang Cuti</p>
+                            <h3 class="text-2xl font-bold text-gray-800 mt-1">{{ $teamOnLeave->count() }}</h3>
+                        </div>
+                        <div class="p-2 bg-emerald-50 rounded-lg text-emerald-600">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                        </div>
+                    </div>
+                    <p class="text-sm text-gray-500 mt-2">Minggu ini</p>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                        <h4 class="font-bold text-gray-700 text-lg">Sedang Cuti</h4>
+                        <span class="text-[10px] font-semibold text-gray-500 bg-white border px-2 py-1 rounded">{{ $startOfWeek->format('d M') }} - {{ $endOfWeek->format('d M') }}</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <tbody class="divide-y divide-gray-50">
+                                @forelse($teamOnLeave as $leave)
+                                    <tr class="hover:bg-blue-50/40 transition-colors duration-200 cursor-default group">
+                                        <td class="px-5 py-3">
+                                            <div class="flex items-center gap-3">
+                                                <div class="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold group-hover:scale-110 transition-transform">
+                                                    {{ substr($leave->applicant->name, 0, 1) }}
+                                                </div>
+                                                <div>
+                                                    <p class="font-semibold text-gray-800 text-sm">{{ $leave->applicant->name }}</p>
+                                                    <span class="text-[10px] text-gray-500 uppercase">{{ $leave->leave_type }}</span>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td class="px-5 py-3 text-right">
+                                            <div class="text-sm font-bold text-blue-600">{{ $leave->total_days }} Hari</div>
+                                            <div class="text-[10px] text-gray-400">s.d {{ $leave->end_date->format('d M') }}</div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="2" class="px-5 py-8 text-center text-gray-400 text-sm">
+                                            <div class="flex flex-col items-center">
+                                                <svg class="w-8 h-8 text-gray-300 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>
+                                                Semua anggota hadir!
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+                    <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
+                        <h4 class="font-bold text-gray-700 text-lg">Anggota Tim</h4>
+                    </div>
+                    <div class="overflow-x-auto max-h-[300px] overflow-y-auto">
+                        <table class="w-full">
+                            <tbody class="divide-y divide-gray-50">
+                                @forelse($teamMembers as $member)
+                                    <tr class="hover:bg-gray-50 transition-colors duration-200 group">
+                                        <td class="px-5 py-3">
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center gap-3">
+                                                    <div class="w-8 h-8 rounded-full bg-gray-100 text-gray-500 flex items-center justify-center text-sm font-bold border border-gray-200">
+                                                        {{ substr($member->name, 0, 1) }}
+                                                    </div>
+                                                    <div>
+                                                        <p class="font-semibold text-gray-800 text-sm group-hover:text-blue-600 transition-colors">{{ $member->name }}</p>
+                                                        <p class="text-[10px] text-gray-400">{{ $member->email }}</p>
+                                                    </div>
+                                                </div>
+                                                
+                                                <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase tracking-wide border {{ $member->active_status ? 'bg-green-50 text-green-600 border-green-100' : 'bg-red-50 text-red-600 border-red-100' }}">
+                                                    {{ $member->active_status ? 'Aktif' : 'Non' }}
+                                                </span>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr><td class="px-5 py-8 text-center text-gray-400 text-sm italic">Belum ada anggota.</td></tr>
+                                @endforelse
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        {{-- #################### ROLE LAIN (ADMIN/HRD/KARYAWAN - COBA TERAPKAN POLA YANG SAMA) #################### --}}
+        @elseif (Auth::user()->role == 'admin')
+             {{-- Copas logic admin disini tapi gunakan style card & layout seperti di atas (ukuran lebih kecil) --}}
+             <div class="bg-white p-6 rounded-xl shadow-sm text-center">
+                 <p class="text-gray-500">Tampilan Admin (Silakan sesuaikan style dengan contoh Ketua Divisi di atas).</p>
+             </div>
+        @elseif (Auth::user()->role == 'karyawan')
+             <div class="bg-white p-6 rounded-xl shadow-sm text-center">
+                 <p class="text-gray-500">Tampilan Karyawan (Silakan sesuaikan style dengan contoh Ketua Divisi di atas).</p>
+             </div>
+        @elseif (Auth::user()->role == 'hrd')
+             <div class="bg-white p-6 rounded-xl shadow-sm text-center">
+                 <p class="text-gray-500">Tampilan HRD (Silakan sesuaikan style dengan contoh Ketua Divisi di atas).</p>
+             </div>
+        @endif
+        
     </div>
 </x-app-layout>
