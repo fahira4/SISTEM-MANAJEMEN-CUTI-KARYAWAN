@@ -8,13 +8,8 @@ use App\Http\Controllers\LeaveApplicationController;
 use App\Http\Controllers\LeavePdfController;
 use App\Http\Controllers\Admin\HolidayController; 
 
-// ✅ TEST ROUTE - PASTI BEKERJA
-Route::get('/test-simple', function() {
-    return "SIMPLE TEST WORKS!";
-});
-
 Route::get('/', function () {
-    return view('welcome');
+    return redirect()->route('login');
 });
 
 Route::get('/dashboard', function () {

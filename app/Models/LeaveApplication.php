@@ -63,7 +63,7 @@ class LeaveApplication extends Model
      */
     public function leaderApprover()
     {
-        return $this->belongsTo(User::class, 'leader_approver_id');
+        return $this->belongsTo(User::class, 'leader_approver_id')->with('division');
     }
 
     /**

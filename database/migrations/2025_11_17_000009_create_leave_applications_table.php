@@ -44,6 +44,7 @@ return new class extends Migration
                 ->onDelete('set null'); // Jika approver dihapus, set null
 
             $table->timestamp('leader_approval_at')->nullable();
+            $table->text('leader_approval_note')->nullable(); // ✅ TAMBAHKAN INI
             $table->text('leader_rejection_notes')->nullable();
 
             $table->foreignId('hrd_approver_id')
@@ -52,6 +53,7 @@ return new class extends Migration
                 ->onDelete('set null'); // Jika approver dihapus, set null
 
             $table->timestamp('hrd_approval_at')->nullable();
+            $table->text('hrd_approval_note')->nullable(); // ✅ TAMBAHKAN INI
             $table->text('hrd_rejection_notes')->nullable();
 
             $table->text('cancellation_reason')->nullable();
