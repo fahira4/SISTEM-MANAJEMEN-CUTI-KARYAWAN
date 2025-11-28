@@ -1,28 +1,45 @@
-@if(!$pendingApplications->isEmpty())
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 p-4">
-    <div class="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4">
-        {{-- Selection Info --}}
-        <div class="flex items-center space-x-4">
-            <div class="flex items-center">
-                <input type="checkbox" id="selectAll" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded">
-                <label for="selectAll" class="ml-2 text-sm text-gray-700">
-                    Pilih Semua
-                </label>
+{{-- MULTIPLE ACTION TOOLBAR --}}
+@if($pendingApplications->count() > 0)
+<div id="bulk-toolbar" class="mt-6 pt-6 border-t border-gray-100 hidden">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+        <div class="flex items-center gap-3">
+            {{-- Checkbox di sisi kiri --}}
+            <div class="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
+                <input type="checkbox" id="select-all" class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500">
+                <label for="select-all" class="text-sm font-medium text-gray-700 whitespace-nowrap">Pilih Semua</label>
             </div>
-            <div id="selectedCount" class="text-sm text-gray-600 hidden">
-                <span id="count">0</span> dipilih
-            </div>
+            
+            <span id="selected-count" class="text-xs bg-blue-100 text-blue-800 px-3 py-1.5 rounded-full font-medium border border-blue-200">
+                <span id="count">0</span> terpilih
+            </span>
         </div>
-
-        {{-- Bulk Actions --}}
-        <div class="flex items-center space-x-3" id="bulkActions" style="display: none;">
-            <button onclick="openBulkRejectModal()" 
-                    class="px-4 py-2 border border-gray-300 rounded-lg text-sm font-semibold text-gray-700 bg-white hover:bg-gray-50 hover:border-gray-400 transition-colors duration-200">
-                Tolak yang Dipilih
+        
+        <div class="flex gap-2">
+            <button type="button" 
+                    id="bulk-approve-btn"
+                    class="bg-green-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-green-700 transition duration-200 whitespace-nowrap flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-green-700"
+                    disabled>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                </svg>
+                @if(Auth::user()->role == 'hrd')
+                    Approve Selected
+                @else
+                    Setujui Selected
+                @endif
             </button>
-            <button onclick="openBulkApproveModal()" 
-                    class="px-4 py-2 bg-green-600 rounded-lg text-sm font-semibold text-white hover:bg-green-700 transition-colors duration-200 shadow-sm">
-                Setujui yang Dipilih
+            <button type="button" 
+                    id="bulk-reject-btn"
+                    class="bg-red-600 text-white px-4 py-2 rounded-lg text-sm hover:bg-red-700 transition duration-200 whitespace-nowrap flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed border-2 border-red-700"
+                    disabled>
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+                @if(Auth::user()->role == 'hrd')
+                    Reject Selected
+                @else
+                    Tolak Selected
+                @endif
             </button>
         </div>
     </div>

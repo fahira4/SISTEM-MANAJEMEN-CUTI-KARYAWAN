@@ -217,7 +217,12 @@ class LeaveApplicationController extends Controller
     }
     
     // Query dasar dengan eager loading
-    $query = LeaveApplication::with(['applicant', 'applicant.division', 'leaderApprover', 'leaderApprover.division', 'hrdApprover']);
+    $query = LeaveApplication::with([
+    'applicant', 
+    'applicant.division', 
+    'leaderApprover', 
+    'leaderApprover.division', 
+    'hrdApprover']);
 
     // Filter berdasarkan role user
     if ($user->role == 'ketua_divisi') {
@@ -294,11 +299,9 @@ class LeaveApplicationController extends Controller
     }
 
     $pendingApplications = $query->latest()->get();
-
-    // Untuk filter dropdown divisi
     $divisions = \App\Models\Division::all();
 
-    return view('leave-applications.verification-list', compact('pendingApplications', 'divisions'));
+    return view('leave-verifications.index', compact('pendingApplications', 'divisions'));
 }
 
     public function showVerificationDetail(LeaveApplication $application)
@@ -485,7 +488,8 @@ class LeaveApplicationController extends Controller
                 'action' => 'required|in:approve,reject',
                 'leave_ids' => 'required|array|max:50', // Batasi maksimal 50 item
                 'leave_ids.*' => 'exists:leave_applications,id',
-                'rejection_notes' => 'required_if:action,reject|min:10|max:500'
+                'rejection_notes' => 'required_if:action,reject|min:10|max:500',
+                'approval_note' => 'nullable|string|max:500'
             ], [
                 'rejection_notes.min' => 'Alasan penolakan harus minimal 10 karakter.',
                 'rejection_notes.required_if' => 'Alasan penolakan wajib diisi ketika menolak pengajuan.',

@@ -1,219 +1,351 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Detail Divisi: ') }} {{ $division->name }}
-        </h2>
-    </x-slot>
+    {{-- ================================================== --}}
+    {{-- 1. HERO SECTION --}}
+    {{-- ================================================== --}}
+    <div class="relative bg-blue-900 min-h-[25vh] overflow-hidden">
+        {{-- Background Pattern Halus --}}
+        <div class="absolute inset-0 opacity-10">
+            <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
+            </svg>
+        </div>
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-
-                    <!-- Breadcrumb -->
-                    <div class="mb-6 flex items-center text-sm text-gray-500">
-                        <a href="{{ route('admin.divisions.index') }}" class="hover:text-gray-700">Divisi</a>
-                        <span class="mx-2">/</span>
-                        <span class="text-gray-900 font-medium">{{ $division->name }}</span>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
+            {{-- Header Text --}}
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
+                <div class="text-white mb-4 md:mb-0">
+                    <h2 class="text-2xl font-bold tracking-tight">Detail Divisi</h2>
+                    <p class="text-blue-200 text-lg mt-1">
+                        Informasi lengkap dan anggota divisi {{ $division->name }}
+                    </p>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <div class="inline-flex items-center gap-2 bg-white/10 px-3 py-1.5 rounded-lg border border-white/10 backdrop-blur-sm">
+                        <svg class="w-4 h-4 text-blue-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                        </svg>
+                        <span class="text-blue-100 text-sm font-medium">{{ $division->members->count() }} Anggota</span>
                     </div>
 
-                    <!-- Informasi Divisi -->
-                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                        <!-- Informasi Utama -->
-                        <div class="bg-white p-6 border border-gray-200 rounded-lg shadow-sm">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Informasi Divisi</h3>
-                            <dl class="space-y-3">
-                                <div class="flex justify-between">
-                                    <dt class="text-sm font-medium text-gray-500">Nama Divisi:</dt>
-                                    <dd class="text-sm text-gray-900">{{ $division->name }}</dd>
-                                </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm font-medium text-gray-500">Ketua Divisi:</dt>
-                                    <dd class="text-sm text-gray-900">
-                                        @if($division->leader)
-                                            <div>
-                                                <div class="font-medium text-gray-900">{{ $division->leader->name }}</div>
-                                            </div>
-                                        @else
-                                            <span class="text-gray-400">-</span>
-                                        @endif
-                                    </dd>
-                                </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm font-medium text-gray-500">Jumlah Anggota:</dt>
-                                    <dd class="text-sm text-gray-900">
-                                        <span class="px-2 py-1 rounded-full text-sm font-medium  text-gray-800">
-                                            {{ $division->members->count() }} anggota
-                                        </span>
-                                    </dd>
-                                </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm font-medium text-gray-500">Dibuat:</dt>
-                                    <dd class="text-sm text-gray-900">{{ $division->created_at->format('d/m/Y H:i') }}</dd>
-                                </div>
-                                <div class="flex justify-between">
-                                    <dt class="text-sm font-medium text-gray-500">Diupdate:</dt>
-                                    <dd class="text-sm text-gray-900">{{ $division->updated_at->format('d/m/Y H:i') }}</dd>
-                                </div>
-                            </dl>
+                    <a href="{{ route('admin.divisions.index') }}" 
+                       class="inline-flex items-center px-4 py-2 bg-white text-blue-900 font-bold rounded-lg shadow hover:bg-blue-50 transition-all transform hover:-translate-y-0.5">
+                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                        </svg>
+                        Kembali
+                    </a>
+                </div>
+            </div>
+
+            {{-- Alert Messages --}}
+            @if (session('success'))
+                <div class="mt-6 bg-emerald-500/20 border border-emerald-500/30 text-white px-4 py-2 rounded-lg backdrop-blur-md flex items-center text-sm shadow-sm animate-fade-in-down">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    {{ session('success') }}
+                </div>
+            @endif
+
+            @if (session('error'))
+                <div class="mt-6 bg-red-500/20 border border-red-500/30 text-white px-4 py-2 rounded-lg backdrop-blur-md flex items-center text-sm shadow-sm animate-fade-in-down">
+                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                    </svg>
+                    {{ session('error') }}
+                </div>
+            @endif
+        </div>
+    </div>
+
+    {{-- ================================================== --}}
+    {{-- 2. MAIN CONTENT SECTION --}}
+    {{-- ================================================== --}}
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 pb-12 relative z-10">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            {{-- ================================================== --}}
+            {{-- SIDEBAR - INFORMASI & AKSI --}}
+            {{-- ================================================== --}}
+            <div class="lg:col-span-1 space-y-6">
+                {{-- Card Informasi Utama --}}
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                        <h4 class="font-bold text-white text-lg flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                            Informasi Divisi
+                        </h4>
+                    </div>
+                    
+                    <div class="p-6">
+                        {{-- Avatar & Nama --}}
+                        <div class="text-center mb-6">
+                            <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-xl font-bold mx-auto mb-3 shadow-lg">
+                                {{ substr($division->name, 0, 1) }}
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900">{{ $division->name }}</h3>
+                            <p class="text-sm text-gray-500 mt-1">ID: {{ $division->id }}</p>
                         </div>
 
-                        <!-- Deskripsi -->
-                        <div class="bg-white p-6 border border-gray-200 rounded-lg shadow-sm">
-                            <h3 class="text-lg font-medium text-gray-900 mb-4">Deskripsi Divisi</h3>
-                            <div class="prose prose-sm max-w-none">
-                                @if($division->description)
-                                    <p class="text-gray-700">{{ $division->description }}</p>
+                        {{-- Detail Informasi --}}
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                <span class="text-sm font-medium text-gray-600">Ketua Divisi</span>
+                                @if($division->leader)
+                                    <div class="text-right">
+                                        <div class="text-sm font-medium text-gray-900">{{ $division->leader->name }}</div>
+                                        <div class="text-xs text-gray-500">{{ $division->leader->email }}</div>
+                                    </div>
                                 @else
-                                    <p class="text-gray-400 italic">Tidak ada deskripsi</p>
+                                    <span class="text-sm text-gray-400 italic">-</span>
                                 @endif
                             </div>
+
+                            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                <span class="text-sm font-medium text-gray-600">Total Anggota</span>
+                                <span class="inline-flex items-center px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                                    {{ $division->members->count() }}
+                                </span>
+                            </div>
+
+                            <div class="flex justify-between items-center py-2 border-b border-gray-100">
+                                <span class="text-sm font-medium text-gray-600">Dibuat</span>
+                                <div class="text-right">
+                                    <div class="text-sm text-gray-600">{{ $division->created_at->format('d/m/Y') }}</div>
+                                    <div class="text-xs text-gray-400">{{ $division->created_at->format('H:i') }}</div>
+                                </div>
+                            </div>
+
+                            <div class="flex justify-between items-center py-2">
+                                <span class="text-sm font-medium text-gray-600">Diupdate</span>
+                                <div class="text-right">
+                                    <div class="text-sm text-gray-600">{{ $division->updated_at->format('d/m/Y') }}</div>
+                                    <div class="text-xs text-gray-400">{{ $division->updated_at->format('H:i') }}</div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Daftar Anggota -->
-                    <div class="bg-white p-6 border border-gray-200 rounded-lg shadow-sm">
-                        <div class="flex justify-between items-center mb-4">
-                            <h3 class="text-lg font-medium text-gray-900">Daftar Anggota ({{ $division->members->count() }})</h3>
-                            <a href="{{ route('admin.divisions.members.show', $division->id) }}" 
-                            class="inline-flex items-center px-3 py-1 bg-green-600 text-white rounded-md text-sm font-medium hover:bg-green-700 transition duration-150">
-                                Kelola Anggota
-                            </a>
-                        </div>
+                {{-- Card Aksi Cepat --}}
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                        <h4 class="font-bold text-white text-lg flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                            </svg>
+                            Kelola Divisi
+                        </h4>
+                    </div>
+                    
+                    <div class="p-6 space-y-3">
+                        <a href="{{ route('admin.divisions.edit', $division->id) }}" 
+                           class="w-full inline-flex items-center justify-center px-4 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition duration-200 transform hover:-translate-y-0.5 shadow-sm">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                            </svg>
+                            Edit Divisi
+                        </a>
 
-                        @if($division->members->count() > 0)
-                            <div class="overflow-x-auto">
-                                <table class="min-w-full divide-y divide-gray-200">
-                                    <thead class="bg-gray-50">
-                                        <tr>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nama</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Peran</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                                            <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bergabung</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="bg-white divide-y divide-gray-200">
-                                        @foreach($division->members as $member)
-                                            <tr class="hover:bg-gray-50 transition duration-150">
-                                                <td class="px-4 py-3 whitespace-nowrap">
-                                                    <div class="text-sm font-medium text-gray-900">{{ $member->name }}</div>
-                                                </td>
-                                                <td class="px-4 py-3 whitespace-nowrap">
-                                                    <div class="text-sm text-gray-500">{{ $member->email }}</div>
-                                                </td>
-                                                <td class="px-4 py-3 whitespace-nowrap">
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                        {{ $member->role === 'admin' ? 'bg-red-100 text-red-800' : 
-                                                        ($member->role === 'hrd' ? 'bg-purple-100 text-purple-800' : 
-                                                        ($member->role === 'ketua_divisi' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800')) }}">
-                                                        {{ ucfirst(str_replace('_', ' ', $member->role)) }}
-                                                    </span>
-                                                </td>
-                                                <td class="px-4 py-3 whitespace-nowrap">
-                                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
-                                                        {{ $member->active_status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
-                                                        {{ $member->active_status ? 'Aktif' : 'Non-Aktif' }}
-                                                    </span>
-                                                </td>
-                                                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
-                                                    {{ $member->join_date ? \Carbon\Carbon::parse($member->join_date)->format('d/m/Y') : '-' }}
-                                                </td>
-                                            </tr>
-                                        @endforeach
-                                    </tbody>
-                                </table>
-                            </div>
+                        <a href="{{ route('admin.divisions.members.show', $division->id) }}" 
+                           class="w-full inline-flex items-center justify-center px-4 py-3 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition duration-200 transform hover:-translate-y-0.5 shadow-sm">
+                            <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                            </svg>
+                            Kelola Anggota
+                        </a>
+
+                        @if(auth()->user()->role === 'admin')
+                            <form action="{{ route('admin.divisions.destroy', $division->id) }}" 
+                                  method="POST" 
+                                  onsubmit="return confirmDoubleDelete('{{ addslashes($division->name) }}', {{ $division->members->count() }})">
+                                @csrf
+                                @method('DELETE')
+                                <button type="submit" 
+                                        class="w-full inline-flex items-center justify-center px-4 py-3 bg-red-600 text-white font-medium rounded-lg hover:bg-red-700 transition duration-200 transform hover:-translate-y-0.5 shadow-sm">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                    </svg>
+                                    Hapus Divisi
+                                </button>
+                            </form>
+                        @endif
+                    </div>
+                </div>
+            </div>
+
+            {{-- ================================================== --}}
+            {{-- MAIN CONTENT - DESKRIPSI & ANGGOTA --}}
+            {{-- ================================================== --}}
+            <div class="lg:col-span-3 space-y-6">
+                {{-- Card Deskripsi --}}
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                        <h4 class="font-bold text-white text-lg flex items-center gap-2">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+                            </svg>
+                            Deskripsi Divisi
+                        </h4>
+                    </div>
+                    
+                    <div class="p-6">
+                        @if($division->description)
+                            <p class="text-gray-700 leading-relaxed text-sm">{{ $division->description }}</p>
                         @else
-                            <div class="text-center py-8 border-2 border-dashed border-gray-300 rounded-lg">
-                                <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"></path>
+                            <div class="text-center py-8 text-gray-400">
+                                <svg class="mx-auto h-8 w-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
                                 </svg>
-                                <h3 class="mt-2 text-sm font-medium text-gray-900">Tidak ada anggota</h3>
-                                <p class="mt-1 text-sm text-gray-500">Tambahkan anggota pertama ke divisi ini.</p>
+                                <p class="italic">Tidak ada deskripsi</p>
                             </div>
                         @endif
                     </div>
+                </div>
 
-                                        <!-- Action Buttons -->
-                    <div class="flex justify-between items-center mt-6 pt-6 border-t border-gray-200">
-                        <a href="{{ route('admin.divisions.index') }}" 
-                        class="inline-flex items-center px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition duration-150 ease-in-out">
-                            ← Kembali ke Daftar
-                        </a>
-                        
-                        <div class="flex space-x-3">
-                            <a href="{{ route('admin.divisions.edit', $division->id) }}" 
-                            class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white rounded-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 transition duration-150 ease-in-out font-medium">
-                                Edit Divisi
-                            </a>
-                            
-                            @if(auth()->user()->role === 'admin')
-                                <form action="{{ route('admin.divisions.destroy', $division->id) }}" 
-                                    method="POST" 
-                                    onsubmit="return confirmDoubleDelete('{{ addslashes($division->name) }}', {{ $division->members->count() }})">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button type="submit" 
-                                            class="inline-flex items-center px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition duration-150 ease-in-out font-medium">
-                                        Hapus Divisi
-                                    </button>
-                                </form>
-                            @endif
+                {{-- Card Daftar Anggota --}}
+                <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
+                    <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
+                        <div class="flex items-center justify-between">
+                            <h4 class="font-bold text-white text-lg flex items-center gap-2">
+                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                                </svg>
+                                Daftar Anggota
+                            </h4>
+                            <div class="flex items-center gap-3">
+                                <span class="bg-white/20 text-white px-3 py-1 rounded-full text-sm font-medium">
+                                    {{ $division->members->count() }} anggota
+                                </span>
+                                <a href="{{ route('admin.divisions.members.show', $division->id) }}" 
+                                   class="inline-flex items-center px-3 py-1 bg-white text-blue-600 text-sm font-medium rounded-lg hover:bg-blue-50 transition duration-150">
+                                    Kelola
+                                </a>
+                            </div>
                         </div>
                     </div>
 
+                    {{-- Table Content --}}
+                    <div class="overflow-x-auto">
+                        @if($division->members->count() > 0)
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead>
+                                    <tr class="bg-gray-50">
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-200">
+                                            Nama
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-200">
+                                            Email
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-200">
+                                            Peran
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-200">
+                                            Status
+                                        </th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-bold text-gray-700 uppercase tracking-wider border-b border-gray-200">
+                                            Bergabung
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    @foreach($division->members as $member)
+                                        <tr class="hover:bg-gray-50 transition-all duration-200">
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="flex items-center">
+                                                    <div class="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-xs font-bold mr-3">
+                                                        {{ substr($member->name, 0, 1) }}
+                                                    </div>
+                                                    <div class="text-sm font-medium text-gray-900">{{ $member->name }}</div>
+                                                </div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <div class="text-sm text-gray-600">{{ $member->email }}</div>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                    {{ $member->role === 'admin' ? 'bg-red-100 text-red-800' : 
+                                                    ($member->role === 'hrd' ? 'bg-purple-100 text-purple-800' : 
+                                                    ($member->role === 'ketua_divisi' ? 'bg-yellow-100 text-yellow-800' : 'bg-green-100 text-green-800')) }}">
+                                                    {{ ucfirst(str_replace('_', ' ', $member->role)) }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap">
+                                                <span class="px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                                    {{ $member->active_status ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800' }}">
+                                                    {{ $member->active_status ? 'Aktif' : 'Non-Aktif' }}
+                                                </span>
+                                            </td>
+                                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                {{ $member->join_date ? \Carbon\Carbon::parse($member->join_date)->format('d/m/Y') : '-' }}
+                                            </td>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        @else
+                            <div class="text-center py-12">
+                                <svg class="mx-auto h-12 w-12 text-gray-300 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z"/>
+                                </svg>
+                                <h3 class="mt-4 text-lg font-medium text-gray-900">Tidak ada anggota</h3>
+                                <p class="mt-2 text-sm text-gray-500">
+                                    Tambahkan anggota pertama ke divisi ini.
+                                </p>
+                                <a href="{{ route('admin.divisions.members.show', $division->id) }}" 
+                                   class="mt-4 inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition duration-200 shadow-sm">
+                                    <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                    </svg>
+                                    Tambah Anggota
+                                </a>
+                            </div>
+                        @endif
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-<script>
-// DOUBLE CONFIRMATION DELETE untuk halaman detail - FIXED VERSION
-function confirmDoubleDelete(divisionName, memberCount) {
-    // First confirmation - General warning
-    const firstConfirm = confirm(`HAPUS DIVISI: "${divisionName}"\n\n• Divisi akan dihapus permanen\n• ${memberCount} anggota akan dikeluarkan\n• Tindakan ini mempengaruhi data cuti\n\nLanjutkan penghapusan?`);
-    
-    if (!firstConfirm) {
-        console.log('Penghapusan dibatalkan pada konfirmasi pertama');
-        return false; // PASTIKAN return false
+    <script>
+    // DOUBLE CONFIRMATION DELETE untuk halaman detail
+    function confirmDoubleDelete(divisionName, memberCount) {
+        const firstConfirm = confirm(`HAPUS DIVISI: "${divisionName}"\n\n• ${memberCount} anggota akan dikeluarkan\n• Data divisi akan hilang permanen\n\nLanjutkan penghapusan?`);
+        
+        if (!firstConfirm) {
+            return false;
+        }
+        
+        const secondConfirm = confirm(`KONFIRMASI AKHIR!\n\nYakin hapus divisi "${divisionName}" secara PERMANEN?\n\n• ${memberCount} anggota akan kehilangan divisi\n• Tindakan ini TIDAK DAPAT DIBATALKAN\n\nTekan OK untuk hapus, Cancel untuk batal.`);
+        
+        return secondConfirm;
     }
-    
-    // Second confirmation - Final warning with stronger message
-    const secondConfirm = confirm(`⚠️ KONFIRMASI AKHIR - TIDAK DAPAT DIBATALKAN!\n\nAnda akan menghapus divisi "${divisionName}" secara permanen.\n\nAKIBAT:\n• ${memberCount} anggota kehilangan divisi\n• Data historis tetap tersimpan\n• Divisi tidak dapat dikembalikan\n\nTekan OK untuk menghapus, atau Cancel untuk membatalkan.`);
-    
-    if (!secondConfirm) {
-        console.log('Penghapusan dibatalkan pada konfirmasi kedua');
-        return false; // PASTIKAN return false
-    }
-    
-    console.log('Penghapusan dikonfirmasi, melanjutkan...');
-    return true; // Hanya return true jika kedua konfirmasi disetujui
-}
 
-// Loading state untuk tombol hapus
-document.addEventListener('DOMContentLoaded', function() {
-    const deleteForms = document.querySelectorAll('form[onsubmit*="confirmDoubleDelete"]');
-    
-    deleteForms.forEach(form => {
-        form.addEventListener('submit', function(e) {
-            const submitButton = this.querySelector('button[type="submit"]');
-            if (submitButton) {
-                // Tambahkan loading state
-                submitButton.disabled = true;
-                const originalText = submitButton.innerHTML;
-                submitButton.innerHTML = '🔄 Menghapus...';
-                
-                // Safety timeout - enable button setelah 10 detik
-                setTimeout(() => {
-                    if (submitButton.disabled) {
-                        submitButton.disabled = false;
-                        submitButton.innerHTML = originalText;
-                    }
-                }, 10000);
-            }
+    // Loading state untuk tombol hapus
+    document.addEventListener('DOMContentLoaded', function() {
+        const deleteForms = document.querySelectorAll('form[onsubmit*="confirmDoubleDelete"]');
+        
+        deleteForms.forEach(form => {
+            form.addEventListener('submit', function(e) {
+                const submitButton = this.querySelector('button[type="submit"]');
+                if (submitButton) {
+                    submitButton.disabled = true;
+                    const originalText = submitButton.innerHTML;
+                    submitButton.innerHTML = '🔄 Menghapus...';
+                    
+                    setTimeout(() => {
+                        if (submitButton.disabled) {
+                            submitButton.disabled = false;
+                            submitButton.innerHTML = originalText;
+                        }
+                    }, 10000);
+                }
+            });
         });
     });
-});
-</script>
+    </script>
 </x-app-layout>

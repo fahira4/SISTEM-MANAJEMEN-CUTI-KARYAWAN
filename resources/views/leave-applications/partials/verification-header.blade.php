@@ -22,8 +22,24 @@
                     </svg>
                 </div>
                 <div>
-                    <h1 class="text-4xl font-extrabold text-white tracking-tight">Persetujuan Final</h1>
-                    <p class="text-blue-200 mt-2 text-lg font-medium">Tinjau dan kelola pengajuan cuti karyawan.</p>
+                    <h1 class="text-4xl font-extrabold text-white tracking-tight">
+                        @if(Auth::user()->role == 'hrd')
+                            Persetujuan Final Cuti
+                        @elseif(Auth::user()->role == 'ketua_divisi')
+                            Verifikasi Pengajuan Cuti
+                        @else
+                            Persetujuan Cuti
+                        @endif
+                    </h1>
+                    <p class="text-blue-200 mt-2 text-lg font-medium">
+                        @if(Auth::user()->role == 'hrd')
+                            Tinjau dan berikan persetujuan final untuk pengajuan cuti
+                        @elseif(Auth::user()->role == 'ketua_divisi')
+                            Verifikasi pengajuan cuti dari bawahan Anda
+                        @else
+                            Kelola persetujuan pengajuan cuti
+                        @endif
+                    </p>
                 </div>
             </div>
 
@@ -44,10 +60,18 @@
                             @endif
                         </div>
                         <div>
-                            <p class="text-xs uppercase font-bold text-blue-300 tracking-widest">Status Menunggu</p>
+                            <p class="text-xs uppercase font-bold text-blue-300 tracking-widest">
+                                @if(Auth::user()->role == 'hrd')
+                                    Menunggu Final
+                                @elseif(Auth::user()->role == 'ketua_divisi')
+                                    Menunggu Verifikasi
+                                @else
+                                    Menunggu Persetujuan
+                                @endif
+                            </p>
                             <p class="text-2xl font-bold text-white leading-none mt-1">
                                 {{ isset($pendingApplications) ? $pendingApplications->count() : 0 }} 
-                                <span class="text-sm font-medium text-blue-200">Dokumen</span>
+                                <span class="text-sm font-medium text-blue-200">Pengajuan</span>
                             </p>
                         </div>
                     </div>

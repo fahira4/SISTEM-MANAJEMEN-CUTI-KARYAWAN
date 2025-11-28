@@ -20,6 +20,25 @@
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     
+                    {{-- MENU KHUSUS ADMIN --}}
+                    @if(Auth::user()->role == 'admin')
+                        <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')"
+                            class="text-sm font-bold {{ request()->routeIs('admin.users.*') ? 'text-white border-white' : 'text-blue-200 border-transparent hover:text-white hover:border-blue-400' }} transition-all">
+                            {{ __('Manajemen User') }}
+                        </x-nav-link>
+                        
+                        <x-nav-link :href="route('admin.divisions.index')" :active="request()->routeIs('admin.divisions.*')"
+                            class="text-sm font-bold {{ request()->routeIs('admin.divisions.*') ? 'text-white border-white' : 'text-blue-200 border-transparent hover:text-white hover:border-blue-400' }} transition-all">
+                            {{ __('Manajemen Divisi') }}
+                        </x-nav-link>
+                        
+                        <x-nav-link :href="route('admin.holidays.index')" :active="request()->routeIs('admin.holidays.*')"
+                            class="text-sm font-bold {{ request()->routeIs('admin.holidays.*') ? 'text-white border-white' : 'text-blue-200 border-transparent hover:text-white hover:border-blue-400' }} transition-all">
+                            {{ __('Hari Libur') }}
+                        </x-nav-link>
+                    @endif
+
+                    {{-- MENU VERIFIKASI UNTUK KETUA DIVISI & HRD --}}
                     @if(Auth::user()->role == 'ketua_divisi' || Auth::user()->role == 'hrd')
                     <x-nav-link :href="route('leave-verifications.index')" :active="request()->routeIs('leave-verifications.*')"
                         class="text-sm font-bold {{ request()->routeIs('leave-verifications.*') ? 'text-white border-white' : 'text-blue-200 border-transparent hover:text-white hover:border-blue-400' }} transition-all">
@@ -27,10 +46,13 @@
                     </x-nav-link>
                     @endif
 
+                    {{-- MENU RIWAYAT SAYA HANYA UNTUK KARYAWAN & KETUA DIVISI --}}
+                    @if(Auth::user()->role == 'karyawan' || Auth::user()->role == 'ketua_divisi')
                     <x-nav-link :href="route('leave-applications.index')" :active="request()->routeIs('leave-applications.index')"
                         class="text-sm font-bold {{ request()->routeIs('leave-applications.index') ? 'text-white border-white' : 'text-blue-200 border-transparent hover:text-white hover:border-blue-400' }} transition-all">
                         {{ __('Riwayat Saya') }}
                     </x-nav-link>
+                    @endif
                 </div>
             </div>
 
@@ -91,14 +113,41 @@
         </div>
     </div>
 
+    {{-- MOBILE MENU --}}
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-blue-800 border-t border-blue-700">
         <div class="pt-2 pb-3 space-y-1">
             <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white">
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
-            <x-responsive-nav-link :href="route('leave-applications.index')" :active="request()->routeIs('leave-applications.index')" class="text-white">
-                {{ __('Riwayat Cuti') }}
-            </x-responsive-nav-link>
+            
+            {{-- MENU KHUSUS ADMIN (MOBILE) --}}
+            @if(Auth::user()->role == 'admin')
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" class="text-white">
+                    {{ __('Manajemen User') }}
+                </x-responsive-nav-link>
+                
+                <x-responsive-nav-link :href="route('admin.divisions.index')" :active="request()->routeIs('admin.divisions.*')" class="text-white">
+                    {{ __('Manajemen Divisi') }}
+                </x-responsive-nav-link>
+                
+                <x-responsive-nav-link :href="route('admin.holidays.index')" :active="request()->routeIs('admin.holidays.*')" class="text-white">
+                    {{ __('Hari Libur') }}
+                </x-responsive-nav-link>
+            @endif
+
+            {{-- MENU VERIFIKASI UNTUK KETUA DIVISI & HRD (MOBILE) --}}
+            @if(Auth::user()->role == 'ketua_divisi' || Auth::user()->role == 'hrd')
+                <x-responsive-nav-link :href="route('leave-verifications.index')" :active="request()->routeIs('leave-verifications.*')" class="text-white">
+                    {{ __('Verifikasi Cuti') }}
+                </x-responsive-nav-link>
+            @endif
+
+            {{-- MENU RIWAYAT SAYA HANYA UNTUK KARYAWAN & KETUA DIVISI (MOBILE) --}}
+            @if(Auth::user()->role == 'karyawan' || Auth::user()->role == 'ketua_divisi')
+                <x-responsive-nav-link :href="route('leave-applications.index')" :active="request()->routeIs('leave-applications.index')" class="text-white">
+                    {{ __('Riwayat Cuti') }}
+                </x-responsive-nav-link>
+            @endif
         </div>
     </div>
 </nav>
