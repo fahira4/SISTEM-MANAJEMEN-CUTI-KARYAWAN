@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class LeaveApplication extends Model
 {
@@ -35,6 +36,13 @@ class LeaveApplication extends Model
         'leader_approval_at' => 'datetime',
         'hrd_approval_at' => 'datetime',
     ];
+
+    protected $dates = ['deleted_at'];
+    
+    public function scopeActive($query)
+    {
+        return $query->whereNull('deleted_at');
+    }
 
     public static function boot()
     {

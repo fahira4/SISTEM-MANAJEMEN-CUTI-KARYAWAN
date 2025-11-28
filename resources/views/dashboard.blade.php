@@ -14,10 +14,8 @@
             {{-- Header Text --}}
             <div class="flex flex-col md:flex-row justify-between items-center mb-6">
                 <div class="text-white">
-                    <h2 class="text-2xl font-bold tracking-tight">Dashboard</h2>
-                    <p class="text-blue-200 text-lg mt-1">
-                        Selamat Datang, <span class="font-semibold text-white">{{ Auth::user()->name }}</span>!
-                    </p>
+                    <h2 class="text-2xl font-bold tracking-tight">
+                        Selamat Datang, <span class="font-semibold text-white">{{ Auth::user()->name }}</span>!</h2>
                 </div>
                 
                 <div class="hidden md:block">
@@ -417,7 +415,7 @@
                 $sickLeaves = \App\Models\LeaveApplication::where('user_id', $user->id)->where('leave_type', 'sakit')->count();
                 $totalLeaves = \App\Models\LeaveApplication::where('user_id', $user->id)->count();
                 $division = $user->division;
-                $divisionHead = $division ? $division->head : null;
+                $divisionHead = $division ? $division->leader : null;
             @endphp
 
             {{-- STATS CARDS --}}
@@ -485,24 +483,50 @@
                     </div>
                 </div>
 
-                <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-                    <div class="px-5 py-4 border-b border-gray-100 bg-gray-50/50">
-                        <h4 class="font-bold text-gray-700 text-lg">Quick Actions</h4>
-                    </div>
-                    <div class="p-6">
-                        <div class="space-y-3">
-                            <a href="{{ route('leave-applications.create') }}" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg text-sm hover:bg-blue-700 transition duration-200 flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
-                                Ajukan Cuti Baru
-                            </a>
-                            <a href="{{ route('leave-applications.index') }}" class="w-full bg-green-600 text-white py-3 px-4 rounded-lg text-sm hover:bg-green-700 transition duration-200 flex items-center justify-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
-                                Lihat Riwayat Cuti
-                            </a>
+<div class="col-12 col-xl-6">
+    <div class="card border-0 shadow-sm h-100 bg-white">
+        <div class="card-body p-4">
+            
+            <h5 class="card-title mb-4 fw-bold text-dark" style="font-size: 1.1rem;">
+                📅 Hari Libur Terdekat
+            </h5>
+            
+            @if($upcomingHolidays->count() > 0)
+                <div style="display: flex; flex-direction: column; gap: 15px;">
+                    @foreach($upcomingHolidays as $holiday)
+                    
+                    <div style="display: flex; align-items: center; border-bottom: 1px solid #f0f0f0; padding-bottom: 10px;">
+                        
+                        <div style="width: 60px; height: 60px; min-width: 60px; background-color: #f8f9fa; border: 1px solid #dee2e6; border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; margin-right: 15px;">
+                            <span class="fw-bold text-danger" style="font-size: 1.4rem; line-height: 1;">
+                                {{ \Carbon\Carbon::parse($holiday->date)->format('d') }}
+                            </span>
+                            <span class="text-uppercase text-muted fw-bold" style="font-size: 0.7rem; line-height: 1; margin-top: 4px;">
+                                {{ \Carbon\Carbon::parse($holiday->date)->translatedFormat('M') }}
+                            </span>
                         </div>
+                        
+                        <div>
+                            <h6 class="mb-1 fw-bold text-dark" style="font-size: 1rem; margin: 0;">
+                                {{ $holiday->name }}
+                            </h6>
+                            <small class="text-secondary" style="font-size: 0.85rem;">
+                                {{ \Carbon\Carbon::parse($holiday->date)->translatedFormat('l, d F Y') }}
+                            </small>
+                        </div>
+
                     </div>
+                    @endforeach
                 </div>
-            </div>
+            @else
+                <div class="text-center py-5 text-muted">
+                    <p class="mb-0 small">Tidak ada libur dalam waktu dekat.</p>
+                </div>
+            @endif
+
+        </div>
+    </div>
+</div>
 
         {{-- #################### ROLE: HRD #################### --}}
         @elseif (Auth::user()->role == 'hrd')

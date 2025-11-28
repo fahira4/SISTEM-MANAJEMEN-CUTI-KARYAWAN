@@ -8,7 +8,7 @@
         </div>
         <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
             <div class="flex items-center justify-between">
-                <div class="text-center flex-1">
+                <div class="text-left">
                     <h1 class="text-3xl font-bold text-white mb-2">
                         Riwayat Pengajuan Cuti Saya
                     </h1>
@@ -16,6 +16,24 @@
                         Kelola dan pantau semua pengajuan cuti Anda di satu tempat
                     </p>
                 </div>
+                
+                {{-- TOMBOL AJUKAN CUTI BARU YANG DIPERBAIKI --}}
+                @if(auth()->user()->role == 'karyawan' && !auth()->user()->division_id)
+                    <button disabled class="inline-flex items-center px-6 py-3 bg-gray-400 border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-widest cursor-not-allowed shadow-sm">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                        </svg>
+                        Akun Belum Siap
+                    </button>
+                @else
+                    <a href="{{ route('leave-applications.create') }}" 
+                       class="inline-flex items-center px-6 py-3 bg-white text-blue-900 border border-transparent rounded-lg font-semibold text-sm uppercase tracking-widest hover:bg-blue-50 hover:text-blue-800 active:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 ease-in-out shadow-md hover:shadow-lg transform hover:-translate-y-0.5">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                        </svg>
+                        Ajukan Cuti Baru
+                    </a>
+                @endif
             </div>
         </div>
     </div>
@@ -27,7 +45,7 @@
             {{-- CARD UTAMA --}}
             <div class="bg-white rounded-xl shadow-lg border-t-4 border-orange-500 p-6 mb-8">
                 
-                {{-- HEADER CARD --}}
+                {{-- HEADER CARD - TANPA TOMBOL AJUKAN CUTI BARU --}}
                 <div class="flex justify-between items-start mb-6">
                     <div>
                         <h3 class="text-lg font-bold text-gray-900">Riwayat Pengajuan Cuti</h3>
@@ -36,17 +54,7 @@
                             <span class="font-bold text-blue-600">{{ auth()->user()->annual_leave_quota }} hari</span>
                         </p>
                     </div>
-                    
-                    @if(auth()->user()->role == 'karyawan' && !auth()->user()->division_id)
-                        <button disabled class="inline-flex items-center px-4 py-2 bg-gray-400 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest cursor-not-allowed">
-                            🚫 Akun Belum Siap
-                        </button>
-                    @else
-                        <a href="{{ route('leave-applications.create') }}" 
-                           class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                            + Ajukan Cuti Baru
-                        </a>
-                    @endif
+                    {{-- TOMBOL AJUKAN CUTI BARU SUDAH DIPINDAH KE HEADER --}}
                 </div>
 
                 {{-- FILTER SECTION --}}
@@ -62,6 +70,7 @@
                             <option value="approved_by_hrd" {{ request('status') == 'approved_by_hrd' ? 'selected' : '' }}>Disetujui HRD</option>
                             <option value="rejected" {{ in_array(request('status'), ['rejected_by_leader', 'rejected_by_hrd']) ? 'selected' : '' }}>Ditolak</option>
                             <option value="cancelled" {{ request('status') == 'cancelled' ? 'selected' : '' }}>Dibatalkan</option>
+                            <option value="completed" {{ request('status') == 'completed' ? 'selected' : '' }}>Selesai</option>
                         </select>
 
                         {{-- Filter Jenis Cuti --}}
@@ -95,7 +104,7 @@
                     </div>
                 </form>
 
-                {{-- STATISTIK CEPAT --}}
+                {{-- STATISTIK CEPAT - KOTAK KECIL --}}
                 @php
                     $stats = [
                         'total' => $leaveApplications->count(),
@@ -103,29 +112,48 @@
                         'approved_by_leader' => $leaveApplications->where('status', 'approved_by_leader')->count(),
                         'approved_by_hrd' => $leaveApplications->where('status', 'approved_by_hrd')->count(),
                         'rejected' => $leaveApplications->whereIn('status', ['rejected_by_leader', 'rejected_by_hrd'])->count(),
+                        'completed' => $leaveApplications->where('status', 'approved_by_hrd')
+                                        ->filter(function($app) {
+                                            return $app->end_date->isPast();
+                                        })->count(),
                     ];
                 @endphp
 
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mt-6 pt-6 border-t border-gray-100">
-                    <div class="bg-white border border-gray-200 rounded-lg p-4 text-center hover:shadow-md transition-shadow duration-300">
-                        <div class="text-2xl font-bold text-gray-900">{{ $stats['total'] }}</div>
-                        <div class="text-sm text-gray-600 font-medium">Total</div>
+                <div class="grid grid-cols-2 md:grid-cols-6 gap-3 mt-6 pt-6 border-t border-gray-100">
+                    {{-- Total --}}
+                    <div class="bg-gradient-to-br from-gray-50 to-gray-100 border border-gray-200 rounded-lg p-3 text-center hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+                        <div class="text-xl font-bold text-gray-900">{{ $stats['total'] }}</div>
+                        <div class="text-xs text-gray-600 font-medium mt-1">Total</div>
                     </div>
-                    <div class="bg-white border border-yellow-200 rounded-lg p-4 text-center hover:shadow-md transition-shadow duration-300">
-                        <div class="text-2xl font-bold text-yellow-600">{{ $stats['pending'] }}</div>
-                        <div class="text-sm text-gray-600 font-medium">Menunggu</div>
+
+                    {{-- Menunggu --}}
+                    <div class="bg-gradient-to-br from-yellow-50 to-yellow-100 border border-yellow-200 rounded-lg p-3 text-center hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+                        <div class="text-xl font-bold text-yellow-700">{{ $stats['pending'] }}</div>
+                        <div class="text-xs text-yellow-600 font-medium mt-1">Menunggu</div>
                     </div>
-                    <div class="bg-white border border-blue-200 rounded-lg p-4 text-center hover:shadow-md transition-shadow duration-300">
-                        <div class="text-2xl font-bold text-blue-600">{{ $stats['approved_by_leader'] }}</div>
-                        <div class="text-sm text-gray-600 font-medium">Disetujui Atasan</div>
+
+                    {{-- Disetujui Atasan --}}
+                    <div class="bg-gradient-to-br from-blue-50 to-blue-100 border border-blue-200 rounded-lg p-3 text-center hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+                        <div class="text-xl font-bold text-blue-700">{{ $stats['approved_by_leader'] }}</div>
+                        <div class="text-xs text-blue-600 font-medium mt-1">Disetujui Atasan</div>
                     </div>
-                    <div class="bg-white border border-green-200 rounded-lg p-4 text-center hover:shadow-md transition-shadow duration-300">
-                        <div class="text-2xl font-bold text-green-600">{{ $stats['approved_by_hrd'] }}</div>
-                        <div class="text-sm text-gray-600 font-medium">Disetujui HRD</div>
+
+                    {{-- Disetujui HRD --}}
+                    <div class="bg-gradient-to-br from-green-50 to-green-100 border border-green-200 rounded-lg p-3 text-center hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+                        <div class="text-xl font-bold text-green-700">{{ $stats['approved_by_hrd'] }}</div>
+                        <div class="text-xs text-green-600 font-medium mt-1">Disetujui HRD</div>
                     </div>
-                    <div class="bg-white border border-red-200 rounded-lg p-4 text-center hover:shadow-md transition-shadow duration-300">
-                        <div class="text-2xl font-bold text-red-600">{{ $stats['rejected'] }}</div>
-                        <div class="text-sm text-gray-600 font-medium">Ditolak</div>
+
+                    {{-- Ditolak --}}
+                    <div class="bg-gradient-to-br from-red-50 to-red-100 border border-red-200 rounded-lg p-3 text-center hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+                        <div class="text-xl font-bold text-red-700">{{ $stats['rejected'] }}</div>
+                        <div class="text-xs text-red-600 font-medium mt-1">Ditolak</div>
+                    </div>
+
+                    {{-- Selesai --}}
+                    <div class="bg-gradient-to-br from-purple-50 to-purple-100 border border-purple-200 rounded-lg p-3 text-center hover:shadow-md transition-all duration-200 hover:-translate-y-0.5">
+                        <div class="text-xl font-bold text-purple-700">{{ $stats['completed'] }}</div>
+                        <div class="text-xs text-purple-600 font-medium mt-1">Selesai</div>
                     </div>
                 </div>
             </div>
@@ -199,16 +227,30 @@
                                         $config = $statusConfig[$application->status] ?? ['color' => 'bg-gray-100 text-gray-800', 'icon' => '❓'];
                                         $text = str_replace(['_', 'by'], [' ', 'oleh'], $application->status);
                                     @endphp
-                                    <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold {{ $config['color'] }}">
-                                        {{ $config['icon'] }}
-                                        <span class="ml-1">{{ ucwords($text) }}</span>
-                                    </span>
                                     
-                                    @if($application->leader_rejection_notes)
-                                        <div class="text-xs text-red-600 mt-1 max-w-xs">
-                                            Catatan: {{ Str::limit($application->leader_rejection_notes, 50) }}
-                                        </div>
-                                    @endif
+                                    <div class="space-y-2">
+                                        {{-- Status Badge --}}
+                                        <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold {{ $config['color'] }}">
+                                            {{ $config['icon'] }}
+                                            <span class="ml-1">{{ ucwords($text) }}</span>
+                                        </span>
+                                        
+                                        {{-- Badge "Selesai" untuk cuti yang sudah berlalu --}}
+                                        @if($application->status === 'approved_by_hrd' && $application->end_date->isPast())
+                                            <div class="inline-flex items-center px-2 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-800 border border-purple-200">
+                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+                                                </svg>
+                                                Selesai
+                                            </div>
+                                        @endif
+                                        
+                                        @if($application->leader_rejection_notes)
+                                            <div class="text-xs text-red-600 mt-1 max-w-xs">
+                                                Catatan: {{ Str::limit($application->leader_rejection_notes, 50) }}
+                                            </div>
+                                        @endif
+                                    </div>
                                 </td>
                                 <td class="px-6 py-4">
                                     <div class="text-sm text-gray-900">
@@ -260,32 +302,12 @@
                                             </div>
                                         @endif
 
-                                        {{-- TOMBOL BATALKAN --}}
+                                        {{-- TOMBOL BATALKAN (Hanya untuk status pending) --}}
                                         @if ($application->status == 'pending' && $application->user_id == auth()->id())
                                             <form action="{{ route('leave-applications.cancel', $application->id) }}" method="POST" class="inline-block" onsubmit="return confirm('Yakin ingin membatalkan?');">
                                                 @csrf
                                                 <button type="submit" class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded text-xs font-medium">
                                                     Batalkan
-                                                </button>
-                                            </form>
-                                        @endif
-
-                                        {{-- TOMBOL HAPUS (Hanya untuk cuti yang sudah di-approve oleh ketua divisi dan HRD) --}}
-                                        @if ($application->status === 'approved_by_hrd' && 
-                                             $application->leader_approval_at && 
-                                             $application->hrd_approval_at &&
-                                             $application->user_id == auth()->id())
-                                            <form action="{{ route('leave-applications.destroy', $application->id) }}" method="POST" class="inline-block" 
-                                                  onsubmit="return confirm('Apakah Anda yakin ingin menghapus riwayat cuti ini?\\n\\nCatatan: \\n- Data yang dihapus tidak dapat dikembalikan\\n- Hanya menghapus riwayat, tidak mempengaruhi kuota cuti');">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" 
-                                                        class="text-red-600 hover:text-red-900 bg-red-50 hover:bg-red-100 px-3 py-1 rounded text-xs font-medium transition duration-150 ease-in-out flex items-center"
-                                                        title="Hapus Riwayat Cuti">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
-                                                    </svg>
-                                                    Hapus
                                                 </button>
                                             </form>
                                         @endif
@@ -311,8 +333,11 @@
                                                 <span class="block sm:inline">Anda belum terdaftar dalam Divisi manapun. Hubungi Admin untuk plotting divisi agar dapat mengajukan cuti.</span>
                                             </div>
                                             
-                                            <button disabled class="inline-flex items-center px-4 py-2 bg-gray-400 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest cursor-not-allowed">
-                                                🚫 Akun Belum Siap
+                                            <button disabled class="inline-flex items-center px-6 py-3 bg-gray-400 border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-widest cursor-not-allowed shadow-sm">
+                                                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/>
+                                                </svg>
+                                                Akun Belum Siap
                                             </button>
                                         @else
                                             <div class="max-w-md mx-auto">
@@ -324,8 +349,11 @@
                                                 <h3 class="text-xl font-bold text-gray-900 mb-2">Belum Ada Pengajuan Cuti</h3>
                                                 <p class="text-gray-500 mb-6">Mulai ajukan cuti pertama Anda untuk melihat riwayat di sini.</p>
                                                 <a href="{{ route('leave-applications.create') }}" 
-                                                   class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-lg font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150">
-                                                    + Ajukan Cuti Baru
+                                                   class="inline-flex items-center px-6 py-3 bg-blue-600 border border-transparent rounded-lg font-semibold text-sm text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-800 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150 shadow-md hover:shadow-lg">
+                                                    <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                                    </svg>
+                                                    Ajukan Cuti Baru
                                                 </a>
                                             </div>
                                         @endif

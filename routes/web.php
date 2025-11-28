@@ -6,16 +6,17 @@ use App\Http\Controllers\Admin\DivisionController;
 use App\Http\Controllers\Admin\UserController;
 use App\Http\Controllers\LeaveApplicationController;
 use App\Http\Controllers\LeavePdfController;
-use App\Http\Controllers\Admin\HolidayController; 
+use App\Http\Controllers\Admin\HolidayController;
+use App\Http\Controllers\DashboardController; 
 
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'verified'])->name('dashboard');
-
+Route::get('/dashboard', [DashboardController::class, 'index'])
+    ->middleware(['auth', 'verified'])
+    ->name('dashboard');
+    
 // Route untuk verifikasi cuti
 Route::get('/leave-verifications', [LeaveApplicationController::class, 'showVerificationList'])
     ->middleware(['auth'])
@@ -37,6 +38,7 @@ Route::middleware('auth')->prefix('leave-applications')->name('leave-application
     Route::get('/create', [LeaveApplicationController::class, 'create'])->name('create');
     Route::post('/', [LeaveApplicationController::class, 'store'])->name('store');
     Route::get('/{leaveApplication}', [LeaveApplicationController::class, 'show'])->name('show');
+    Route::delete('/{leaveApplication}', [LeaveApplicationController::class, 'destroy'])->name('destroy');
     Route::post('/{application}/cancel', [LeaveApplicationController::class, 'cancelLeave'])->name('cancel');
     // SINGLE APPROVAL/REJECTION
     Route::patch('/{application}/approve', [LeaveApplicationController::class, 'approveLeave'])->name('approve');

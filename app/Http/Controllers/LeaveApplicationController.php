@@ -185,6 +185,28 @@ class LeaveApplicationController extends Controller
         return redirect()->route('leave-applications.index')->with('success', 'Pengajuan cuti Anda telah berhasil dikirim.');
     }
 
+    public function destroy(LeaveApplication $leaveApplication)
+{
+    $user = Auth::user();
+    
+    if ($leaveApplication->user_id != $user->id) {
+        abort(403);
+    }
+
+    // Validasi lebih longgar dengan soft delete
+    $canDelete = $leaveApplication->status === 'approved_by_hrd' 
+        && $leaveApplication->end_date->isPast();
+
+    if (!$canDelete) {
+        return back()->with('error', 'Hanya riwayat cuti yang sudah selesai yang dapat diarsipkan.');
+    }
+
+    $leaveApplication->delete(); // Soft delete
+
+    return redirect()->route('leave-applications.index')
+                    ->with('success', 'Riwayat cuti berhasil diarsipkan.');
+}
+
     private function checkLeaveOverlap($userId, $startDate, $endDate)
     {
         return LeaveApplication::where('user_id', $userId)
