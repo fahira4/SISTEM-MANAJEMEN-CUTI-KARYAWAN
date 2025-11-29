@@ -65,7 +65,7 @@ class DivisionController extends Controller
         } else {
             // Default sorting jika tidak ada sorting yang dipilih
             $query->orderBy('name', 'asc');
-        }
+        }   
         
         // PERBAIKAN: gunakan paginate() bukan get()
         $divisions = $query->paginate(10);
@@ -75,9 +75,11 @@ class DivisionController extends Controller
     }
 
     public function create()
-    {
+    {   
+        $existingLeaderIds = Division::pluck('leader_id')->all();
         // ✅ Hanya ambil ketua divisi yang BELUM memiliki divisi (belum memimpin divisi manapun)
         $availableLeaders = User::where('role', 'ketua_divisi')
+                            ->whereNotIn('id', $existingLeaderIds)
                             ->whereNull('division_id') // Belum jadi anggota divisi manapun
                             ->where('active_status', true)
                             ->get();

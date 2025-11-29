@@ -11,24 +11,31 @@ return new class extends Migration
      */
     public function up(): void
     {
-        // di 2025_11_17_000004_create_divisions_table.php
         Schema::create('divisions', function (Blueprint $table) {
             $table->id();
+            
+            // Nama Divisi (Harus Unik, misal: IT, HRD, Finance)
             $table->string('name')->unique();
+            
+            // Deskripsi Divisi (Boleh kosong)
             $table->text('description')->nullable();
             
-            // PERBAIKI: Tambah onDelete
+            // Relasi ke tabel 'users' untuk Ketua Divisi.
+            // PENTING: Karena tabel 'users' sudah dibuat di migrasi urutan 000000,
+            // kita BISA langsung menggunakan constrained('users') di sini.
             $table->foreignId('leader_id')
                 ->nullable()
-                ->unique()
+                ->unique() // Satu user hanya bisa menjadi ketua di SATU divisi saja
                 ->constrained('users')
-                ->onDelete('set null'); // Jika user dihapus, set leader_id jadi null
+                ->onDelete('set null'); // Jika user ketua dihapus, jabatan ketua kosong (NULL)
             
             $table->timestamps();
         });
     }
 
-
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::dropIfExists('divisions');

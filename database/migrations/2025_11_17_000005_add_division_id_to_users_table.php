@@ -12,11 +12,10 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('division_id')
+            $table->foreign('division_id')
                     ->nullable()
-                    ->constrained('divisions')
-                    ->onDelete('set null')
-                    ->after('role');
+                    ->references('id')->on('divisions')
+                    ->onDelete('set null');
         });
     }
 
@@ -24,7 +23,6 @@ return new class extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['division_id']);
-            $table->dropColumn('division_id');
         });
     }
 };

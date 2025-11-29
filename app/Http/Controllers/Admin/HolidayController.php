@@ -149,19 +149,20 @@ public function importFromGoogleCalendar(Request $request)
     ]);
 
     try {
-        // ✅ GUNAKAN GOOGLE CALENDAR SERVICE YANG REAL
+        // Gunakan Service Google Calendar
         $apiService = new \App\Services\GoogleCalendarService();
         
         \Log::info('Starting Google Calendar import...');
         
+        // Ambil data dari Google
         if ($request->import_type === 'specific_year' && $request->year) {
             $holidays = $apiService->getHolidays($request->year);
             $successMessage = "Data hari libur tahun {$request->year}";
-            \Log::info("Importing specific year: {$request->year}, found: " . count($holidays) . " holidays");
+            \Log::info("Importing specific year: {$request->year}");
         } else {
             $holidays = $apiService->getHolidays(); // All years
             $successMessage = "Semua data hari libur yang tersedia";
-            \Log::info("Importing all years, found: " . count($holidays) . " holidays");
+            \Log::info("Importing all years");
         }
         
         if (empty($holidays)) {
@@ -171,28 +172,22 @@ public function importFromGoogleCalendar(Request $request)
         }
 
         $importedCount = 0;
-        $updatedCount = 0;
-        $skippedCount = 0;
+        $skippedCount = 0; // Counter untuk data yang di-skip (duplikat)
 
         foreach ($holidays as $index => $holidayData) {
-            \Log::info("Processing holiday {$index}: " . $holidayData['name']);
             
-            // Cek berdasarkan date dan name untuk prevent duplicate
-            $existing = Holiday::where('date', $holidayData['date'])
-                              ->where('name', $holidayData['name'])
-                              ->first();
+            // ✅ PERBAIKAN LOGIKA (OPSI A):
+            // Cek database HANYA berdasarkan TANGGAL.
+            // Kita tidak peduli namanya beda (Inggris/Indo), kalau tanggal sudah ada isinya, kita anggap itu duplikat.
+            $existing = Holiday::where('date', $holidayData['date'])->first();
 
             if ($existing) {
-                // Update existing
-                $existing->update([
-                    'type' => $holidayData['type'],
-                    'description' => $holidayData['description'],
-                    'is_recurring' => $holidayData['is_recurring']
-                ]);
-                $updatedCount++;
-                \Log::info("Updated: " . $holidayData['name']);
+                // 🛑 SKIP: Tanggal ini sudah ada liburnya.
+                // Abaikan data baru agar tidak menimpa data lama atau membuat duplikat.
+                $skippedCount++;
+                \Log::info("Skipped (Duplicate Date): " . $holidayData['date'] . " - " . $holidayData['name']);
             } else {
-                // Create new
+                // ✅ CREATE: Tanggal ini belum ada, buat baru.
                 Holiday::create([
                     'name' => $holidayData['name'],
                     'date' => $holidayData['date'],
@@ -205,8 +200,9 @@ public function importFromGoogleCalendar(Request $request)
             }
         }
 
-        $message = "✅ {$successMessage} berhasil diimport! ";
-        $message .= "({$importedCount} baru, {$updatedCount} diupdate)";
+        // Pesan Sukses
+        $message = "✅ {$successMessage} selesai diproses! ";
+        $message .= "({$importedCount} baru ditambahkan, {$skippedCount} duplikat diabaikan)";
         
         \Log::info("Import completed: {$message}");
 

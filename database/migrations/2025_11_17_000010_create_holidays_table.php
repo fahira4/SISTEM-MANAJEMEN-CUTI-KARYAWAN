@@ -10,11 +10,15 @@ return new class extends Migration
     {
         Schema::create('holidays', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); // Nama hari libur
-            $table->date('date'); // Tanggal libur
-            $table->enum('type', ['national', 'company', 'joint_leave']); // Jenis: nasional, perusahaan, cuti bersama
-            $table->text('description')->nullable(); // Deskripsi
-            $table->boolean('is_recurring')->default(false); // Berulang setiap tahun
+            $table->string('name');
+            $table->date('date');
+            
+            // PERBAIKAN: Langsung gunakan String sesuai keinginan Anda (bukan Enum lagi)
+            // Default 'national' tetap bisa dipakai
+            $table->string('type', 20)->default('national'); 
+            
+            $table->text('description')->nullable();
+            $table->boolean('is_recurring')->default(false);
             $table->timestamps();
         });
     }
