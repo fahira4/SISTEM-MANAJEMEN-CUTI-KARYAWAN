@@ -2,7 +2,6 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
@@ -10,10 +9,7 @@ use Carbon\Carbon;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
-
-    // ✅ TAMBAHKAN CONSTANT UNTUK STATUS
     const STATUS_PENDING = 'pending';
     const STATUS_ACTIVE = 'active';
     const STATUS_REJECTED = 'rejected';
@@ -44,13 +40,11 @@ class User extends Authenticatable
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
-            'join_date' => 'date', // PASTIKAN INI ADA
+            'join_date' => 'date',
             'active_status' => 'boolean',
             'status' => 'string',
         ];
     }
-
-        // ✅ TAMBAHKAN METHOD UNTUK CEK STATUS
     public function isPending()
     {
         return $this->status === self::STATUS_PENDING;
@@ -73,18 +67,15 @@ public function getEmploymentPeriodAttribute()
     }
 
     try {
-        $joinDate = Carbon::parse($this->join_date)->startOfDay(); // ✅ SET KE 00:00:00
-        $now = Carbon::now()->startOfDay(); // ✅ SET KE 00:00:00
+        $joinDate = Carbon::parse($this->join_date)->startOfDay();
+        $now = Carbon::now()->startOfDay();
         
-        // Pastikan join_date tidak di masa depan
         if ($joinDate->gt($now)) {
             return '0 hari';
         }
         
-        // ✅ HITUNG SELISIH TANGGAL SAJA (TANPA JAM)
         $days = $joinDate->diffInDays($now);
         
-        // Format output
         if ($days == 0) {
             return 'Hari ini';
         } elseif ($days == 1) {
@@ -109,9 +100,6 @@ public function getEmploymentPeriodAttribute()
         return '0 hari';
     }
 }
-    /**
-     * Scope untuk filter masa kerja dalam HARI
-     */
     public function scopeByEmploymentPeriod($query, $period)
     {
         $now = now();
@@ -126,9 +114,6 @@ public function getEmploymentPeriodAttribute()
         };
     }
 
-    /**
-     * Mendapatkan divisi tempat user ini berada.
-     */
     public function division()
     {
         return $this->belongsTo(Division::class);

@@ -1,9 +1,6 @@
 <x-app-layout>
-    {{-- ================================================== --}}
-    {{-- 1. HERO SECTION & GLASS CARD --}}
-    {{-- ================================================== --}}
     <div class="relative bg-blue-900 min-h-[40vh] overflow-hidden">
-        {{-- Background Pattern Halus --}}
+        
         <div class="absolute inset-0 opacity-10">
             <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                 <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
@@ -11,7 +8,7 @@
         </div>
 
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-24">
-            {{-- Header Text --}}
+           
             <div class="flex flex-col md:flex-row justify-between items-center mb-6">
                 <div class="text-white">
                     <h2 class="text-4xl font-bold tracking-tight">Manajemen Divisi</h2>
@@ -40,7 +37,6 @@
                 </div>
             </div>
 
-            {{-- Alert Messages --}}
             @if (session('success'))
                 <div class="mb-6 bg-emerald-500/20 border border-emerald-500/30 text-white px-4 py-2 rounded-lg backdrop-blur-md flex items-center text-sm shadow-sm animate-fade-in-down">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -61,17 +57,13 @@
         </div>
     </div>
 
-    {{-- ================================================== --}}
-    {{-- 2. FILTER & SORTING SECTION --}}
-    {{-- ================================================== --}}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 pb-8 relative z-10">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden border-b-4 border-b-orange-500">
-            {{-- Form Wrapper --}}
+           
             <form method="GET" action="{{ route('admin.divisions.index') }}" id="filterForm">
                 <div class="p-6">
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                         
-                        {{-- Filter Card --}}
                         <div class="bg-gray-50 p-5 border border-gray-200 rounded-lg flex flex-col">
                             <h4 class="font-bold text-gray-800 mb-4 flex items-center text-lg">
                                 <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -114,7 +106,6 @@
                             </div>
                         </div>
 
-                        {{-- Sort Card --}}
                         <div class="bg-gray-50 p-5 border border-gray-200 rounded-lg flex flex-col">
                             <h4 class="font-bold text-gray-800 mb-4 flex items-center text-lg">
                                 <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -199,12 +190,9 @@
         </div>
     </div>
 
-    {{-- ================================================== --}}
-    {{-- 3. TABLE SECTION --}}
-    {{-- ================================================== --}}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 mt-8">
         <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-            {{-- Table Header dengan Background Biru --}}
+            
             <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <h4 class="font-bold text-white text-lg flex items-center gap-2">
@@ -219,7 +207,6 @@
                 </div>
             </div>
 
-            {{-- Table Content --}}
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead>
@@ -363,7 +350,6 @@
                 </table>
             </div>
 
-            {{-- Pagination --}}
             @if($divisions->hasPages())
                 <div class="px-6 py-4 border-t border-gray-200 bg-gray-50/50">
                     {{ $divisions->withQueryString()->links() }}
@@ -372,12 +358,10 @@
         </div>
     </div>
 
-    <!-- JavaScript untuk Multi-Sorting -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const sortCheckboxes = document.querySelectorAll('input[name="sort_fields[]"]');
         
-        // Initialize disabled state on page load
         sortCheckboxes.forEach(checkbox => {
             if (!checkbox.checked) {
                 const parentDiv = checkbox.closest('.flex.items-center.justify-between');
@@ -388,7 +372,6 @@
             }
         });
 
-        // Enable/disable select based on checkbox state
         sortCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 const parentDiv = this.closest('.flex.items-center.justify-between');
@@ -404,16 +387,14 @@
         });
     });
 
-    // Double confirmation delete function
     function confirmDoubleDelete(divisionName, memberCount) {
-        // First confirmation
+        
         const firstConfirm = confirm(`HAPUS DIVISI: "${divisionName}"\n\n• ${memberCount} anggota akan dikeluarkan\n• Data divisi akan hilang permanen\n\nLanjutkan penghapusan?`);
         
         if (!firstConfirm) {
             return false;
         }
         
-        // Second confirmation
         const secondConfirm = confirm(`KONFIRMASI AKHIR!\n\nYakin hapus divisi "${divisionName}" secara PERMANEN?\n\n• ${memberCount} anggota akan kehilangan divisi\n• Tindakan ini TIDAK DAPAT DIBATALKAN\n\nTekan OK untuk hapus, Cancel untuk batal.`);
         
         return secondConfirm;

@@ -9,7 +9,7 @@
     <div class="relative z-10 w-full max-w-2xl flex flex-col items-center">
         
         <div class="text-center mb-10 w-full">
-            <h2 class="text-3xl lg:text-4xl font-bold tracking-tight mb-2">Sistem Manajemen Cuti</h2>
+            <h2 class="text-3xl lg:text-4xl font-bold tracking-tight mb-2">Cuti-Operation System (C-OPS)</h2>
             <div class="h-1.5 w-20 bg-blue-400 mx-auto rounded-full mb-3"></div>
             <p class="text-blue-200 text-base lg:text-lg font-light tracking-wide uppercase">PT AMANAH JAYA</p>
         </div>

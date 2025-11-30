@@ -23,7 +23,6 @@ class Holiday extends Model
         'is_recurring' => 'boolean'
     ];
 
-    // Scope untuk filter berdasarkan tahun
     public function scopeForYear($query, $year = null)
     {
         $year = $year ?? date('Y');
@@ -31,19 +30,16 @@ class Holiday extends Model
                     ->orWhere('is_recurring', true);
     }
 
-    // Scope untuk cuti bersama
     public function scopeJointLeave($query)
     {
         return $query->where('type', 'joint_leave');
     }
 
-    // Scope untuk hari libur nasional
     public function scopeNational($query)
     {
         return $query->where('type', 'national');
     }
 
-    // Cek apakah tanggal tertentu adalah hari libur
     public static function isHoliday($date)
     {
         $date = Carbon::parse($date);
@@ -58,7 +54,6 @@ class Holiday extends Model
         })->exists();
     }
 
-    // Get all holidays for a specific year
     public static function getHolidaysForYear($year = null)
     {
         $year = $year ?? date('Y');

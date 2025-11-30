@@ -11,29 +11,20 @@ use Illuminate\Validation\Rules;
 
 class UserController extends Controller
 {
-    /**
-     * Menampilkan daftar semua pengguna.
-     */
     public function index(Request $request)
 {
     $query = User::with(['division', 'leadingDivision']);
     
-    // Filter by role
     if ($request->has('role') && $request->role != '') {
         $query->where('role', $request->role);
     }
-    
-    // Filter by active status
     if ($request->has('active_status') && $request->active_status != '') {
         $query->where('active_status', $request->active_status);
     }
-    
-    // Filter by division
     if ($request->has('division_id') && $request->division_id != '') {
         $query->where('division_id', $request->division_id);
     }
     
-    // Filter masa kerja
     if ($request->has('employment_period') && $request->employment_period != '') {
         $query->where(function($q) use ($request) {
             $now = now();
@@ -56,29 +47,24 @@ class UserController extends Controller
             }
         });
     }
-    
-    // MULTI-SORTING IMPLEMENTATION dengan NULL values di akhir
+
     $sortFields = $request->input('sort_fields', []);
     $sortDirections = $request->input('sort_directions', []);
     
-    // Jika ada multiple sorting criteria
     if (!empty($sortFields)) {
         foreach ($sortFields as $index => $field) {
             if (isset($sortDirections[$index]) && in_array($sortDirections[$index], ['asc', 'desc'])) {
                 if ($field === 'division') {
-                    // Sorting by division name dengan NULL values di akhir
                     $query->leftJoin('divisions', 'users.division_id', '=', 'divisions.id')
-                          ->orderByRaw('CASE WHEN divisions.name IS NULL THEN 1 ELSE 0 END') // NULL di akhir
+                          ->orderByRaw('CASE WHEN divisions.name IS NULL THEN 1 ELSE 0 END') 
                           ->orderBy('divisions.name', $sortDirections[$index])
                           ->select('users.*');
                 } else {
-                    // Sorting langsung di field users
                     $query->orderBy($field, $sortDirections[$index]);
                 }
             }
         }
     } else {
-        // Default sorting jika tidak ada sorting yang dipilih
         $query->orderBy('name', 'asc');
     }
     
@@ -96,7 +82,6 @@ class UserController extends Controller
 
     public function store(Request $request)
     {
-        // ✅ VALIDASI: Cek apakah sudah ada admin
         if ($request->role === 'admin') {
             $existingAdmin = User::where('role', 'admin')->first();
             if ($existingAdmin) {
@@ -106,7 +91,6 @@ class UserController extends Controller
             }
         }
 
-        // ✅ VALIDASI BARU: Cek apakah sudah ada HRD
         if ($request->role === 'hrd') {
             $existingHrd = User::where('role', 'hrd')->first();
             if ($existingHrd) {
@@ -116,7 +100,6 @@ class UserController extends Controller
             }
         }
 
-        // VALIDASI SESUAI REQUIREMENTS
         $request->validate([
             'username' => 'required|string|max:50|unique:users',
             'name' => 'required|string|max:255',
@@ -133,7 +116,7 @@ class UserController extends Controller
             'email' => $request->email,
             'password' => Hash::make($request->password),
             'role' => $request->role,
-            'annual_leave_quota' => 12, // ✅ PASTIKAN SELALU 12
+            'annual_leave_quota' => 12,
             'division_id' => null,
             'join_date' => $request->join_date,
             'active_status' => true,
@@ -150,22 +133,19 @@ class UserController extends Controller
     }
 
 
-  public function edit(User $user)
-{
-    // 🔒 PREVENT: Admin tidak boleh edit admin lain
-    if ($user->role === 'admin' && $user->id !== auth()->id()) {
-        return redirect()->route('admin.users.index')
-                         ->with('error', 'Tidak boleh mengedit user Admin lain.');
-    }
+    public function edit(User $user)
+    {
+        if ($user->role === 'admin' && $user->id !== auth()->id()) {
+            return redirect()->route('admin.users.index')
+                            ->with('error', 'Tidak boleh mengedit user Admin lain.');
+        }
 
-    // HILANGKAN divisions karena tidak diperlukan
-    return view('admin.users.edit', compact('user'));
-}
+        return view('admin.users.edit', compact('user'));
+    }
 
 
     public function update(Request $request, User $user)
     {
-        // ✅ VALIDASI: Cek jika mau ubah ke admin
         if ($request->role === 'admin' && $user->role !== 'admin') {
             $existingAdmin = User::where('role', 'admin')->first();
             if ($existingAdmin) {
@@ -175,7 +155,6 @@ class UserController extends Controller
             }
         }
 
-        // ✅ VALIDASI: Cek jika mau ubah ke HRD
         if ($request->role === 'hrd' && $user->role !== 'hrd') {
             $existingHrd = User::where('role', 'hrd')->first();
             if ($existingHrd) {
@@ -185,13 +164,11 @@ class UserController extends Controller
             }
         }
 
-        // Security check: Prevent editing other admin users
         if ($user->role === 'admin' && $user->id !== auth()->id()) {
             return redirect()->route('admin.users.index')
                             ->with('error', 'Tidak boleh mengedit user Admin.');
         }
 
-        // ✅ VALIDASI SESUAI REQUIREMENTS (TANPA PASSWORD)
         $request->validate([
             'username' => 'required|string|max:50|unique:users,username,' . $user->id,
             'name' => 'required|string|max:255',
@@ -201,7 +178,6 @@ class UserController extends Controller
             'join_date' => 'required|date',
         ]);
 
-        // ✅ UPDATE DATA TANPA PASSWORD
         $user->update([
             'username' => $request->username,
             'name' => $request->name,
@@ -217,53 +193,48 @@ class UserController extends Controller
     }
 
     public function destroy(User $user)
-{
-    // Prevent deleting admin user
-    if ($user->role === 'admin') {
+    {
+        if ($user->role === 'admin') {
+            return redirect()->route('admin.users.index')
+                            ->with('error', 'Tidak boleh menghapus user Admin.');
+        }
+
+        if ($user->role === 'hrd') {
+            return redirect()->route('admin.users.index')
+                            ->with('error', 'Tidak boleh menghapus user HRD.');
+        }
+
+        if ($user->id == auth()->id()) {
+            return redirect()->route('admin.users.index')
+                            ->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
+        }
+
+        if ($user->role == 'admin') { 
+            return redirect()->route('admin.users.index')
+                            ->with('error', 'Anda tidak dapat menghapus Admin.');
+        }
+
+        $user->delete();
+
         return redirect()->route('admin.users.index')
-                         ->with('error', 'Tidak boleh menghapus user Admin.');
+                        ->with('success', 'Pengguna berhasil dihapus.');
     }
 
-    // TAMBAHKAN: Prevent deleting HRD user
-    if ($user->role === 'hrd') {
-        return redirect()->route('admin.users.index')
-                         ->with('error', 'Tidak boleh menghapus user HRD.');
-    }
-
-    if ($user->id == auth()->id()) {
-        return redirect()->route('admin.users.index')
-                         ->with('error', 'Anda tidak dapat menghapus akun Anda sendiri.');
-    }
-
-    // Jaring Pengaman: Cek peran (sesuai PDF) - HAPUS HRD DARI SINI
-    if ($user->role == 'admin') { // HAPUS 'hrd' dari sini
-        return redirect()->route('admin.users.index')
-                         ->with('error', 'Anda tidak dapat menghapus Admin.');
-    }
-
-    $user->delete();
-
-    return redirect()->route('admin.users.index')
-                     ->with('success', 'Pengguna berhasil dihapus.');
-}
-
-    /**
- * Apply multiple sorting to query
- */
-private function applyMultiSort($query, $sortFields, $sortDirections)
-{
-    foreach ($sortFields as $index => $field) {
-        if (isset($sortDirections[$index]) && in_array($sortDirections[$index], ['asc', 'desc'])) {
-            if ($field === 'division') {
-                $query->leftJoin('divisions', 'users.division_id', '=', 'divisions.id')
-                      ->orderBy('divisions.name', $sortDirections[$index])
-                      ->select('users.*');
-            } else {
-                $query->orderBy($field, $sortDirections[$index]);
+    
+    private function applyMultiSort($query, $sortFields, $sortDirections)
+    {
+        foreach ($sortFields as $index => $field) {
+            if (isset($sortDirections[$index]) && in_array($sortDirections[$index], ['asc', 'desc'])) {
+                if ($field === 'division') {
+                    $query->leftJoin('divisions', 'users.division_id', '=', 'divisions.id')
+                        ->orderBy('divisions.name', $sortDirections[$index])
+                        ->select('users.*');
+                } else {
+                    $query->orderBy($field, $sortDirections[$index]);
+                }
             }
         }
+        return $query;
     }
-    return $query;
-}
 
 }

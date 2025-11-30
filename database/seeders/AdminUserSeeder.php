@@ -10,12 +10,9 @@ use Carbon\Carbon;
 
 class AdminUserSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
+    
     public function run(): void
     {
-        // Cek apakah admin sudah ada
         $existingAdmin = User::where('role', 'admin')->first();
         
         if ($existingAdmin) {
@@ -23,15 +20,14 @@ class AdminUserSeeder extends Seeder
             return;
         }
 
-        // Buat admin user
         User::create([
             'username' => 'superadmin',
             'name' => 'Super Administrator',
             'email' => 'admin@company.com',
-            'password' => Hash::make('password123'), // Password default
+            'password' => Hash::make('password123'), 
             'role' => 'admin',
-            'division_id' => null, // Admin tidak punya divisi
-            'annual_leave_quota' => 0, // Admin tidak butuh kuota cuti
+            'division_id' => null, 
+            'annual_leave_quota' => 0, 
             'phone_number' => '081234567890',
             'address' => 'Jl. Contoh Alamat No. 123',
             'join_date' => Carbon::now(),

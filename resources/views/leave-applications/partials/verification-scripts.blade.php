@@ -14,7 +14,6 @@ function initializeMultipleSelection() {
 
     if (!selectAllCheckbox || !applicationCheckboxes.length) return;
 
-    // Select All functionality
     selectAllCheckbox.addEventListener('change', function() {
         applicationCheckboxes.forEach(checkbox => {
             checkbox.checked = this.checked;
@@ -22,7 +21,6 @@ function initializeMultipleSelection() {
         updateSelectionState();
     });
 
-    // Individual checkbox change
     applicationCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', function() {
             updateSelectionState();
@@ -44,7 +42,6 @@ function initializeMultipleSelection() {
             enableBulkButtons(false);
         }
 
-        // Update select all checkbox state
         if (selectAllCheckbox) {
             selectAllCheckbox.checked = selectedCount === applicationCheckboxes.length;
             selectAllCheckbox.indeterminate = selectedCount > 0 && selectedCount < applicationCheckboxes.length;
@@ -59,12 +56,10 @@ function initializeMultipleSelection() {
         if (bulkRejectBtn) bulkRejectBtn.disabled = !enabled;
     }
 
-    // Initial state
     updateSelectionState();
 }
 
 function initializeIndividualActions() {
-    // Individual Approve buttons
     document.querySelectorAll('.approve-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const applicationId = this.dataset.applicationId;
@@ -73,7 +68,6 @@ function initializeIndividualActions() {
         });
     });
 
-    // Individual Reject buttons
     document.querySelectorAll('.reject-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const applicationId = this.dataset.applicationId;
@@ -120,7 +114,6 @@ function getSelectedApplicationNames() {
     return Array.from(selectedCheckboxes).map(checkbox => checkbox.dataset.userName);
 }
 
-// Individual Modal Functions
 function showApproveModal(applicationId, userName) {
     const namePlaceholder = document.getElementById('approveNamePlaceholder');
     if (namePlaceholder) namePlaceholder.textContent = userName;
@@ -139,7 +132,6 @@ function showRejectModal(applicationId, userName) {
     const form = document.getElementById('rejectForm');
     if (form) form.action = `/leave-applications/${applicationId}/reject`;
 
-    // Reset form state
     const rejectionNotes = document.getElementById('rejection_notes');
     if (rejectionNotes) rejectionNotes.value = '';
     
@@ -156,15 +148,20 @@ function showRejectModal(applicationId, userName) {
     if (modal) modal.classList.remove('hidden');
 }
 
-// Bulk Modal Functions
 function showBulkApproveModal(applicationIds) {
     const countElement = document.getElementById('bulkApproveCount');
     if (countElement) countElement.textContent = applicationIds.length;
 
-    // Set nilai untuk form bulk approve
-    const bulkApproveIdsInput = document.getElementById('bulk_approve_ids');
-    if (bulkApproveIdsInput) {
-        bulkApproveIdsInput.value = applicationIds.join(',');
+    const container = document.getElementById('bulkApproveIds');
+    if (container) {
+        container.innerHTML = ''; 
+        applicationIds.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'leave_ids[]'; 
+            input.value = id;
+            container.appendChild(input);
+        });
     }
 
     const modal = document.getElementById('bulkApproveModal');
@@ -175,13 +172,18 @@ function showBulkRejectModal(applicationIds) {
     const countElement = document.getElementById('bulkRejectCount');
     if (countElement) countElement.textContent = applicationIds.length;
 
-    // Set nilai untuk form bulk reject
-    const bulkRejectIdsInput = document.getElementById('bulk_reject_ids');
-    if (bulkRejectIdsInput) {
-        bulkRejectIdsInput.value = applicationIds.join(',');
+    const container = document.getElementById('bulkRejectIds');
+    if (container) {
+        container.innerHTML = ''; 
+        applicationIds.forEach(id => {
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'leave_ids[]'; 
+            input.value = id;
+            container.appendChild(input);
+        });
     }
 
-    // Reset form state
     const bulkRejectionNotes = document.getElementById('bulk_rejection_notes');
     if (bulkRejectionNotes) bulkRejectionNotes.value = '';
     
@@ -198,7 +200,6 @@ function showBulkRejectModal(applicationIds) {
     if (modal) modal.classList.remove('hidden');
 }
 
-// Modal Close Functions
 function closeApproveModal() {
     const modal = document.getElementById('approveModal');
     if (modal) modal.classList.add('hidden');
@@ -219,7 +220,6 @@ function closeBulkRejectModal() {
     if (modal) modal.classList.add('hidden');
 }
 
-// Validation Functions
 function validateRejectionNotes(text, submitBtnId, errorId, charCountId) {
     const submitBtn = document.getElementById(submitBtnId);
     const errorElement = document.getElementById(errorId);
@@ -236,9 +236,7 @@ function validateRejectionNotes(text, submitBtnId, errorId, charCountId) {
     if (charCount) charCount.textContent = text.length;
 }
 
-// Initialize form validations
 document.addEventListener('DOMContentLoaded', function() {
-    // Rejection notes validation for individual reject
     const rejectionNotes = document.getElementById('rejection_notes');
     if (rejectionNotes) {
         rejectionNotes.addEventListener('input', function() {
@@ -246,7 +244,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Bulk rejection notes validation
     const bulkRejectionNotes = document.getElementById('bulk_rejection_notes');
     if (bulkRejectionNotes) {
         bulkRejectionNotes.addEventListener('input', function() {

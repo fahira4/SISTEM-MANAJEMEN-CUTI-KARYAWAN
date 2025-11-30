@@ -7,24 +7,24 @@
     $colors = $typeColors[$application->leave_type] ?? $typeColors['tahunan'];
     
     $hasAttachment = !empty($application->attachment_path);
+    
+    $isLongReason = strlen($application->reason) > 50;
+    $truncatedReason = $isLongReason ? substr($application->reason, 0, 150) . '...' : $application->reason;
 @endphp
 
-<div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300 verification-card relative"
-     data-application-id="{{ $application->id }}">
-    
-    {{-- Checkbox for multiple selection - POSISI KIRI DENGAN MARGIN --}}
-<div class="absolute top-4 left-0 ml-4 z-10">
-    <input type="checkbox" 
-           class="application-checkbox w-5 h-5 text-blue-600 bg-white border-2 border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ml-2"
-           value="{{ $application->id }}"
-           data-user-name="{{ $application->applicant->name ?? 'N/A' }}">
-</div>
+    <div class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-300 verification-card relative"
+        data-application-id="{{ $application->id }}">
+        
+    <div class="absolute top-4 left-0 ml-4 z-10">
+        <input type="checkbox" 
+            class="application-checkbox w-5 h-5 text-blue-600 bg-white border-2 border-gray-300 rounded focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 ml-2"
+            value="{{ $application->id }}"
+            data-user-name="{{ $application->applicant->name ?? 'N/A' }}">
+    </div>
 
-    {{-- Card Content --}}
     <div class="p-6 border-b border-gray-100">
         <div class="flex justify-between items-start mb-4 pl-10">
             <div class="flex items-center gap-3">
-                {{-- Profile Photo --}}
                 <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center text-blue-600 font-bold text-sm">
                     {{ substr($application->applicant->name ?? 'N', 0, 1) }}
                 </div>
@@ -41,11 +41,8 @@
             </span>
         </div>
         
-        {{-- APPROVAL/REJECTION INFORMATION --}}
         <div class="mt-4 space-y-3">
-            {{-- Untuk HRD: Tampilkan info approval atasan --}}
             @if(Auth::user()->role == 'hrd')
-                {{-- Jika sudah disetujui atasan --}}
                 @if($application->status == 'approved_by_leader' && $application->leader_approval_at)
                 <div class="p-3 bg-green-50 rounded-lg border border-green-200">
                     <div class="flex items-center gap-2 mb-2">
@@ -61,7 +58,6 @@
                         <p class="text-xs text-green-600">
                             <strong>Pada:</strong> {{ $application->leader_approval_at->format('d M Y H:i') }}
                         </p>
-                        {{-- TAMPILKAN "Tidak ada catatan" JIKA KOSONG --}}
                         @if($application->leader_approval_note)
                         <p class="text-xs text-green-600">
                             <strong>Catatan:</strong> {{ $application->leader_approval_note }}
@@ -75,7 +71,6 @@
                 </div>
                 @endif
 
-                {{-- Jika masih menunggu persetujuan atasan --}}
                 @if($application->status == 'pending')
                 <div class="p-3 bg-yellow-50 rounded-lg border border-yellow-200">
                     <div class="flex items-center gap-2">
@@ -91,7 +86,6 @@
                 @endif
             @endif
 
-            {{-- Untuk Ketua Divisi: Status sederhana --}}
             @if(Auth::user()->role == 'ketua_divisi' && $application->status == 'pending')
                 <div class="p-3 bg-blue-50 rounded-lg border border-blue-200">
                     <div class="flex items-center gap-2">
@@ -107,9 +101,7 @@
             @endif
         </div>
 
-        {{-- LEAVE INFORMATION --}}
         <div class="space-y-3 mt-4">
-            {{-- Periode Cuti --}}
             <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                 <div class="text-center">
                     <p class="text-xs text-gray-500 font-medium">Mulai</p>
@@ -130,19 +122,37 @@
                 </div>
             </div>
 
-            <div class="pt-3 border-t border-gray-100">
-                <p class="text-sm text-gray-600"><strong>Alasan Cuti:</strong></p>
-                <p class="text-sm text-gray-700 mt-1">{{ $application->reason }}</p>
+            <div class="pt-1 border-t border-gray-100">
+                <p class="text-sm text-gray-600 font-medium mb-1">Alasan Cuti:</p>
+                <div class="bg-gray-50 rounded p-1 text-xs">
+                    <p class="text-gray-600 whitespace-pre-wrap break-words text-left reason-text max-h-10 overflow-hidden transition-all duration-300    "
+                    data-full-reason="{{ $application->reason }}"
+                    data-is-expanded="false">
+                        {{ $application->reason }}
+                    </p>
+                    @if($isLongReason)
+                    <button type="button" 
+                            class="read-more-btn mt-0.5 text-blue-500 hover:text-blue-700 text-xs font-medium flex items-center gap-1 transition-colors duration-200">
+                        <span>Baca selengkapnya</span>
+                        <svg class="w-2.5 h-2.5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+                    @endif
+                </div>
             </div>
 
             @if($application->address_during_leave)
             <div class="pt-2 border-t border-gray-100">
-                <p class="text-sm text-gray-600"><strong>Alamat selama cuti:</strong></p>
-                <p class="text-sm text-gray-700 mt-1">{{ $application->address_during_leave }}</p>
+                <p class="text-sm text-gray-600 font-medium mb-1">Alamat selama cuti:</p>
+                <div class="bg-gray-50 rounded p-1.5 text-sm">
+                    <p class="text-gray-600 whitespace-pre-wrap break-words text-left">
+                        {{ $application->address_during_leave }}
+                    </p>
+                </div>
             </div>
             @endif
 
-            {{-- DOKUMEN LAMPIRAN --}}
             @if($hasAttachment)
             <div class="pt-3 border-t border-gray-100">
                 <p class="text-sm text-gray-600 font-medium mb-2">Dokumen Lampiran:</p>
@@ -167,10 +177,8 @@
         </div>
     </div>
 
-    {{-- Card Footer with Action Buttons --}}
     <div class="p-4 bg-gray-50 rounded-b-xl">
         <div class="flex flex-col gap-3">
-            {{-- ACTION BUTTONS --}}
             <div class="flex gap-2">
                 @if(Auth::user()->role == 'ketua_divisi' && $application->status == 'pending')
                     <button type="button" 
@@ -222,8 +230,6 @@
                     </div>
                 @endif
             </div>
-
-            {{-- VIEW DETAILS BUTTON --}}
             <a href="{{ route('leave-applications.show', $application) }}" 
                class="w-full bg-blue-600 text-white py-2 px-4 rounded-lg text-sm hover:bg-blue-700 transition duration-200 flex items-center justify-center gap-2 font-medium">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -235,3 +241,27 @@
         </div>
     </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    document.querySelectorAll('.read-more-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const container = this.closest('.bg-gray-50');
+            const reasonText = container.querySelector('.reason-text');
+            const isExpanded = reasonText.getAttribute('data-is-expanded') === 'true';
+            
+            if (!isExpanded) {
+                reasonText.classList.remove('max-h-10', 'overflow-hidden');
+                reasonText.classList.add('max-h-none');
+                reasonText.setAttribute('data-is-expanded', 'true');
+                this.innerHTML = '<span>Lebih sedikit</span><svg class="w-2.5 h-2.5 transform rotate-180 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>';
+            } else {
+                reasonText.classList.remove('max-h-none');
+                reasonText.classList.add('max-h-10', 'overflow-hidden');
+                reasonText.setAttribute('data-is-expanded', 'false');
+                this.innerHTML = '<span>Baca selengkapnya</span><svg class="w-2.5 h-2.5 transform transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>';
+            }
+        });
+    });
+});
+</script>

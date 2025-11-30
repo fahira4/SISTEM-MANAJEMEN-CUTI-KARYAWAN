@@ -128,28 +128,23 @@
     </style>
 </head>
 <body>
-    <!-- Header Perusahaan -->
     <div class="header">
         <div class="company-name">PT. AMANAH JAYA</div>
         <div class="company-address">Jl. Tamalanrea</div>
         <div class="company-contact">Telp: (021) 1234567 | Email: hr@AMANAH.com | Website: www.AMANAHJAYA.com</div>
     </div>
 
-    <!-- Garis Pembatas -->
     <div class="divider"></div>
 
-    <!-- Judul Surat -->
     <div class="document-title">
         <div class="title-text">SURAT IZIN CUTI</div>
         <div class="document-number">No: CUTI/HRD/{{ now()->format('m/Y') }}/{{ str_pad($leave->id, 4, '0', STR_PAD_LEFT) }}</div>
     </div>
 
-    <!-- Pembuka Surat -->
     <div class="section">
         <p class="paragraph">Berdasarkan permohonan cuti yang diajukan dan setelah melalui proses verifikasi, dengan ini:</p>
     </div>
 
-    <!-- Pemberi Izin -->
     <div class="section">
         <div class="section-title">PIHAK YANG MEMBERIKAN IZIN:</div>
         <div class="section-content">
@@ -161,7 +156,6 @@
         </div>
     </div>
 
-    <!-- Penerima Izin -->
     <div class="section">
         <div class="section-title">PIHAK YANG DIBERIKAN IZIN:</div>
         <div class="section-content">
@@ -173,7 +167,6 @@
         </div>
     </div>
 
-    <!-- Isi Surat - Satu Paragraf Utuh -->
     <div class="section">
         <p class="paragraph">
             {{ $applicant->name }} diberikan izin untuk melaksanakan 
@@ -192,7 +185,6 @@
         </p>
     </div>
 
-    <!-- Ketentuan Cuti -->
     <div class="section">
         <div class="section-title">KETENTUAN:</div>
         <div class="section-content">
@@ -205,7 +197,6 @@
         </div>
     </div>
 
-    <!-- Persetujuan Sebelumnya -->
     @if($leave->leader_approver)
     <div class="section" style="background-color: #f9fafb; padding: 10px; border-radius: 4px;">
         <div class="section-title">PERSETUJUAN ATASAN LANGSUNG:</div>
@@ -219,18 +210,21 @@
     </div>
     @endif
 
-    <!-- Tanda Tangan -->
     <table class="signature-table">
         <tr>
             <td class="signature-cell">
                 <p>Yang Diberikan Izin,</p>
                 <div class="signature-line"></div>
                 <p style="font-weight: bold; font-size: 12px; margin-top: 5px;">{{ $applicant->name }}</p>
+                <p style="font-size: 10px; margin: 0;">{{ $division->name ?? 'Belum ditentukan' }}</p>
             </td>
             <td class="signature-cell">
                 <p>Yang Memberikan Izin,</p>
                 <div class="signature-line"></div>
                 <p style="font-weight: bold; font-size: 12px; margin-top: 5px;">{{ $hrdApprover->name ?? 'HRD Manager' }}</p>
+                <p style="font-size: 10px; margin: 0;">
+                    {{ $leave->hrd_position ?? 'Human Resources Department' }}
+                </p>
             </td>
         </tr>
     </table>

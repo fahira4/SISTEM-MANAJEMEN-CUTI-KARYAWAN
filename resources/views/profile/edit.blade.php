@@ -1,5 +1,4 @@
 <x-app-layout>
-    {{-- HEADER --}}
     <div class="relative bg-blue-900 pb-24 pt-8 overflow-hidden">
         <div class="absolute inset-0 opacity-10">
             <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
@@ -35,25 +34,23 @@
     <div class="min-h-screen bg-gray-50">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-16 pb-12 relative z-10">
             
-            {{-- INFORMASI KUOTA (Untuk User & Ketua Divisi) --}}
             @if(in_array(Auth::user()->role, ['karyawan', 'ketua_divisi']))
             <div class="bg-white rounded-xl shadow-lg border-t-4 border-orange-500 p-6 mb-8">
                 <div class="flex items-center justify-between">
                     <div class="flex-1">
-                        {{-- JUDUL YANG LEBIH SEIMBANG --}}
-                        <div class="text-center mb-6"> {{-- ✅ TEXT-CENTER dan tambah margin bottom --}}
+                        <div class="text-center mb-6"> 
                             <h3 class="text-xl font-semibold">Kuota Cuti Tahunan</h3>
                         </div>
                         
-                        <div class="flex items-center justify-around space-x-6"> {{-- ✅ PAKAI JUSTIFY-AROUND --}}
+                        <div class="flex items-center justify-around space-x-6">
                             <div class="text-center flex-1">
                                 <div class="text-2xl font-bold">{{ Auth::user()->annual_leave_quota ?? 12 }}</div>
-                                <div class="text-gray-900 text-sm mt-1">Sisa Kuota</div> {{-- ✅ TAMBAH MARGIN TOP --}}
+                                <div class="text-gray-900 text-sm mt-1">Sisa Kuota</div> 
                             </div>
                             <div class="h-12 w-px bg-blue-400"></div>
                             <div class="text-center flex-1">
                                 <div class="text-2xl font-bold">12</div>
-                                <div class="text-gray-900 text-sm mt-1">Total Kuota</div> {{-- ✅ TAMBAH MARGIN TOP --}}
+                                <div class="text-gray-900 text-sm mt-1">Total Kuota</div> 
                             </div>
                             <div class="h-12 w-px bg-blue-400"></div>
                             <div class="text-center flex-1">
@@ -61,21 +58,18 @@
                                     $usedQuota = 12 - (Auth::user()->annual_leave_quota ?? 12);
                                 @endphp
                                 <div class="text-2xl font-bold">{{ $usedQuota }}</div>
-                                <div class="text-gray-900 text-sm mt-1">Terpakai</div> {{-- ✅ TAMBAH MARGIN TOP --}}
+                                <div class="text-gray-900 text-sm mt-1">Terpakai</div> 
                             </div>
                         </div>
                     </div>
-                    <div class="p-3 bg-white/20 rounded-xl ml-4"> {{-- ✅ KECILKAN SEDIKIT MARGIN LEFT --}}
+                    <div class="p-3 bg-white/20 rounded-xl ml-4"> 
                         <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
                         </svg>
                     </div>
                 </div>
                 
-                {{-- HILANGKAN PROGRESS BAR --}}
-                
-                {{-- INFO TAMBAHAN --}}
-                <div class="mt-4 pt-4 border-t border-blue-400/30"> {{-- ✅ SESUAIKAN MARGIN --}}
+                <div class="mt-4 pt-4 border-t border-blue-400/30"> 
                     <div class="text-sm text-gray-900 text-center">
                         @if($usedQuota == 0)
                             <span class="font-medium">Anda belum menggunakan kuota cuti tahunan</span>
@@ -91,10 +85,8 @@
             </div>
             @endif
 
-            {{-- CARD LAYOUT --}}
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
-                {{-- CARD 1: Informasi Profil --}}
                 <div class="bg-white rounded-xl shadow-lg border-t-2 p-6">
                     <div class="flex items-center justify-between mb-6">
                         <h3 class="text-lg font-semibold text-gray-900">Informasi Profil</h3>
@@ -107,9 +99,7 @@
                     @include('profile.partials.update-profile-information-form')
                 </div>
 
-                {{-- CARD 2: Keamanan & Akun --}}
                 <div class="space-y-6">
-                    {{-- Update Password --}}
                     <div class="bg-white rounded-xl shadow-lg border-t-2 p-6">
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="text-lg font-semibold text-gray-900">Keamanan Akun</h3>
@@ -122,7 +112,6 @@
                         @include('profile.partials.update-password-form')
                     </div>
 
-                    {{-- Delete Account --}}
                     <div class="bg-white rounded-xl shadow-lg border-t-2 p-6 mt-6">
                         <div class="flex items-center justify-between mb-6">
                             <h3 class="text-lg font-semibold text-gray-900">Hapus Akun</h3>
@@ -137,44 +126,43 @@
                 </div>
             </div>
 
-            {{-- CARD INFORMASI LAINNYA --}}
-<div class="bg-white rounded-xl shadow-lg border-t-2 p-6 mt-8">
-    <div class="flex justify-between items-start mb-6">
-        <div>
-            <h3 class="text-lg font-bold text-gray-900">Informasi Lainnya</h3>
-            <p class="text-sm text-gray-600 mt-1">Detail informasi karyawan</p>
-        </div>
-        <div class="p-2 bg-purple-50 rounded-lg text-gray-900">
-            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-            </svg>
-        </div>
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div class="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div class="p-2 bg-blue-100 rounded-lg text-gray-600">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
-                </svg>
+            <div class="bg-white rounded-xl shadow-lg border-t-2 p-6 mt-8">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h3 class="text-lg font-bold text-gray-900">Informasi Lainnya</h3>
+                        <p class="text-sm text-gray-600 mt-1">Detail informasi karyawan</p>
+                    </div>
+                    <div class="p-2 bg-purple-50 rounded-lg text-gray-900">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="p-2 bg-blue-100 rounded-lg text-gray-600">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Bergabung Sejak</div>
+                            <div class="text-sm font-bold text-gray-900">{{ $user->join_date ? \Carbon\Carbon::parse($user->join_date)->format('d M Y') : 'Belum diatur' }}</div>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                        <div class="p-2 bg-orange-100 rounded-lg text-gray-900">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kerja</div>
+                            <div class="text-sm font-bold text-gray-900">{{ $user->employment_period }}</div>
+                        </div>
+                    </div>
+                </div>
             </div>
-            <div>
-                <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Bergabung Sejak</div>
-                <div class="text-sm font-bold text-gray-900">{{ $user->join_date ? \Carbon\Carbon::parse($user->join_date)->format('d M Y') : 'Belum diatur' }}</div>
-            </div>
-        </div>
-        <div class="flex items-center space-x-3 p-4 bg-gray-50 rounded-lg border border-gray-200">
-            <div class="p-2 bg-orange-100 rounded-lg text-gray-900">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                </svg>
-            </div>
-            <div>
-                <div class="text-xs font-medium text-gray-500 uppercase tracking-wider">Masa Kerja</div>
-                <div class="text-sm font-bold text-gray-900">{{ $user->employment_period }}</div>
-            </div>
-        </div>
-    </div>
-</div>
         </div>
     </div>
 </x-app-layout>

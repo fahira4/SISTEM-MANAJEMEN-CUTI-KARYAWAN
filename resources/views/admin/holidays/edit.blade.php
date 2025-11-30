@@ -15,7 +15,6 @@
                         @method('PUT')
 
                         <div class="space-y-6">
-                            <!-- Nama Hari Libur -->
                             <div>
                                 <label for="name" class="block font-medium text-sm text-gray-700">
                                     Nama Hari Libur *
@@ -31,7 +30,6 @@
                                 @enderror
                             </div>
 
-                            <!-- Tanggal -->
                             <div>
                                 <label for="date" class="block font-medium text-sm text-gray-700">
                                     Tanggal *
@@ -47,7 +45,6 @@
                                 @enderror
                             </div>
 
-                            <!-- Jenis -->
                             <div>
                                 <label for="type" class="block font-medium text-sm text-gray-700">
                                     Jenis Hari Libur *
@@ -63,7 +60,6 @@
                                 @enderror
                             </div>
 
-                            <!-- Deskripsi -->
                             <div>
                                 <label for="description" class="block font-medium text-sm text-gray-700">
                                     Deskripsi
@@ -77,7 +73,6 @@
                                 @enderror
                             </div>
 
-                            <!-- Berulang Setiap Tahun -->
                             <div>
                                 <label class="flex items-center">
                                     <input type="checkbox" 
@@ -92,7 +87,6 @@
                                 </p>
                             </div>
 
-                            <!-- Tombol -->
                             <div class="flex justify-end space-x-4">
                                 <a href="{{ route('admin.holidays.index') }}" 
                                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">

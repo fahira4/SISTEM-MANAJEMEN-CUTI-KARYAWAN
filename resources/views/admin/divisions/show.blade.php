@@ -1,9 +1,6 @@
 <x-app-layout>
-    {{-- ================================================== --}}
-    {{-- 1. HERO SECTION --}}
-    {{-- ================================================== --}}
     <div class="relative bg-blue-900 min-h-[25vh] overflow-hidden">
-        {{-- Background Pattern Halus --}}
+        
         <div class="absolute inset-0 opacity-10">
             <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                 <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
@@ -11,7 +8,7 @@
         </div>
 
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
-            {{-- Header Text --}}
+           
             <div class="flex flex-col md:flex-row justify-between items-start md:items-center">
                 <div class="text-white mb-4 md:mb-0">
                     <h2 class="text-2xl font-bold tracking-tight">Detail Divisi</h2>
@@ -38,7 +35,6 @@
                 </div>
             </div>
 
-            {{-- Alert Messages --}}
             @if (session('success'))
                 <div class="mt-6 bg-emerald-500/20 border border-emerald-500/30 text-white px-4 py-2 rounded-lg backdrop-blur-md flex items-center text-sm shadow-sm animate-fade-in-down">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -59,17 +55,10 @@
         </div>
     </div>
 
-    {{-- ================================================== --}}
-    {{-- 2. MAIN CONTENT SECTION --}}
-    {{-- ================================================== --}}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-12 pb-12 relative z-10">
         <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
             
-            {{-- ================================================== --}}
-            {{-- SIDEBAR - INFORMASI & AKSI --}}
-            {{-- ================================================== --}}
             <div class="lg:col-span-1 space-y-6">
-                {{-- Card Informasi Utama --}}
                 <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
                     <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
                         <h4 class="font-bold text-white text-lg flex items-center gap-2">
@@ -81,7 +70,6 @@
                     </div>
                     
                     <div class="p-6">
-                        {{-- Avatar & Nama --}}
                         <div class="text-center mb-6">
                             <div class="w-16 h-16 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 text-white flex items-center justify-center text-xl font-bold mx-auto mb-3 shadow-lg">
                                 {{ substr($division->name, 0, 1) }}
@@ -90,7 +78,6 @@
                             <p class="text-sm text-gray-500 mt-1">ID: {{ $division->id }}</p>
                         </div>
 
-                        {{-- Detail Informasi --}}
                         <div class="space-y-4">
                             <div class="flex justify-between items-center py-2 border-b border-gray-100">
                                 <span class="text-sm font-medium text-gray-600">Ketua Divisi</span>
@@ -130,7 +117,6 @@
                     </div>
                 </div>
 
-                {{-- Card Aksi Cepat --}}
                 <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
                     <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
                         <h4 class="font-bold text-white text-lg flex items-center gap-2">
@@ -178,11 +164,7 @@
                 </div>
             </div>
 
-            {{-- ================================================== --}}
-            {{-- MAIN CONTENT - DESKRIPSI & ANGGOTA --}}
-            {{-- ================================================== --}}
             <div class="lg:col-span-3 space-y-6">
-                {{-- Card Deskripsi --}}
                 <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
                     <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
                         <h4 class="font-bold text-white text-lg flex items-center gap-2">
@@ -207,7 +189,6 @@
                     </div>
                 </div>
 
-                {{-- Card Daftar Anggota --}}
                 <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
                     <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
                         <div class="flex items-center justify-between">
@@ -229,7 +210,6 @@
                         </div>
                     </div>
 
-                    {{-- Table Content --}}
                     <div class="overflow-x-auto">
                         @if($division->members->count() > 0)
                             <table class="min-w-full divide-y divide-gray-200">
@@ -312,7 +292,6 @@
     </div>
 
     <script>
-    // DOUBLE CONFIRMATION DELETE untuk halaman detail
     function confirmDoubleDelete(divisionName, memberCount) {
         const firstConfirm = confirm(`HAPUS DIVISI: "${divisionName}"\n\n• ${memberCount} anggota akan dikeluarkan\n• Data divisi akan hilang permanen\n\nLanjutkan penghapusan?`);
         
@@ -325,7 +304,6 @@
         return secondConfirm;
     }
 
-    // Loading state untuk tombol hapus
     document.addEventListener('DOMContentLoaded', function() {
         const deleteForms = document.querySelectorAll('form[onsubmit*="confirmDoubleDelete"]');
         

@@ -1,20 +1,15 @@
-{{-- CARD STATS & FILTER - POSITIONED BETWEEN BLUE HEADER AND WHITE CONTENT --}}
 <div class="relative -mt-16 mb-8 z-10">
     <div class="bg-white rounded-xl shadow-lg border-b-4 border-orange-500 mx-4 lg:mx-0">
         
-{{-- STATS SECTION - WITH JUSTIFY-BETWEEN AND PROPER SPACING --}}
 <div class="p-8 border-b border-gray-100">
     <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
-        {{-- Stats with justify-between --}}
         <div class="flex items-center justify-center gap-12 lg:gap-32 w-full">
-            {{-- Total Pending --}}
             <div class="text-center border-2 border-gray-200 rounded-xl p-6 bg-white shadow-sm min-w-[140px]">
                 <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Total Menunggu</p>
                 <p class="text-4xl font-bold text-gray-900 mt-2">{{ $pendingApplications->count() }}</p>
                 <p class="text-xs text-gray-500 mt-2">Pengajuan</p>
             </div>
 
-            {{-- Cuti Tahunan --}}
             <div class="text-center border-2 border-blue-200 rounded-xl p-6 bg-blue-50 shadow-sm min-w-[140px]">
                 <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Cuti Tahunan</p>
                 <p class="text-4xl font-bold text-blue-600 mt-2">
@@ -23,7 +18,6 @@
                 <p class="text-xs text-gray-500 mt-2">Pengajuan</p>
             </div>
 
-            {{-- Cuti Sakit --}}
             <div class="text-center border-2 border-orange-200 rounded-xl p-6 bg-orange-50 shadow-sm min-w-[140px]">
                 <p class="text-xs font-bold text-gray-500 uppercase tracking-wider">Cuti Sakit</p>
                 <p class="text-4xl font-bold text-orange-600 mt-2">
@@ -33,7 +27,6 @@
             </div>
         </div>
 
-                {{-- Action Info - Kept on right side --}}
                 @if($pendingApplications->count() > 0)
                 <div class="flex items-center gap-3 bg-blue-50 rounded-lg px-5 py-4 border-2 border-blue-200 lg:ml-8">
                     <div class="p-2 bg-blue-100 rounded-lg">
@@ -54,15 +47,11 @@
                 @endif
             </div>
         </div>
-
-        {{-- FILTERS SECTION - HORIZONTAL LAYOUT --}}
         <div class="p-4">
             <form method="GET" action="{{ route('leave-verifications.index') }}">
                 
-                {{-- HORIZONTAL FILTER ROW --}}
                 <div class="flex flex-wrap items-end gap-4">
                     
-                    {{-- Search Input --}}
                     <div class="flex-1 min-w-[100px]">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Cari</label>
                         <div class="relative">
@@ -79,7 +68,6 @@
                         </div>
                     </div>
 
-                    {{-- Leave Type Filter --}}
                     <div class="w-full sm:w-48">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Cuti</label>
                         <select name="leave_type" 
@@ -90,7 +78,6 @@
                         </select>
                     </div>
 
-                    {{-- Division Filter (Hanya untuk HRD) --}}
                     @if(Auth::user()->role == 'hrd')
                     <div class="w-full sm:w-48">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Divisi</label>
@@ -106,7 +93,6 @@
                     </div>
                     @endif
 
-                    {{-- Date Range --}}
                     <div class="w-full sm:w-auto">
                         <label class="block text-sm font-medium text-gray-700 mb-2">Periode Pengajuan</label>
                         <div class="flex items-center gap-2">
@@ -118,7 +104,6 @@
                         </div>
                     </div>
 
-                    {{-- Action Buttons --}}
                     <div class="w-full sm:w-auto flex gap-2">
                         <button type="submit" 
                                 class="bg-blue-600 text-white px-6 py-2.5 rounded-lg text-sm font-medium hover:bg-blue-700 transition duration-200 whitespace-nowrap border-2 border-blue-700">

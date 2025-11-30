@@ -8,6 +8,7 @@ use App\Http\Controllers\LeaveApplicationController;
 use App\Http\Controllers\LeavePdfController;
 use App\Http\Controllers\Admin\HolidayController;
 use App\Http\Controllers\DashboardController; 
+use App\Http\Controllers\LeaveVerificationController;
 
 Route::get('/', function () {
     return redirect()->route('login');
@@ -16,15 +17,6 @@ Route::get('/', function () {
 Route::get('/dashboard', [DashboardController::class, 'index'])
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
-    
-// Route untuk verifikasi cuti
-Route::get('/leave-verifications', [LeaveApplicationController::class, 'showVerificationList'])
-    ->middleware(['auth'])
-    ->name('leave-verifications.index');
-
-// Route untuk admin management users
-Route::resource('admin/users', UserController::class)
-    ->middleware(['auth', 'admin']);
 
 Route::middleware('auth')->group(function () {
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -32,7 +24,6 @@ Route::middleware('auth')->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// ==================== LEAVE APPLICATION ROUTES ====================
 Route::middleware('auth')->prefix('leave-applications')->name('leave-applications.')->group(function () {
     Route::get('/', [LeaveApplicationController::class, 'index'])->name('index');
     Route::get('/create', [LeaveApplicationController::class, 'create'])->name('create');
@@ -40,62 +31,43 @@ Route::middleware('auth')->prefix('leave-applications')->name('leave-application
     Route::get('/{leaveApplication}', [LeaveApplicationController::class, 'show'])->name('show');
     Route::delete('/{leaveApplication}', [LeaveApplicationController::class, 'destroy'])->name('destroy');
     Route::post('/{application}/cancel', [LeaveApplicationController::class, 'cancelLeave'])->name('cancel');
-    // SINGLE APPROVAL/REJECTION
-    Route::patch('/{application}/approve', [LeaveApplicationController::class, 'approveLeave'])->name('approve');
-    Route::patch('/{application}/reject', [LeaveApplicationController::class, 'rejectLeave'])->name('reject');
-
-    // ==================== PDF ROUTES ====================
-    Route::get('/{leaveApplication}/download-letter', 
-        [LeavePdfController::class, 'generateLeaveLetter'])
-        ->name('download-letter');
-
-    Route::get('/{leaveApplication}/view-letter', 
-        [LeavePdfController::class, 'generateLeaveLetterView'])
-        ->name('view-letter');
-
-    Route::get('/{leaveApplication}/check-letter-availability', 
-        [LeavePdfController::class, 'checkAvailability'])
-        ->name('check-letter-availability');
 });
 
-// ==================== LEAVE VERIFICATION ROUTES ====================
+Route::middleware('auth')->prefix('leave-applications')->name('leave-applications.')->group(function () {
+    Route::get('/{leaveApplication}/download-letter', [LeavePdfController::class, 'generateLeaveLetter'])->name('download-letter');
+    Route::get('/{leaveApplication}/view-letter', [LeavePdfController::class, 'generateLeaveLetterView'])->name('view-letter');
+    Route::get('/{leaveApplication}/check-letter-availability', [LeavePdfController::class, 'checkAvailability'])->name('check-letter-availability');
+});
+
 Route::middleware('auth')->prefix('leave-verifications')->name('leave-verifications.')->group(function () {
-    Route::get('/', [LeaveApplicationController::class, 'showVerificationList'])->name('index');
-    Route::get('/{application}', [LeaveApplicationController::class, 'showVerificationDetail'])->name('show');
-    
-    
-    
-    // ✅ BULK/MULTIPLE APPROVAL/REJECTION (NEW)
-    Route::post('/bulk-action', [LeaveApplicationController::class, 'bulkApproveReject'])
-        ->name('bulk-action');
+    Route::get('/', [LeaveVerificationController::class, 'index'])->name('index');
+    Route::get('/{application}', [LeaveVerificationController::class, 'showVerificationDetail'])->name('show');
+    Route::post('/{application}/approve', [LeaveVerificationController::class, 'approveLeave'])->name('approve');
+    Route::post('/{application}/reject', [LeaveVerificationController::class, 'rejectLeave'])->name('reject');
+    Route::post('/bulk-action', [LeaveVerificationController::class, 'bulkApproveReject'])->name('bulk-action');
 });
 
-// ==================== ADMIN ROUTES ====================
-Route::prefix('admin')->name('admin.')->group(function () {
-    // ✅ ROUTE IMPORT TANPA MIDDLEWARE DULU
-    Route::get('holidays/import-test', function() {
-        return "IMPORT TEST WORKS!";
-    });
+Route::middleware(['auth', 'role:ketua_divisi'])->prefix('division')->name('division.')->group(function () {
+    Route::get('/leaves', [LeaveApplicationController::class, 'divisionLeaves'])->name('leaves');
+});
+
+Route::middleware(['auth', 'role:hrd'])->prefix('hrd')->name('hrd.')->group(function () {
+    Route::get('/all-leaves', [LeaveApplicationController::class, 'allLeaves'])->name('all-leaves');
+    Route::get('/division-leaves', [LeaveApplicationController::class, 'divisionLeaves'])->name('division-leaves');
+});
+
+Route::middleware(['auth', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
     
-    Route::get('holidays/import', [HolidayController::class, 'showImportForm'])
-        ->name('holidays.import-form');
-        
-    Route::post('holidays/import', [HolidayController::class, 'importFromGoogleCalendar'])
-        ->name('holidays.import');
-    
-    // Users Management
     Route::resource('users', UserController::class);
     
-    // Divisions Management
     Route::resource('divisions', DivisionController::class);
-    
-    // Holidays Management
-    Route::resource('holidays', HolidayController::class);
-    
-    // Division Members Management
     Route::get('divisions/{division}/members', [DivisionController::class, 'showMembers'])->name('divisions.members.show');
     Route::post('divisions/{division}/members', [DivisionController::class, 'addMember'])->name('divisions.members.add');
     Route::delete('divisions/{division}/members/{user}', [DivisionController::class, 'removeMember'])->name('divisions.members.remove');
+    
+    Route::resource('holidays', HolidayController::class);
+    Route::get('holidays/import', [HolidayController::class, 'showImportForm'])->name('holidays.import-form');
+    Route::post('holidays/import', [HolidayController::class, 'importFromGoogleCalendar'])->name('holidays.import');
 });
 
 require __DIR__.'/auth.php';

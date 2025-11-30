@@ -1,4 +1,3 @@
-{{-- resources/views/admin/holidays/import.blade.php --}}
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
@@ -31,7 +30,6 @@
                         @csrf
 
                         <div class="space-y-6">
-                            <!-- Import Type -->
                             <div>
                                 <label class="block font-medium text-sm text-gray-700 mb-2">
                                     Pilih Jenis Import *
@@ -58,7 +56,6 @@
                                 </div>
                             </div>
 
-                            <!-- Tahun Specific (Conditional) -->
                             <div id="yearSelection" class="hidden">
                                 <label for="year" class="block font-medium text-sm text-gray-700">
                                     Pilih Tahun *
@@ -74,7 +71,6 @@
                                 </p>
                             </div>
 
-                            <!-- Informasi Data -->
                             <div class="p-4 bg-blue-50 rounded-lg">
                                 <h4 class="font-semibold text-blue-800 text-sm">📊 Data yang akan diimport:</h4>
                                 <ul class="text-xs text-blue-600 mt-2 space-y-1">
@@ -85,7 +81,6 @@
                                 </ul>
                             </div>
 
-                            <!-- Tombol -->
                             <div class="flex justify-end space-x-4">
                                 <a href="{{ route('admin.holidays.index') }}" 
                                    class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
@@ -124,7 +119,6 @@
                 radio.addEventListener('change', toggleYearSelection);
             });
             
-            // Initial state
             toggleYearSelection();
         });
     </script>

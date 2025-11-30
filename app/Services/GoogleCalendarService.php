@@ -14,9 +14,6 @@ class GoogleCalendarService
         'indonesian_holidays' => 'https://calendar.google.com/calendar/ical/en.indonesian%23holiday%40group.v.calendar.google.com/public/basic.ics',
     ];
 
-    /**
-     * Get holidays for specific year or all available years
-     */
     public function getHolidays($year = null)
     {
         try {
@@ -27,10 +24,8 @@ class GoogleCalendarService
                 $allHolidays = array_merge($allHolidays, $holidays);
             }
             
-            // Remove duplicates
             $uniqueHolidays = $this->removeDuplicates($allHolidays);
             
-            // Sort by date
             usort($uniqueHolidays, function($a, $b) {
                 return strcmp($a['date'], $b['date']);
             });
@@ -74,9 +69,8 @@ class GoogleCalendarService
             if (str_starts_with($line, 'END:VEVENT')) {
                 $inEvent = false;
                 
-                // Process the completed event
                 if (!empty($currentEvent['name']) && !empty($currentEvent['date'])) {
-                    // Apply year filter if specified
+
                     if ($filterYear === null || str_starts_with($currentEvent['date'], $filterYear)) {
                         $holidayType = $this->determineHolidayType($currentEvent['name']);
                         
@@ -100,7 +94,7 @@ class GoogleCalendarService
                     $dateStr = trim(str_replace('DTSTART;VALUE=DATE:', '', $line));
                     $currentEvent['date'] = $this->formatDate($dateStr);
                 } elseif (str_starts_with($line, 'DTSTART;')) {
-                    // Handle other date formats
+
                     $parts = explode(':', $line, 2);
                     if (count($parts) === 2) {
                         $dateStr = trim($parts[1]);
@@ -117,16 +111,12 @@ class GoogleCalendarService
 
     private function formatDate($dateStr)
     {
-        // Handle different date formats: 20241225, 2024-12-25, etc.
         if (strlen($dateStr) === 8 && is_numeric($dateStr)) {
-            // Format: 20241225
             return substr($dateStr, 0, 4) . '-' . substr($dateStr, 4, 2) . '-' . substr($dateStr, 6, 2);
         } elseif (preg_match('/^\d{4}-\d{2}-\d{2}/', $dateStr)) {
-            // Format: 2024-12-25
             return substr($dateStr, 0, 10);
         }
         
-        // Try Carbon parsing for other formats
         try {
             return Carbon::parse($dateStr)->format('Y-m-d');
         } catch (\Exception $e) {
@@ -138,21 +128,18 @@ class GoogleCalendarService
     {
         $name = strtolower($holidayName);
         
-        // Cuti bersama patterns
         if (str_contains($name, 'cuti bersama') || 
             str_contains($name, 'joint leave') ||
             str_contains($name, 'collective leave')) {
             return 'joint_leave';
         }
         
-        // Libur perusahaan patterns (if any)
         if (str_contains($name, 'perusahaan') || 
             str_contains($name, 'company') ||
             str_contains($name, 'corporate')) {
             return 'company';
         }
         
-        // Default to national holiday
         return 'national';
     }
 
@@ -170,9 +157,7 @@ class GoogleCalendarService
         return array_values($unique);
     }
 
-    /**
-     * Get available years from the calendar data
-     */
+    
     public function getAvailableYears()
     {
         $holidays = $this->getHolidays();

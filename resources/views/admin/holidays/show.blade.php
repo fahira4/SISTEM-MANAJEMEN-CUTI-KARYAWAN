@@ -14,12 +14,11 @@
                         <h3 class="text-lg font-semibold">Detail Hari Libur</h3>
                         <a href="{{ route('admin.holidays.index') }}" 
                            class="text-blue-600 hover:text-blue-900">
-                            ← Kembali ke Daftar
+                            Kembali ke Daftar
                         </a>
                     </div>
 
                     <div class="space-y-6">
-                        <!-- Informasi Hari Libur -->
                         <div class="bg-gray-50 p-6 rounded-lg">
                             <h4 class="font-semibold text-lg text-gray-800 mb-4">{{ $holiday->name }}</h4>
                             
@@ -64,11 +63,10 @@
                             @endif
                         </div>
 
-                        <!-- Tombol Aksi -->
                         <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
                             <a href="{{ route('admin.holidays.edit', $holiday) }}" 
                                class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
-                                ✏️ Edit
+                                Edit
                             </a>
                             <form action="{{ route('admin.holidays.destroy', $holiday) }}" 
                                   method="POST" 
@@ -77,7 +75,7 @@
                                 @method('DELETE')
                                 <button type="submit" 
                                         class="px-4 py-2 bg-red-500 text-white rounded-md hover:bg-red-600">
-                                    🗑️ Hapus
+                                    Hapus
                                 </button>
                             </form>
                         </div>

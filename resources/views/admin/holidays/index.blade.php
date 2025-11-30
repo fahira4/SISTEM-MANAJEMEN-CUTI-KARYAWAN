@@ -1,9 +1,5 @@
 <x-app-layout>
-    {{-- ================================================== --}}
-    {{-- 1. HERO SECTION & GLASS CARD --}}
-    {{-- ================================================== --}}
     <div class="relative bg-blue-900 min-h-[40vh] overflow-hidden">
-        {{-- Background Pattern Halus --}}
         <div class="absolute inset-0 opacity-10">
             <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                 <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
@@ -11,7 +7,7 @@
         </div>
 
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-24">
-            {{-- Header Text --}}
+           
             <div class="flex flex-col md:flex-row justify-between items-center mb-6">
                 <div class="text-white">
                     <h2 class="text-4xl font-bold tracking-tight">Manajemen Hari Libur & Cuti Bersama</h2>
@@ -50,7 +46,6 @@
                 </div>
             </div>
 
-            {{-- Alert Messages --}}
             @if (session('success'))
                 <div class="mb-6 bg-emerald-500/20 border border-emerald-500/30 text-white px-4 py-2 rounded-lg backdrop-blur-md flex items-center text-sm shadow-sm animate-fade-in-down">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -71,15 +66,11 @@
         </div>
     </div>
 
-    {{-- ================================================== --}}
-    {{-- 2. FILTER & SORTING SECTION --}}
-    {{-- ================================================== --}}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 pb-8 relative z-10">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden border-b-4 border-b-orange-500">
             <div class="p-6">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                     
-                    {{-- Filter Card --}}
                     <div class="bg-gray-50 p-5 border border-gray-200 rounded-lg flex flex-col">
                         <h4 class="font-bold text-gray-800 mb-4 flex items-center text-lg">
                             <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,7 +79,7 @@
                             Filter Data Hari Libur
                         </h4>
                         <div class="grid grid-cols-1 gap-4 flex-1">
-                            <!-- Filter Tahun -->
+                           
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Tahun</label>
                                 <select id="yearFilter" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 transition duration-200">
@@ -103,7 +94,6 @@
                                 </select>
                             </div>
 
-                            <!-- Filter Jenis Libur -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Jenis Libur</label>
                                 <select id="typeFilter" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 transition duration-200">
@@ -114,7 +104,6 @@
                                 </select>
                             </div>
 
-                            <!-- Filter Berulang -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Status Berulang</label>
                                 <select id="recurringFilter" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 transition duration-200">
@@ -126,7 +115,6 @@
                         </div>
                     </div>
 
-                    {{-- Action Card --}}
                     <div class="bg-gray-50 p-5 border border-gray-200 rounded-lg flex flex-col">
                         <h4 class="font-bold text-gray-800 mb-4 flex items-center text-lg">
                             <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -136,7 +124,7 @@
                         </h4>
                         
                         <div class="space-y-4 flex-1">
-                            <!-- Info Text -->
+                            
                             <div class="bg-blue-50 border border-blue-200 rounded-lg p-3">
                                 <div class="flex items-start">
                                     <svg class="w-4 h-4 text-blue-600 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -146,7 +134,6 @@
                                 </div>
                             </div>
 
-                            <!-- Stats -->
                             <div class="grid grid-cols-2 gap-3 mt-4">
                                 <div class="bg-white border border-gray-200 rounded-lg p-3 text-center">
                                     <div class="text-2xl font-bold text-blue-600">{{ $holidays->count() }}</div>
@@ -161,7 +148,6 @@
                             </div>
                         </div>
 
-                        <!-- Action Buttons -->
                         <div class="flex gap-3 pt-4 mt-4 border-t border-gray-200">
                             <button type="button" id="applyFilter" class="flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 ease-in-out font-medium flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -182,12 +168,9 @@
         </div>
     </div>
 
-    {{-- ================================================== --}}
-    {{-- 3. TABLE SECTION --}}
-    {{-- ================================================== --}}
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 mt-8">
         <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-            {{-- Table Header dengan Background Biru --}}
+         
             <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
                 <div class="flex items-center justify-between">
                     <h4 class="font-bold text-white text-lg flex items-center gap-2">
@@ -202,7 +185,6 @@
                 </div>
             </div>
 
-            {{-- Table Content --}}
             <div class="overflow-x-auto">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead>
@@ -289,7 +271,7 @@
                                 </td>
                                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                     <div class="flex justify-end space-x-2">
-                                        <!-- TOMBOL DETAIL -->
+                                        
                                         <a href="{{ route('admin.holidays.show', $holiday) }}" 
                                            class="text-green-600 hover:text-green-900 px-3 py-2 rounded-lg hover:bg-green-50 transition duration-200 flex items-center gap-2 text-xs font-medium border border-green-200 bg-white shadow-sm">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -299,7 +281,6 @@
                                             Detail
                                         </a>
                                         
-                                        <!-- TOMBOL EDIT -->
                                         <a href="{{ route('admin.holidays.edit', $holiday) }}" 
                                            class="text-blue-600 hover:text-blue-900 px-3 py-2 rounded-lg hover:bg-blue-50 transition duration-200 flex items-center gap-2 text-xs font-medium border border-blue-200 bg-white shadow-sm">
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -308,7 +289,6 @@
                                             Edit
                                         </a>
                                         
-                                        <!-- TOMBOL DELETE -->
                                         <form action="{{ route('admin.holidays.destroy', $holiday) }}" method="POST" class="inline-block">
                                             @csrf
                                             @method('DELETE')
@@ -359,13 +339,12 @@
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // Year filter functionality
+            
             const yearFilter = document.getElementById('yearFilter');
             const typeFilter = document.getElementById('typeFilter');
             const recurringFilter = document.getElementById('recurringFilter');
             const applyFilterBtn = document.getElementById('applyFilter');
 
-            // Apply filter function
             function applyFilters() {
                 const year = yearFilter.value;
                 const type = typeFilter.value;
@@ -384,11 +363,9 @@
                 window.location.href = url;
             }
 
-            // Event listeners
             yearFilter.addEventListener('change', applyFilters);
             applyFilterBtn.addEventListener('click', applyFilters);
 
-            // Initialize filter values from URL parameters
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.get('type')) {
                 typeFilter.value = urlParams.get('type');

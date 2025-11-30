@@ -13,8 +13,6 @@ return new class extends Migration
             $table->string('name');
             $table->date('date');
             
-            // PERBAIKAN: Langsung gunakan String sesuai keinginan Anda (bukan Enum lagi)
-            // Default 'national' tetap bisa dipakai
             $table->string('type', 20)->default('national'); 
             
             $table->text('description')->nullable();

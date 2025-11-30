@@ -1,9 +1,6 @@
 <x-app-layout>
-    {{-- ================================================== --}}
-    {{-- 1. HERO SECTION & GLASS CARD --}}
-    {{-- ================================================== --}}
     <div class="relative bg-blue-900 min-h-[40vh] overflow-hidden">
-        {{-- Background Pattern Halus --}}
+       
         <div class="absolute inset-0 opacity-10">
             <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                 <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
@@ -11,7 +8,7 @@
         </div>
 
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
-            {{-- Header Text --}}
+           
             <div class="flex flex-col md:flex-row justify-between items-center mb-6">
                 <div class="text-white">
                     <h2 class="text-2xl font-bold tracking-tight">Edit Divisi</h2>
@@ -30,7 +27,6 @@
                 </div>
             </div>
 
-            {{-- Alert Messages --}}
             @if (session('success'))
                 <div class="mb-6 bg-emerald-500/20 border border-emerald-500/30 text-white px-4 py-2 rounded-lg backdrop-blur-md flex items-center text-sm shadow-sm animate-fade-in-down">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -49,7 +45,6 @@
                 </div>
             @endif
 
-            {{-- Tampilkan Error Validasi --}}
             @if ($errors->any())
                 <div class="mb-6 bg-red-500/20 border border-red-500/30 text-white px-4 py-2 rounded-lg backdrop-blur-md text-sm shadow-sm animate-fade-in-down">
                     <strong class="font-medium">Error:</strong>
@@ -61,7 +56,6 @@
                 </div>
             @endif
 
-            {{-- Info Perubahan Ketua --}}
             @if($division->leader_id != old('leader_id', $division->leader_id) && old('leader_id'))
                 <div class="mb-6 bg-yellow-500/20 border border-yellow-500/30 text-white px-4 py-2 rounded-lg backdrop-blur-md flex items-center text-sm shadow-sm">
                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -73,12 +67,9 @@
         </div>
     </div>
 
-    {{-- ================================================== --}}
-    {{-- 2. FORM SECTION --}}
-    {{-- ================================================== --}}
     <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 pb-12 relative z-10">
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-            {{-- Form Header --}}
+            
             <div class="px-6 py-4 border-b border-gray-100 bg-gray-50/50">
                 <h4 class="font-bold text-gray-700 text-lg flex items-center gap-2">
                     <svg class="w-5 h-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -88,14 +79,13 @@
                 </h4>
             </div>
 
-            {{-- Form Content --}}
             <div class="p-6">
                 <form method="POST" action="{{ route('admin.divisions.update', $division->id) }}">
                     @csrf
                     @method('PUT')
 
                     <div class="grid grid-cols-1 gap-6">
-                        <!-- Nama Divisi -->
+                        
                         <div>
                             <label for="name" class="block font-medium text-sm text-gray-700 mb-2">Nama Divisi *</label>
                             <input id="name" 
@@ -111,7 +101,6 @@
                             @enderror
                         </div>
 
-                        <!-- Deskripsi -->
                         <div>
                             <label for="description" class="block font-medium text-sm text-gray-700 mb-2">Deskripsi Divisi</label>
                             <textarea id="description" 
@@ -122,7 +111,6 @@
                             <p class="text-xs text-gray-500 mt-2">Deskripsi opsional tentang divisi ini.</p>
                         </div>
 
-                        <!-- Ketua Divisi -->
                         <div>
                             <label for="leader_id" class="block font-medium text-sm text-gray-700 mb-2">Ketua Divisi *</label>
                             <select id="leader_id" 
@@ -155,7 +143,6 @@
                             @enderror
                         </div>
 
-                        <!-- Informasi Sistem -->
                         <div class="p-4 bg-blue-50 rounded-lg border border-blue-200">
                             <div class="flex items-start">
                                 <svg class="w-5 h-5 text-blue-600 mt-0.5 mr-3 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -183,7 +170,6 @@
                         </div>
                     </div>
 
-                    {{-- Tombol Aksi --}}
                     <div class="flex items-center justify-between mt-8 pt-6 border-t border-gray-200">
                         <a href="{{ route('admin.divisions.index') }}" 
                         class="inline-flex items-center px-4 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition duration-200 ease-in-out">

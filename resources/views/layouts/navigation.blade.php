@@ -16,40 +16,37 @@
 
                 <div class="hidden space-x-8 sm:-my-px sm:ml-12 sm:flex">
                     <x-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" 
-                        class="text-sm font-bold {{ request()->routeIs('dashboard') ? 'text-white border-white' : 'text-blue-200 border-transparent hover:text-white hover:border-blue-400' }} transition-all">
+                        class="text-sm font-bold {{ request()->routeIs('dashboard') ? 'text-white border-white' : 'text-white border-transparent hover:text-gray-950 hover:border-blue-400' }} transition-all">
                         {{ __('Dashboard') }}
                     </x-nav-link>
                     
-                    {{-- MENU KHUSUS ADMIN --}}
                     @if(Auth::user()->role == 'admin')
                         <x-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')"
-                            class="text-sm font-bold {{ request()->routeIs('admin.users.*') ? 'text-white border-white' : 'text-blue-200 border-transparent hover:text-white hover:border-blue-400' }} transition-all">
+                            class="text-sm font-bold {{ request()->routeIs('admin.users.*') ? 'text-white border-white' : 'text-white border-transparent hover:text-gray-950 hover:border-blue-400' }} transition-all">
                             {{ __('Manajemen User') }}
                         </x-nav-link>
                         
                         <x-nav-link :href="route('admin.divisions.index')" :active="request()->routeIs('admin.divisions.*')"
-                            class="text-sm font-bold {{ request()->routeIs('admin.divisions.*') ? 'text-white border-white' : 'text-blue-200 border-transparent hover:text-white hover:border-blue-400' }} transition-all">
+                            class="text-sm font-bold {{ request()->routeIs('admin.divisions.*') ? 'text-white border-white' : 'text-white border-transparent hover:text-gray-950 hover:border-blue-400' }} transition-all">
                             {{ __('Manajemen Divisi') }}
                         </x-nav-link>
                         
                         <x-nav-link :href="route('admin.holidays.index')" :active="request()->routeIs('admin.holidays.*')"
-                            class="text-sm font-bold {{ request()->routeIs('admin.holidays.*') ? 'text-white border-white' : 'text-blue-200 border-transparent hover:text-white hover:border-blue-400' }} transition-all">
+                            class="text-sm font-bold {{ request()->routeIs('admin.holidays.*') ? 'text-white border-white' : 'text-white border-transparent hover:text-gray-950 hover:border-blue-400' }} transition-all">
                             {{ __('Hari Libur') }}
                         </x-nav-link>
                     @endif
 
-                    {{-- MENU VERIFIKASI UNTUK KETUA DIVISI & HRD --}}
                     @if(Auth::user()->role == 'ketua_divisi' || Auth::user()->role == 'hrd')
                     <x-nav-link :href="route('leave-verifications.index')" :active="request()->routeIs('leave-verifications.*')"
-                        class="text-sm font-bold {{ request()->routeIs('leave-verifications.*') ? 'text-white border-white' : 'text-blue-200 border-transparent hover:text-white hover:border-blue-400' }} transition-all">
+                        class="text-sm font-bold {{ request()->routeIs('leave-verifications.*') ? 'text-white border-white' : 'text-white border-transparent hover:text-gray-950 hover:border-blue-400' }} transition-all">
                         {{ __('Verifikasi Cuti') }}
                     </x-nav-link>
                     @endif
 
-                    {{-- MENU RIWAYAT SAYA HANYA UNTUK KARYAWAN & KETUA DIVISI --}}
                     @if(Auth::user()->role == 'karyawan' || Auth::user()->role == 'ketua_divisi')
                     <x-nav-link :href="route('leave-applications.index')" :active="request()->routeIs('leave-applications.index')"
-                        class="text-sm font-bold {{ request()->routeIs('leave-applications.index') ? 'text-white border-white' : 'text-blue-200 border-transparent hover:text-white hover:border-blue-400' }} transition-all">
+                        class="text-sm font-bold {{ request()->routeIs('leave-applications.index') ? 'text-white border-white' : 'text-white border-transparent hover:text-gray-950 hover:border-blue-400' }} transition-all">
                         {{ __('Riwayat Saya') }}
                     </x-nav-link>
                     @endif
@@ -70,7 +67,6 @@
                                     <div class="text-xs text-blue-300">{{ Auth::user()->email }}</div>
                                 </div>
                                 
-                                {{-- FOTO PROFIL / INISIAL --}}
                                 <div class="w-10 h-10 rounded-full bg-white/10 border-2 border-white/20 flex items-center justify-center overflow-hidden">
                                     @if (Auth::user()->profile_photo_path)
                                         <img src="{{ asset('storage/' . Auth::user()->profile_photo_path) }}" alt="{{ Auth::user()->name }}" class="w-full h-full object-cover">
@@ -103,7 +99,7 @@
             </div>
 
             <div class="-mr-2 flex items-center sm:hidden">
-                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-blue-200 hover:text-white hover:bg-blue-800 focus:outline-none transition duration-150 ease-in-out">
+                <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md text-blue-200 hover:text-gray-950 hover:bg-blue-800 focus:outline-none transition duration-150 ease-in-out">
                     <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                         <path :class="{'hidden': open, 'inline-flex': ! open }" class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         <path :class="{'hidden': ! open, 'inline-flex': open }" class="hidden" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
@@ -113,41 +109,61 @@
         </div>
     </div>
 
-    {{-- MOBILE MENU --}}
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden bg-blue-800 border-t border-blue-700">
+        
         <div class="pt-2 pb-3 space-y-1">
-            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" class="text-white">
+            <x-responsive-nav-link :href="route('dashboard')" :active="request()->routeIs('dashboard')" >
                 {{ __('Dashboard') }}
             </x-responsive-nav-link>
             
-            {{-- MENU KHUSUS ADMIN (MOBILE) --}}
             @if(Auth::user()->role == 'admin')
-                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')" class="text-white">
+                <x-responsive-nav-link :href="route('admin.users.index')" :active="request()->routeIs('admin.users.*')">
                     {{ __('Manajemen User') }}
                 </x-responsive-nav-link>
                 
-                <x-responsive-nav-link :href="route('admin.divisions.index')" :active="request()->routeIs('admin.divisions.*')" class="text-white">
+                <x-responsive-nav-link :href="route('admin.divisions.index')" :active="request()->routeIs('admin.divisions.*')">
                     {{ __('Manajemen Divisi') }}
                 </x-responsive-nav-link>
                 
-                <x-responsive-nav-link :href="route('admin.holidays.index')" :active="request()->routeIs('admin.holidays.*')" class="text-white">
+                <x-responsive-nav-link :href="route('admin.holidays.index')" :active="request()->routeIs('admin.holidays.*')">
                     {{ __('Hari Libur') }}
                 </x-responsive-nav-link>
             @endif
 
-            {{-- MENU VERIFIKASI UNTUK KETUA DIVISI & HRD (MOBILE) --}}
             @if(Auth::user()->role == 'ketua_divisi' || Auth::user()->role == 'hrd')
-                <x-responsive-nav-link :href="route('leave-verifications.index')" :active="request()->routeIs('leave-verifications.*')" class="text-white">
+                <x-responsive-nav-link :href="route('leave-verifications.index')" :active="request()->routeIs('leave-verifications.*')">
                     {{ __('Verifikasi Cuti') }}
                 </x-responsive-nav-link>
             @endif
 
-            {{-- MENU RIWAYAT SAYA HANYA UNTUK KARYAWAN & KETUA DIVISI (MOBILE) --}}
             @if(Auth::user()->role == 'karyawan' || Auth::user()->role == 'ketua_divisi')
-                <x-responsive-nav-link :href="route('leave-applications.index')" :active="request()->routeIs('leave-applications.index')" class="text-white">
+                <x-responsive-nav-link :href="route('leave-applications.index')" :active="request()->routeIs('leave-applications.index')">
                     {{ __('Riwayat Cuti') }}
                 </x-responsive-nav-link>
             @endif
+        </div>
+
+        <div class="pt-4 pb-1 border-t border-blue-700/50">
+            <div class="px-4">
+                <div class="font-medium text-base text-white">{{ Auth::user()->name }}</div>
+                <div class="font-medium text-sm text-blue-200">{{ Auth::user()->email }}</div>
+            </div>
+
+            <div class="mt-3 space-y-1">
+                <x-responsive-nav-link :href="route('profile.edit')" class="text-blue-100 hover:text-gray-950 hover:bg-blue-700">
+                    {{ __('Profile') }}
+                </x-responsive-nav-link>
+
+                <form method="POST" action="{{ route('logout') }}">
+                    @csrf
+
+                    <x-responsive-nav-link :href="route('logout')"
+                            onclick="event.preventDefault();
+                                        this.closest('form').submit();" class="text-red-300 hover:text-red-100 hover:bg-red-900/30">
+                        {{ __('Log Out') }}
+                    </x-responsive-nav-link>
+                </form>
+            </div>
         </div>
     </div>
 </nav>

@@ -1,9 +1,7 @@
-{{-- MULTIPLE ACTION TOOLBAR --}}
 @if($pendingApplications->count() > 0)
 <div id="bulk-toolbar" class="mt-6 pt-6 border-t border-gray-100 hidden">
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div class="flex items-center gap-3">
-            {{-- Checkbox di sisi kiri --}}
             <div class="flex items-center gap-2 bg-blue-50 px-3 py-2 rounded-lg border border-blue-200">
                 <input type="checkbox" id="select-all" class="w-4 h-4 text-blue-600 bg-white border-gray-300 rounded focus:ring-blue-500">
                 <label for="select-all" class="text-sm font-medium text-gray-700 whitespace-nowrap">Pilih Semua</label>
@@ -24,6 +22,8 @@
                 </svg>
                 @if(Auth::user()->role == 'hrd')
                     Approve Selected
+                @elseif(Auth::user()->role == 'ketua_divisi')
+                    Approve Selected
                 @else
                     Setujui Selected
                 @endif
@@ -36,6 +36,8 @@
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
                 </svg>
                 @if(Auth::user()->role == 'hrd')
+                    Reject Selected
+                @elseif(Auth::user()->role == 'ketua_divisi')
                     Reject Selected
                 @else
                     Tolak Selected

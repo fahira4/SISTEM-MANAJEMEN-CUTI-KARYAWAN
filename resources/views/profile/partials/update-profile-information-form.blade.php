@@ -3,7 +3,6 @@
         @csrf
         @method('patch')
 
-        {{-- FOTO PROFIL --}}
         <div class="bg-gray-50 rounded-xl p-4 border border-gray-200">
             <div class="flex items-center justify-between mb-3">
                 <label class="text-sm font-medium text-gray-700">Foto Profil</label>
@@ -11,7 +10,6 @@
             </div>
             
             <div class="flex items-center gap-4">
-                {{-- Preview Foto --}}
                 <div class="shrink-0 relative">
                     @if($user->profile_photo_path)
                         <img class="h-20 w-20 object-cover rounded-2xl border-2 border-white shadow-md" 
@@ -24,7 +22,6 @@
                     @endif
                 </div>
 
-                {{-- Input File --}}
                 <div class="flex-1">
                     <label class="block cursor-pointer">
                         <span class="sr-only">Pilih foto profil</span>
@@ -41,9 +38,8 @@
             </div>
         </div>
 
-        {{-- GRID FORM --}}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {{-- NAMA LENGKAP --}}
+           
             <div>
                 <x-input-label for="name" :value="__('Nama Lengkap')" class="text-sm font-medium text-gray-700 mb-2" />
                 <x-text-input id="name" name="name" type="text" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" 
@@ -51,7 +47,6 @@
                 <x-input-error class="mt-1" :messages="$errors->get('name')" />
             </div>
 
-            {{-- EMAIL --}}
             <div>
                 <x-input-label for="email" :value="__('Email')" class="text-sm font-medium text-gray-700 mb-2" />
                 <x-text-input id="email" name="email" type="email" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" 
@@ -75,7 +70,6 @@
                 @endif
             </div>
 
-            {{-- NOMOR TELEPON --}}
             <div>
                 <x-input-label for="phone_number" :value="__('Nomor Telepon')" class="text-sm font-medium text-gray-700 mb-2" />
                 <x-text-input id="phone_number" name="phone_number" type="text" class="block w-full rounded-lg border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500" 
@@ -83,7 +77,6 @@
                 <x-input-error class="mt-1" :messages="$errors->get('phone_number')" />
             </div>
 
-            {{-- ROLE (Read-only) --}}
             <div>
                 <x-input-label for="role" :value="__('Role')" class="text-sm font-medium text-gray-700 mb-2" />
                 <div class="relative">
@@ -99,7 +92,6 @@
             </div>
         </div>
 
-        {{-- ALAMAT --}}
         <div>
             <x-input-label for="address" :value="__('Alamat Lengkap')" class="text-sm font-medium text-gray-700 mb-2" />
             <textarea id="address" name="address" rows="3" 
@@ -108,7 +100,6 @@
             <x-input-error class="mt-1" :messages="$errors->get('address')" />
         </div>
 
-        {{-- TOMBOL SIMPAN --}}
         <div class="flex items-center justify-between pt-4 border-t border-gray-200">
             <div class="flex items-center space-x-3">
                 <x-primary-button class="rounded-lg px-6 py-2.5">

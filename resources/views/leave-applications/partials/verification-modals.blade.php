@@ -1,4 +1,3 @@
-{{-- MODAL APPROVE --}}
 <div id="approveModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeApproveModal()"></div>
     <div class="fixed inset-0 z-10 overflow-y-auto">
@@ -47,7 +46,6 @@
     </div>
 </div>
 
-{{-- MODAL REJECT --}}
 <div id="rejectModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeRejectModal()"></div>
     <div class="fixed inset-0 z-10 overflow-y-auto">
@@ -105,7 +103,6 @@
     </div>
 </div>
 
-{{-- MODAL BULK APPROVE --}}
 <div id="bulkApproveModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeBulkApproveModal()"></div>
     <div class="fixed inset-0 z-10 overflow-y-auto">
@@ -155,7 +152,6 @@
     </div>
 </div>
 
-{{-- MODAL BULK REJECT --}}
 <div id="bulkRejectModal" class="fixed inset-0 z-50 hidden" aria-labelledby="modal-title" role="dialog" aria-modal="true">
     <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" onclick="closeBulkRejectModal()"></div>
     <div class="fixed inset-0 z-10 overflow-y-auto">

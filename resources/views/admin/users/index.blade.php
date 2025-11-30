@@ -1,9 +1,6 @@
 <x-app-layout>
-    {{-- ================================================== --}}
-    {{-- 1. HERO SECTION & GLASS CARD --}}
-    {{-- ================================================== --}}
     <div class="relative bg-blue-900 min-h-[40vh] overflow-hidden">
-        {{-- Background Pattern Halus --}}
+        
         <div class="absolute inset-0 opacity-10">
             <svg class="h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="none">
                 <path d="M0 100 C 20 0 50 0 100 100 Z" fill="white" />
@@ -11,7 +8,7 @@
         </div>
 
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-14 pb-24">
-            {{-- Header Text --}}
+            
             <div class="flex flex-col md:flex-row justify-between items-center mb-6">
                 <div class="text-white">
                     <h2 class="text-4xl font-bold tracking-tight">Manajemen Pengguna</h2>
@@ -36,7 +33,6 @@
                 </div>
             </div>
 
-            {{-- Alert Messages --}}
             @if (session('success'))
                 <div class="mb-6 bg-emerald-500/20 border border-emerald-500/30 text-white px-4 py-2 rounded-lg backdrop-blur-md flex items-center text-sm shadow-sm animate-fade-in-down">
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
@@ -53,17 +49,13 @@
         </div>
     </div>
 
-{{-- ================================================== --}}
-{{-- 2. FILTER & SORTING SECTION --}}
-{{-- ================================================== --}}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-20 pb-8 relative z-10">
     <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden border-b-4 border-b-orange-500">
-        {{-- Form Wrapper --}}
+        
         <form method="GET" action="{{ route('admin.users.index') }}" id="filterForm">
             <div class="p-6">
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
                     
-                    {{-- Filter Card --}}
                     <div class="bg-gray-50 p-5 border border-gray-200 rounded-lg flex flex-col">
                         <h4 class="font-bold text-gray-800 mb-4 flex items-center text-lg">
                             <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -72,7 +64,7 @@
                             Filter Data Pengguna
                         </h4>
                         <div class="grid grid-cols-1 gap-4 flex-1">
-                            <!-- Filter Role -->
+                            
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Role</label>
                                 <select name="role" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 transition duration-200">
@@ -84,7 +76,6 @@
                                 </select>
                             </div>
 
-                            <!-- Filter Status Aktif -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Status</label>
                                 <select name="active_status" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 transition duration-200">
@@ -94,7 +85,6 @@
                                 </select>
                             </div>
 
-                            <!-- Filter Divisi -->
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Divisi</label>
                                 <select name="division_id" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 transition duration-200">
@@ -106,8 +96,7 @@
                                     @endforeach
                                 </select>
                             </div>
-
-                            <!-- Filter Masa Kerja -->
+                            
                             <div>
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Masa Kerja</label>
                                 <select name="employment_period" class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500 transition duration-200">
@@ -122,7 +111,6 @@
                         </div>
                     </div>
 
-                    {{-- Sort Card --}}
                     <div class="bg-gray-50 p-5 border border-gray-200 rounded-lg flex flex-col">
                         <h4 class="font-bold text-gray-800 mb-4 flex items-center text-lg">
                             <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,9 +120,8 @@
                         </h4>
                         
                         <div class="space-y-4 flex-1">
-                            <!-- Sorting Options Grid -->
                             <div class="grid grid-cols-1 gap-3">
-                                <!-- Nama -->
+                               
                                 <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-white transition duration-150 bg-white">
                                     <label class="flex items-center space-x-3 cursor-pointer flex-1">
                                         <input type="checkbox" name="sort_fields[]" value="name" 
@@ -149,7 +136,6 @@
                                     </select>
                                 </div>
 
-                                <!-- Tanggal Bergabung -->
                                 <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-white transition duration-150 bg-white">
                                     <label class="flex items-center space-x-3 cursor-pointer flex-1">
                                         <input type="checkbox" name="sort_fields[]" value="join_date" 
@@ -164,7 +150,6 @@
                                     </select>
                                 </div>
 
-                                <!-- Divisi -->
                                 <div class="flex items-center justify-between p-3 border border-gray-200 rounded-lg hover:bg-white transition duration-150 bg-white">
                                     <label class="flex items-center space-x-3 cursor-pointer flex-1">
                                         <input type="checkbox" name="sort_fields[]" value="division" 
@@ -180,7 +165,6 @@
                                 </div>
                             </div>
 
-                            <!-- Info Text -->
                             <div class="bg-blue-50 border border-blue-200 rounded-lg p-3 mt-auto">
                                 <div class="flex items-start">
                                     <svg class="w-4 h-4 text-blue-600 mt-0.5 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,7 +175,6 @@
                             </div>
                         </div>
 
-                        <!-- Action Buttons -->
                         <div class="flex gap-3 pt-4 mt-4 border-t border-gray-200">
                             <button type="submit" class="flex-1 bg-blue-600 text-white px-4 py-3 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition duration-200 ease-in-out font-medium flex items-center justify-center gap-2">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
@@ -209,12 +192,9 @@
     </div>
 </div>
 
-   {{-- ================================================== --}}
-{{-- 3. TABLE SECTION --}}
-{{-- ================================================== --}}
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12 mt-8">
     <div class="bg-white rounded-xl shadow-lg border border-gray-200 overflow-hidden">
-        {{-- Table Header dengan Background Biru --}}
+        
         <div class="bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-4">
             <div class="flex items-center justify-between">
                 <h4 class="font-bold text-white text-lg flex items-center gap-2">
@@ -229,7 +209,6 @@
             </div>
         </div>
 
-        {{-- Table Content --}}
         <div class="overflow-x-auto">
             <table class="min-w-full divide-y divide-gray-200">
                 <thead>
@@ -273,7 +252,7 @@
                         <tr class="hover:bg-blue-50/30 transition-all duration-200 group border-b border-gray-100 last:border-b-0">
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <div class="flex items-center">
-                                    {{-- Avatar dengan Profile Photo --}}
+                                    
                                     <div class="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-blue-600 flex items-center justify-center text-sm font-bold mr-3 group-hover:scale-110 transition-transform shadow-sm overflow-hidden border-2 border-white">
                                         @if ($user->profile_photo_path)
                                             <img src="{{ asset('storage/' . $user->profile_photo_path) }}" 
@@ -341,9 +320,6 @@
                                 <div class="text-sm font-medium {{ $user->months_of_work < 12 ? 'text-amber-600' : 'text-emerald-600' }}">
                                     {{ $user->employment_period }}
                                 </div>
-                                <div class="text-xs text-gray-400 mt-1">
-                                    {{ $user->months_of_work }} bulan
-                                </div>
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap">
                                 <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold 
@@ -354,7 +330,7 @@
                             </td>
                             <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                 <div class="flex justify-end space-x-2">
-                                    <!-- TOMBOL EDIT -->
+
                                     @if($user->role !== 'admin')
                                         <a href="{{ route('admin.users.edit', $user->id) }}" 
                                            class="text-blue-600 hover:text-blue-900 px-3 py-2 rounded-lg hover:bg-blue-50 transition duration-200 flex items-center gap-2 text-xs font-medium border border-blue-200 bg-white shadow-sm">
@@ -380,7 +356,6 @@
                                         </span>
                                     @endif
                                     
-                                    <!-- TOMBOL DELETE -->
                                     @if($user->id != auth()->id() && in_array($user->role, ['karyawan', 'ketua_divisi']))
                                         <form action="{{ route('admin.users.destroy', $user->id) }}" method="POST" class="inline-block">
                                             @csrf
@@ -428,7 +403,6 @@
             </table>
         </div>
 
-        {{-- Pagination --}}
         @if($users->hasPages())
             <div class="px-6 py-4 border-t border-gray-200 bg-gray-50/50">
                 {{ $users->withQueryString()->links() }}
@@ -437,27 +411,23 @@
     </div>
 </div>
 
-    <!-- JavaScript untuk Multi-Sorting -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const sortCheckboxes = document.querySelectorAll('input[name="sort_fields[]"]');
         const resetSortBtn = document.querySelector('a[href="{{ route('admin.users.index') }}"]');
 
-        // Enable/disable select based on checkbox state
         sortCheckboxes.forEach(checkbox => {
             checkbox.addEventListener('change', function() {
                 const parentDiv = this.closest('.flex.items-center.justify-between');
                 const select = parentDiv.querySelector('select');
                 select.disabled = !this.checked;
                 
-                // Reset select value when unchecked
                 if (!this.checked) {
                     select.value = 'asc';
                 }
             });
         });
 
-        // Initialize disabled state on page load
         sortCheckboxes.forEach(checkbox => {
             if (!checkbox.checked) {
                 const parentDiv = checkbox.closest('.flex.items-center.justify-between');

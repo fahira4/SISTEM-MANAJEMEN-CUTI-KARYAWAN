@@ -1,17 +1,13 @@
 <x-app-layout>
-    {{-- HEADER BIRU UNTUK SEMUA ROLE --}}
     @include('leave-applications.partials.verification-header')
 
     <div class="py-8 bg-gray-50 min-h-screen">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pb-12">
             
-            {{-- CARD STATS & FILTER UNTUK SEMUA ROLE --}}
             @include('leave-applications.partials.verification-stats')
 
-            {{-- BULK ACTION TOOLBAR --}}
             @include('leave-applications.partials.verification-bulk-toolbar')
 
-            {{-- APPLICATION CARDS GRID --}}
             @if($pendingApplications->count() > 0)
                 <div class="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6 mt-6" id="applications-grid">
                     @foreach($pendingApplications as $application)
@@ -19,7 +15,6 @@
                     @endforeach
                 </div>
             @else
-                {{-- EMPTY STATE --}}
                 <div class="bg-white rounded-xl shadow-sm border border-gray-200 p-12 text-center mt-6">
                     <div class="max-w-md mx-auto">
                         <div class="w-24 h-24 mx-auto mb-6 bg-blue-50 rounded-full flex items-center justify-center">
@@ -44,8 +39,7 @@
         </div>
     </div>
 
-    {{-- MODALS --}}
     @include('leave-applications.partials.verification-modals')
-    {{-- SCRIPTS --}}
+    
     @include('leave-applications.partials.verification-scripts')
 </x-app-layout>

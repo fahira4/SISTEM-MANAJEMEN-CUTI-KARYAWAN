@@ -13,13 +13,11 @@ class HolidayController extends Controller
 {
 public function index(Request $request)
 {
-    $year = $request->get('year', 'all'); // ✅ UBAH DEFAULT KE 'all'
+    $year = $request->get('year', 'all');
     
     if ($year === 'all') {
-        // ✅ TAMPILKAN SEMUA DATA TANPA FILTER
         $holidays = Holiday::orderBy('date')->get();
     } else {
-        // ✅ FILTER BERDASARKAN TAHUN
         $holidays = Holiday::forYear($year)
                         ->orderBy('date')
                         ->get()
@@ -37,7 +35,6 @@ public function index(Request $request)
                             ->orderBy('year', 'desc')
                             ->pluck('year');
 
-    // ✅ TAMBAHKAN OPTION "Semua Tahun"
     $availableYears->prepend('all');
     
     if (!$availableYears->contains(date('Y'))) {
@@ -117,7 +114,6 @@ public function index(Request $request)
 public function showImportForm()
 {
     try {
-        // ✅ GUNAKAN SERVICE REAL UNTUK AVAILABLE YEARS
         $apiService = new \App\Services\GoogleCalendarService();
         $availableYears = $apiService->getAvailableYears();
         
@@ -134,7 +130,6 @@ public function showImportForm()
         
     } catch (\Exception $e) {
         \Log::error('Error in showImportForm: ' . $e->getMessage());
-        // Fallback jika service error
         $availableYears = [2023, 2024, 2025];
         return view('admin.holidays.import', compact('availableYears'))
                 ->with('warning', 'Google Calendar service sedang tidak tersedia: ' . $e->getMessage());
@@ -149,18 +144,16 @@ public function importFromGoogleCalendar(Request $request)
     ]);
 
     try {
-        // Gunakan Service Google Calendar
         $apiService = new \App\Services\GoogleCalendarService();
         
         \Log::info('Starting Google Calendar import...');
         
-        // Ambil data dari Google
         if ($request->import_type === 'specific_year' && $request->year) {
             $holidays = $apiService->getHolidays($request->year);
             $successMessage = "Data hari libur tahun {$request->year}";
             \Log::info("Importing specific year: {$request->year}");
         } else {
-            $holidays = $apiService->getHolidays(); // All years
+            $holidays = $apiService->getHolidays(); 
             $successMessage = "Semua data hari libur yang tersedia";
             \Log::info("Importing all years");
         }
@@ -172,22 +165,15 @@ public function importFromGoogleCalendar(Request $request)
         }
 
         $importedCount = 0;
-        $skippedCount = 0; // Counter untuk data yang di-skip (duplikat)
-
+        $skippedCount = 0;
         foreach ($holidays as $index => $holidayData) {
             
-            // ✅ PERBAIKAN LOGIKA (OPSI A):
-            // Cek database HANYA berdasarkan TANGGAL.
-            // Kita tidak peduli namanya beda (Inggris/Indo), kalau tanggal sudah ada isinya, kita anggap itu duplikat.
             $existing = Holiday::where('date', $holidayData['date'])->first();
 
             if ($existing) {
-                // 🛑 SKIP: Tanggal ini sudah ada liburnya.
-                // Abaikan data baru agar tidak menimpa data lama atau membuat duplikat.
                 $skippedCount++;
                 \Log::info("Skipped (Duplicate Date): " . $holidayData['date'] . " - " . $holidayData['name']);
             } else {
-                // ✅ CREATE: Tanggal ini belum ada, buat baru.
                 Holiday::create([
                     'name' => $holidayData['name'],
                     'date' => $holidayData['date'],
@@ -200,7 +186,6 @@ public function importFromGoogleCalendar(Request $request)
             }
         }
 
-        // Pesan Sukses
         $message = "✅ {$successMessage} selesai diproses! ";
         $message .= "({$importedCount} baru ditambahkan, {$skippedCount} duplikat diabaikan)";
         

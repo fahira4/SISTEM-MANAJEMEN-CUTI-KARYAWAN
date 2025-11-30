@@ -10,7 +10,6 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
 
-                    {{-- Header dengan Tombol Kembali --}}
                     <div class="flex justify-between items-center mb-6">
                         <div>
                             <h3 class="text-lg font-medium text-gray-900">
@@ -30,7 +29,6 @@
                         </a>
                     </div>
 
-                    {{-- Pesan Sukses/Error --}}
                     @if (session('success'))
                         <div class="mb-6 p-4 bg-green-100 text-green-700 rounded-lg border border-green-200">
                             <div class="flex items-center">
@@ -69,7 +67,6 @@
                         </div>
                     @endif
 
-                    {{-- Status Alert --}}
                     @php
                         $statusConfig = [
                             'pending' => [
@@ -125,11 +122,8 @@
                         </div>
                     </div>
 
-                    {{-- Informasi Pengajuan --}}
                     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
-                        {{-- Kolom 1: Data Pemohon & Detail Cuti --}}
                         <div class="space-y-6">
-                            {{-- Card: Informasi Pemohon --}}
                             <div class="bg-gray-50 p-4 rounded-lg border">
                                 <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
                                     <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -157,7 +151,6 @@
                                 </div>
                             </div>
 
-                            {{-- Card: Detail Cuti --}}
                             <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
                                 <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
                                     <svg class="w-5 h-5 mr-2 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -191,9 +184,7 @@
                             </div>
                         </div>
 
-                        {{-- Kolom 2: Informasi Tambahan --}}
                         <div class="space-y-6">
-                            {{-- Card: Alasan & Kontak --}}
                             <div class="bg-white p-4 rounded-lg border">
                                 <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
                                     <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -217,7 +208,6 @@
                                 </div>
                             </div>
 
-                            {{-- Card: Lampiran & Status --}}
                             <div class="bg-white p-4 rounded-lg border">
                                 <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
                                     <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -247,8 +237,6 @@
                             </div>
                         </div>
                     </div>
-
-                    {{-- Timeline Approval --}}
                     <div class="mb-8">
                         <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
                             <svg class="w-5 h-5 mr-2 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -258,7 +246,6 @@
                         </h3>
                         <div class="bg-gray-50 p-4 rounded-lg border">
                             <div class="space-y-4">
-                                {{-- Step 1: Pengajuan --}}
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-sm font-bold">
                                         1
@@ -270,7 +257,6 @@
                                     </div>
                                 </div>
 
-                                {{-- Step 2: Persetujuan Ketua Divisi --}}
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 w-8 h-8 
                                         @if($application->leader_approval_at) bg-green-500
@@ -302,7 +288,6 @@
                                     </div>
                                 </div>
 
-                                {{-- Step 3: Persetujuan HRD --}}
                                 <div class="flex items-center">
                                     <div class="flex-shrink-0 w-8 h-8 
                                         @if($application->hrd_approval_at) bg-green-500
@@ -339,8 +324,6 @@
                             </div>
                         </div>
                     </div>
-
-                    {{-- Actions Section --}}
                     @if(($application->status == 'pending' && auth()->user()->role == 'ketua_divisi') || 
                         ($application->status == 'approved_by_leader' && auth()->user()->role == 'hrd'))
                     <div class="border-t pt-6">
@@ -353,7 +336,6 @@
                         </h3>
                         
                         <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                            {{-- Approve Form --}}
                             <div class="bg-green-50 p-4 rounded-lg border border-green-200">
                                 <h4 class="text-lg font-medium text-green-800 mb-3 flex items-center">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -388,7 +370,6 @@
                                 </form>
                             </div>
 
-                            {{-- Reject Form --}}
                             <div class="bg-red-50 p-4 rounded-lg border border-red-200">
                                 <h4 class="text-lg font-medium text-red-800 mb-3 flex items-center">
                                     <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
