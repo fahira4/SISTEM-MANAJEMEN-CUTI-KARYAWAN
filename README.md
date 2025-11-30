@@ -233,4 +233,4 @@ Teman-teman dapat menjalankan proyek ini dengan langkah berikut:
 
 -----
 
-*Project ini dengan cinta dan stress untuk memenuhi standar spesifikasi tugas "Individual Project 8".*
+*Project ini dibuat dengan cinta dan stress untuk memenuhi standar spesifikasi tugas "Individual Project 8".*
